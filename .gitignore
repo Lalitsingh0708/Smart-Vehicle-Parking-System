@@ -31,6 +31,7 @@ yarn-error.log*
 *.pem
 
 # IDE / Antigravity scratch files
+.agents/
 .vscode
 .idea
 *.suo
@@ -38,3 +39,4 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
