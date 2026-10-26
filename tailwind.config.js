@@ -20,6 +20,30 @@ module.exports = {
           800: "#0a2b25",
           900: "#061b17",
         },
+        // User requested architectural palette
+        ice: {
+          DEFAULT: "#DDE3E8",
+          light: "#F3F6F8",
+          subtle: "#E7ECF0",
+          border: "#CCD5DC",
+          dark: "#BDC9D2",
+        },
+        aubergine: {
+          DEFAULT: "#3A0F34",
+          deep: "#260722",
+          surface: "#471540",
+          card: "#330C2E",
+          muted: "#75456E",
+          border: "#541D4C",
+        },
+        marigold: {
+          DEFAULT: "#EAAA00",
+          hover: "#D69700",
+          glow: "#FFB800",
+          light: "#FFF8E6",
+          border: "#F5C247",
+          dark: "#A67800",
+        },
         surface: {
           bg: "#F7F8FA",
           card: "#FFFFFF",

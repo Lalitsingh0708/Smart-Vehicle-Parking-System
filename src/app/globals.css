@@ -31,3 +31,25 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #98a2b3;
 }
+
+/* Architectural Column Grid lines */
+.architectural-grid {
+  background-size: calc(100% / 10) 100%;
+  background-image: linear-gradient(to right, rgba(204, 213, 220, 0.45) 1px, transparent 1px);
+}
+
+.architectural-grid-dark {
+  background-size: calc(100% / 10) 100%;
+  background-image: linear-gradient(to right, rgba(84, 29, 76, 0.35) 1px, transparent 1px);
+}
+
+/* Sliced column transition */
+.col-slice {
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid rgba(204, 213, 220, 0.6);
+}
+
+.col-slice:last-child {
+  border-right: none;
+}
