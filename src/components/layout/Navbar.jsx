@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { MapPin, User, LogOut, Menu, X, Shield, Clock } from "lucide-react";
+import { MapPin, User, LogOut, Menu, X, Shield, Clock, Bike } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function Navbar() {
@@ -102,6 +102,16 @@ export default function Navbar() {
                 >
                   Dashboard
                 </Link>
+
+                {(currentUser.role === "attendant" || currentUser.role === "admin") && (
+                  <Link
+                    href="/attendant"
+                    className="text-sm font-medium text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 flex items-center space-x-1 hover:bg-emerald-100"
+                  >
+                    <Bike className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>Attendant Booth</span>
+                  </Link>
+                )}
 
                 {currentUser.role === "admin" && (
                   <Link
@@ -217,6 +227,15 @@ export default function Navbar() {
               >
                 Security Incidents
               </Link>
+              {(currentUser.role === "attendant" || currentUser.role === "admin") && (
+                <Link
+                  href="/attendant"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 text-base font-medium text-emerald-800 bg-emerald-50 rounded-md"
+                >
+                  Attendant Booth
+                </Link>
+              )}
               {currentUser.role === "admin" && (
                 <Link
                   href="/admin"

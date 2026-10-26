@@ -31,6 +31,7 @@ export async function verifySessionToken(token) {
       name: payload.name,
       email: payload.email,
       role: payload.role,
+      assignedLotId: payload.assignedLotId || null,
     };
   } catch {
     return null;

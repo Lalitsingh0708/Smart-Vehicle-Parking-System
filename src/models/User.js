@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "attendant", "admin"],
       default: "user",
       index: true,
     },
@@ -29,6 +29,11 @@ const UserSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: "",
+    },
+    assignedLotId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ParkingLot",
+      index: true,
     },
   },
   {

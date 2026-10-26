@@ -15,16 +15,18 @@ export async function GET() {
     await connectDB();
 
     const [
+      allLots,
       totalLots,
       totalSlots,
       slotStatusCounts,
-      activeSessions,
+      activeSessionsList,
       totalUsers,
       openIncidents,
       lotOccupancy,
       incidentsByCategory,
       recentSessions,
     ] = await Promise.all([
+      ParkingLot.find({ active: true }).lean(),
       ParkingLot.countDocuments(),
       ParkingSlot.countDocuments(),
       ParkingSlot.aggregate([
@@ -35,10 +37,14 @@ export async function GET() {
           },
         },
       ]),
-      ParkingSession.countDocuments({ status: "active" }),
+      ParkingSession.find({ status: "active" })
+        .populate("vehicleId", "registrationNumber make model vehicleType")
+        .populate("parkingSlotId", "zone slotNumber")
+        .populate("parkingLotId", "name city")
+        .populate("userId", "name phoneNumber")
+        .lean(),
       User.countDocuments({ role: "user" }),
       SecurityIncident.countDocuments({ status: { $in: ["open", "under_review"] } }),
-      // Utilization by lot
       ParkingSlot.aggregate([
         {
           $group: {
@@ -46,17 +52,7 @@ export async function GET() {
             count: { $sum: 1 },
           },
         },
-        {
-          $lookup: {
-            from: "parkinglots",
-            localField: "_id.lotId",
-            foreignField: "_id",
-            as: "lot",
-          },
-        },
-        { $unwind: "$lot" },
       ]),
-      // Incidents by category
       SecurityIncident.aggregate([
         {
           $group: {
@@ -65,7 +61,6 @@ export async function GET() {
           },
         },
       ]),
-      // Entries in last 7 days
       ParkingSession.find({
         entryTime: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
       })
@@ -86,7 +81,65 @@ export async function GET() {
       }
     });
 
-    // Process daily entries/exits for the last 7 days
+    // Map active parked vehicles by lotId
+    const activeVehiclesByLot = {};
+    activeSessionsList.forEach((s) => {
+      const lid = s.parkingLotId?._id?.toString();
+      if (!lid) return;
+      if (!activeVehiclesByLot[lid]) activeVehiclesByLot[lid] = [];
+      activeVehiclesByLot[lid].push({
+        registrationNumber: s.vehicleId?.registrationNumber || "N/A",
+        model: `${s.vehicleId?.make || ""} ${s.vehicleId?.model || ""}`,
+        slot: `${s.parkingSlotId?.zone || ""} ${s.parkingSlotId?.slotNumber || ""}`,
+        rider: s.userId?.name || "Rider",
+        riderPhone: s.userId?.phoneNumber || "N/A",
+        entryTime: s.entryTime,
+      });
+    });
+
+    // Map slot counts by lot
+    const lotSlotStats = {};
+    lotOccupancy.forEach((item) => {
+      const lid = item._id.lotId?.toString();
+      if (!lid) return;
+      if (!lotSlotStats[lid]) {
+        lotSlotStats[lid] = { total: 0, available: 0, occupied: 0, reserved: 0, blocked: 0 };
+      }
+      lotSlotStats[lid].total += item.count;
+      lotSlotStats[lid][item._id.status] = item.count;
+    });
+
+    // Detailed facility breakdown for Administrator overview
+    const facilitiesBreakdown = allLots.map((lot) => {
+      const lid = lot._id.toString();
+      const stats = lotSlotStats[lid] || { total: lot.totalCapacity, available: lot.totalCapacity, occupied: 0 };
+      const parked = activeVehiclesByLot[lid] || [];
+      const total = stats.total || lot.totalCapacity;
+      const occupied = stats.occupied || 0;
+      const available = stats.available || 0;
+      const percent = total > 0 ? Math.round((occupied / total) * 100) : 0;
+
+      let status = "Normal";
+      if (occupied === 0) status = "Vacant";
+      else if (available === 0) status = "Full";
+      else if (percent >= 80) status = "Near Capacity";
+
+      return {
+        id: lot._id,
+        name: lot.name,
+        city: lot.city,
+        address: lot.address,
+        hourlyRate: lot.hourlyRate,
+        totalSlots: total,
+        availableSlots: available,
+        occupiedSlots: occupied,
+        occupancyPercent: percent,
+        status,
+        parkedVehicles: parked,
+      };
+    });
+
+    // Daily activity
     const dailyMap = {};
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
@@ -106,22 +159,11 @@ export async function GET() {
 
     const dailyActivity = Object.values(dailyMap);
 
-    // Format lot occupancy
-    const lotMap = {};
-    lotOccupancy.forEach((item) => {
-      const lotName = item.lot.name;
-      if (!lotMap[lotName]) {
-        lotMap[lotName] = { name: lotName, available: 0, occupied: 0, total: 0 };
-      }
-      lotMap[lotName].total += item.count;
-      if (item._id.status === "available") {
-        lotMap[lotName].available += item.count;
-      } else if (item._id.status === "occupied") {
-        lotMap[lotName].occupied += item.count;
-      }
-    });
-
-    const utilizationByLot = Object.values(lotMap);
+    const utilizationByLot = facilitiesBreakdown.map((f) => ({
+      name: f.name,
+      available: f.availableSlots,
+      occupied: f.occupiedSlots,
+    }));
 
     const categoryLabels = {
       theft: "Suspected Theft",
@@ -145,10 +187,11 @@ export async function GET() {
         occupiedSlots: slotStats.occupied,
         reservedSlots: slotStats.reserved,
         blockedSlots: slotStats.blocked,
-        activeSessions,
+        activeSessions: activeSessionsList.length,
         totalUsers,
         openIncidents,
       },
+      facilitiesBreakdown,
       charts: {
         dailyActivity,
         utilizationByLot,

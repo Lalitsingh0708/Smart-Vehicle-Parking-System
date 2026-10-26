@@ -41,6 +41,7 @@ export async function POST(request) {
       name: user.name,
       email: user.email,
       role: user.role,
+      assignedLotId: user.assignedLotId ? user.assignedLotId.toString() : null,
     };
 
     await setSessionCookie(sessionPayload);
@@ -52,6 +53,7 @@ export async function POST(request) {
         name: user.name,
         email: user.email,
         role: user.role,
+        assignedLotId: user.assignedLotId || null,
       },
     });
   } catch (error) {

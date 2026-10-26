@@ -15,7 +15,10 @@ export async function GET() {
     }
 
     await connectDB();
-    const user = await User.findById(session.userId).select("-passwordHash");
+    const user = await User.findById(session.userId)
+      .select("-passwordHash")
+      .populate("assignedLotId");
+
     if (!user) {
       return NextResponse.json({ authenticated: false, user: null }, { status: 200 });
     }
@@ -37,6 +40,7 @@ export async function GET() {
         email: user.email,
         role: user.role,
         phoneNumber: user.phoneNumber,
+        assignedLotId: user.assignedLotId || null,
       },
       activeSession: activeSession || null,
     });

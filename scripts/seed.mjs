@@ -7,8 +7,9 @@ const UserSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
   passwordHash: String,
-  role: { type: String, enum: ["user", "admin"], default: "user" },
+  role: { type: String, enum: ["user", "attendant", "admin"], default: "user" },
   phoneNumber: String,
+  assignedLotId: mongoose.Schema.Types.ObjectId,
 }, { timestamps: true });
 
 const VehicleSchema = new mongoose.Schema({
@@ -182,6 +183,17 @@ async function seed() {
 
     const lots = await ParkingLot.insertMany(lotsData);
 
+    // Create Parking Attendant account assigned to Connaught Place Bay 1
+    const attendantPasswordHash = await bcrypt.hash("Attendant@1234", 10);
+    await User.create({
+      name: "Ramesh Kumar (Booth Attendant)",
+      email: "attendant@example.com",
+      passwordHash: attendantPasswordHash,
+      role: "attendant",
+      phoneNumber: "9822334455",
+      assignedLotId: lots[0]._id,
+    });
+
     // 4. Create Slots for each lot
     console.log("Generating numbered parking slots across zones...");
     const allSlots = [];
@@ -262,8 +274,9 @@ async function seed() {
 
     console.log("Database seeded successfully!");
     console.log("-----------------------------------------");
-    console.log("Admin account:  admin@example.com / Admin@1234");
-    console.log("Rider account:  rider@example.com / Rider@1234");
+    console.log("1. Rider Account:     rider@example.com     / Rider@1234      -> /dashboard");
+    console.log("2. Attendant Account: attendant@example.com / Attendant@1234  -> /attendant");
+    console.log("3. Admin Account:     admin@example.com     / Admin@1234      -> /admin");
     console.log("-----------------------------------------");
     process.exit(0);
   } catch (error) {

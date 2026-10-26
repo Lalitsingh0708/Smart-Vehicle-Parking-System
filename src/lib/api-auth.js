@@ -14,15 +14,21 @@ export async function authenticateApiRequest(requiredRole = null) {
     };
   }
 
-  if (requiredRole && session.role !== requiredRole) {
-    return {
-      authenticated: false,
-      response: NextResponse.json(
-        { error: "Forbidden: You do not have permission to perform this action" },
-        { status: 403 }
-      ),
-      session,
-    };
+  if (requiredRole) {
+    const allowed = Array.isArray(requiredRole)
+      ? requiredRole.includes(session.role)
+      : session.role === requiredRole;
+
+    if (!allowed) {
+      return {
+        authenticated: false,
+        response: NextResponse.json(
+          { error: "Forbidden: You do not have permission to perform this action" },
+          { status: 403 }
+        ),
+        session,
+      };
+    }
   }
 
   return {
