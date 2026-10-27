@@ -1,7 +1,9 @@
 "use client";
-
+// Import Next.js navigation utilities
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+
+// Import icons used in the sidebar navigation
 import {
   LayoutDashboard,
   Search,
