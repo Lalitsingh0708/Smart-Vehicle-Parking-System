@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import ParkingLot from "@/models/ParkingLot";
 import ParkingSlot from "@/models/ParkingSlot";
 import ParkingSession from "@/models/ParkingSession";
+import SecurityIncident from "@/models/SecurityIncident";
 import User from "@/models/User";
 import { authenticateApiRequest } from "@/lib/api-auth";
 
@@ -56,9 +57,18 @@ export async function GET(request) {
     };
 
     const availableSlots = [];
+    const zoneMap = {};
     slots.forEach((s) => {
       if (stats[s.status] !== undefined) {
         stats[s.status]++;
+      }
+      const z = s.zone || "Zone A";
+      if (!zoneMap[z]) {
+        zoneMap[z] = { zone: z, total: 0, available: 0, occupied: 0, reserved: 0, blocked: 0 };
+      }
+      zoneMap[z].total++;
+      if (zoneMap[z][s.status] !== undefined) {
+        zoneMap[z][s.status]++;
       }
       if (s.status === "available") {
         availableSlots.push({
@@ -68,6 +78,7 @@ export async function GET(request) {
         });
       }
     });
+    const zoneStats = Object.values(zoneMap);
 
     // Get all currently parked active sessions in this lot
     const activeSessions = await ParkingSession.find({
@@ -111,7 +122,7 @@ export async function GET(request) {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
-    const [todayEntries, todayExits] = await Promise.all([
+    const [todayEntries, todayExits, openIncidentsCount] = await Promise.all([
       ParkingSession.countDocuments({
         parkingLotId: lotId,
         entryTime: { $gte: startOfToday },
@@ -120,6 +131,10 @@ export async function GET(request) {
         parkingLotId: lotId,
         exitTime: { $gte: startOfToday },
         status: "completed",
+      }),
+      SecurityIncident.countDocuments({
+        parkingLotId: lotId,
+        status: { $in: ["open", "under_review"] },
       }),
     ]);
 
@@ -136,12 +151,20 @@ export async function GET(request) {
         openingHours: lot.openingHours,
       },
       stats,
+      zoneStats,
       todaySummary: {
         entries: todayEntries,
         exits: todayExits,
       },
+      openIncidentsCount,
       parkedVehicles,
       availableSlots,
+      allSlots: slots.map((s) => ({
+        id: s._id,
+        zone: s.zone,
+        slotNumber: s.slotNumber,
+        status: s.status,
+      })),
       allLots,
       lastUpdated: new Date().toISOString(),
     });
