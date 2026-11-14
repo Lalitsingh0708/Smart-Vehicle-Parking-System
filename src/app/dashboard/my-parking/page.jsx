@@ -47,8 +47,8 @@ export default function MyParkingPage() {
   }, []);
 
   // Handler for clicking the bay arrow or Navigate button
-  const handleOpenMapAndRoute = () => {
-    setHudViewMode("map");
+  const handleOpenMapAndRoute = (mode = "radar") => {
+    setHudViewMode(mode);
 
     if (typeof window !== "undefined" && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -70,7 +70,11 @@ export default function MyParkingPage() {
     if (hudEl) {
       hudEl.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    toast.success("Opened campus satellite map with live route to your bay!");
+    if (mode === "radar") {
+      toast.success("Live GPS Radar active! Pointing towards your designated bay.");
+    } else {
+      toast.success("Opened campus satellite map with live route to your bay!");
+    }
   };
 
   const fetchActive = () => {
@@ -279,14 +283,23 @@ export default function MyParkingPage() {
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center space-x-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={handleOpenMapAndRoute}
-            className="px-3.5 py-2 bg-[#FAF6EE] hover:bg-[#EFE7D8] text-[#176B5B] border border-[#D9C49D] text-xs font-bold rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"
+            onClick={() => handleOpenMapAndRoute("radar")}
+            className="px-4 py-2 bg-[#176B5B] hover:bg-[#125448] text-white border border-[#D4AF37]/50 text-xs font-bold rounded-xl transition-all shadow-sm flex items-center space-x-2 cursor-pointer group"
+          >
+            <Compass className="w-4 h-4 text-[#D4AF37] group-hover:rotate-45 transition-transform" />
+            <span>Take Me to My Bike (Live Radar)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleOpenMapAndRoute("map")}
+            className="px-3 py-2 bg-[#FAF6EE] hover:bg-[#EFE7D8] text-[#176B5B] border border-[#D9C49D] text-xs font-bold rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"
           >
             <Navigation className="w-3.5 h-3.5 text-[#176B5B]" />
-            <span>Navigate to Bay</span>
+            <span>Walking Map</span>
           </button>
 
           <button

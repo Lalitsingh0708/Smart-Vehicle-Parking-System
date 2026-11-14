@@ -151,16 +151,16 @@ export default function TicketCard({ session, onOpenMap }) {
             role="button"
             tabIndex={0}
             onClick={() => {
-              if (onOpenMap) onOpenMap();
+              if (onOpenMap) onOpenMap("radar");
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                if (onOpenMap) onOpenMap();
+                if (onOpenMap) onOpenMap("radar");
               }
             }}
             className="bg-[#0C2720] hover:bg-[#10332A] rounded-xl p-4 border-2 border-[#D4AF37]/35 hover:border-[#D4AF37] grid grid-cols-12 gap-3 items-center shadow-xs cursor-pointer group transition-all select-none"
-            title="Click on the bay arrow to open campus satellite map and live route"
+            title="Click to activate Live GPS Radar navigation to your bay"
           >
             {/* Zone */}
             <div className="col-span-5 text-left">
@@ -175,7 +175,7 @@ export default function TicketCard({ session, onOpenMap }) {
             {/* Direction Arrow Button (Animated on hover) */}
             <div className="col-span-2 flex items-center justify-center">
               <div className="w-8 h-8 rounded-full bg-[#176B5B] border-2 border-[#D4AF37] flex items-center justify-center text-[#D4AF37] group-hover:bg-[#D4AF37] group-hover:text-[#12382F] group-hover:scale-115 shadow-sm transition-all">
-                <ArrowRight className="w-4 h-4 stroke-[3]" />
+                <Compass className="w-4 h-4 stroke-[2.5]" />
               </div>
             </div>
 
@@ -190,14 +190,15 @@ export default function TicketCard({ session, onOpenMap }) {
             </div>
           </div>
 
-          {/* Interactive Hint */}
-          <div
-            onClick={() => onOpenMap && onOpenMap()}
-            className="flex items-center justify-center gap-1.5 mt-2.5 text-[10px] font-bold text-[#E8DCCB]/80 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+          {/* Interactive Radar Trigger CTA */}
+          <button
+            type="button"
+            onClick={() => onOpenMap && onOpenMap("radar")}
+            className="w-full mt-3 py-2.5 px-4 bg-[#176B5B] hover:bg-[#125448] text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer border border-[#D4AF37]/40 group"
           >
-            <Navigation className="w-3 h-3 text-[#D4AF37]" />
-            <span>Click arrow to view live route on map</span>
-          </div>
+            <Compass className="w-4 h-4 text-[#D4AF37] group-hover:rotate-45 transition-transform" />
+            <span>TAKE ME TO MY BIKE (LIVE RADAR)</span>
+          </button>
         </div>
 
         {/* ═════════════════════════════════════════════════════════
