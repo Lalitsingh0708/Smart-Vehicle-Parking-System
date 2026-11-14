@@ -30,7 +30,7 @@ export default async function DashboardLayout({ children }) {
       <Navbar />
       <div className="flex-1 flex max-w-7xl w-full mx-auto">
         <DashboardSidebar user={session} isAdmin={false} />
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+        <main className="flex-1 min-w-0 p-4 sm:p-6 md:p-8 overflow-y-auto">
           {children}
         </main>
       </div>
