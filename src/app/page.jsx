@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Logo from "@/components/brand/Logo";
 import {
   Search,
@@ -13,13 +14,63 @@ import {
   Layers,
   Receipt,
   ShieldCheck,
-} from "lucide-react" ;
+  User,
+  LogOut,
+  ChevronDown,
+  Shield,
+} from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function HomePage() {
   const [lots, setLots] = useState([]);
   const [loadingLots, setLoadingLots] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+  const router = useRouter();
+
+  const fetchAuthUser = () => {
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          setCurrentUser(data.user);
+        } else {
+          setCurrentUser(null);
+        }
+      })
+      .catch(() => setCurrentUser(null));
+  };
+
+  useEffect(() => {
+    fetchAuthUser();
+
+    const handleFocus = () => fetchAuthUser();
+    const handleAuthChange = () => fetchAuthUser();
+
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("auth-changed", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("auth-changed", handleAuthChange);
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      setCurrentUser(null);
+      setUserDropdownOpen(false);
+      window.dispatchEvent(new Event("auth-changed"));
+      toast.success("Signed out successfully");
+      router.refresh();
+    } catch {
+      toast.error("Failed to sign out");
+    }
+  };
 
   useEffect(() => {
     fetch("/api/parking-lots")
@@ -29,7 +80,7 @@ export default function HomePage() {
       })
       .catch((err) => console.error("Error loading lots:", err))
       .finally(() => setLoadingLots(false));
-  }, [] ) ;
+  }, []);
 
   return (
     <div
@@ -319,12 +370,12 @@ export default function HomePage() {
             <Logo size={36} />
           </div>
 
-          {/* Navigation Links - BOLD, PREMIUM, HIGH VISIBILITY */}
+          {/* Navigation Links - Dynamic Auth Integration */}
           <nav
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "clamp(20px, 2.8vw, 44px)",
+              gap: "clamp(16px, 2.5vw, 40px)",
             }}
           >
             <Link
@@ -363,67 +414,109 @@ export default function HomePage() {
               Find Parking
             </Link>
 
-            <a
-              href="#how-it-works"
-              className="navbar-link-item"
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "13px",
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.14em",
-                color: "#2B0D28",
-                textDecoration: "none",
-                paddingBottom: "4px",
-                transition: "color 0.15s ease",
-              }}
-            >
-              How It Works
-            </a>
+            {currentUser ? (
+              <>
+                <Link
+                  href="/dashboard/my-parking"
+                  className="navbar-link-item"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "13px",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.14em",
+                    color: "#2B0D28",
+                    textDecoration: "none",
+                    paddingBottom: "4px",
+                    transition: "color 0.15s ease",
+                  }}
+                >
+                  My Parking
+                </Link>
 
-            <a
-              href="#features"
-              className="navbar-link-item"
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "13px",
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.14em",
-                color: "#2B0D28",
-                textDecoration: "none",
-                paddingBottom: "4px",
-                transition: "color 0.15s ease",
-              }}
-            >
-              Features
-            </a>
+                <Link
+                  href="/dashboard"
+                  className="navbar-link-item"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "13px",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.14em",
+                    color: "#2B0D28",
+                    textDecoration: "none",
+                    paddingBottom: "4px",
+                    transition: "color 0.15s ease",
+                  }}
+                >
+                  Dashboard
+                </Link>
+              </>
+            ) : (
+              <>
+                <a
+                  href="#how-it-works"
+                  className="navbar-link-item"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "13px",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.14em",
+                    color: "#2B0D28",
+                    textDecoration: "none",
+                    paddingBottom: "4px",
+                    transition: "color 0.15s ease",
+                  }}
+                >
+                  How It Works
+                </a>
 
-            <a
-              href="#facilities"
-              className="navbar-link-item"
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "13px",
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.14em",
-                color: "#2B0D28",
-                textDecoration: "none",
-                paddingBottom: "4px",
-                transition: "color 0.15s ease",
-              }}
-            >
-              About
-            </a>
+                <a
+                  href="#features"
+                  className="navbar-link-item"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "13px",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.14em",
+                    color: "#2B0D28",
+                    textDecoration: "none",
+                    paddingBottom: "4px",
+                    transition: "color 0.15s ease",
+                  }}
+                >
+                  Features
+                </a>
+
+                <a
+                  href="#facilities"
+                  className="navbar-link-item"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "13px",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.14em",
+                    color: "#2B0D28",
+                    textDecoration: "none",
+                    paddingBottom: "4px",
+                    transition: "color 0.15s ease",
+                  }}
+                >
+                  About
+                </a>
+              </>
+            )}
           </nav>
 
-          {/* Right Action Items: Search, Log In, Sign Up */}
+          {/* Right Action Items: Search, Log In / User Profile Pill */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "clamp(16px, 2vw, 28px)",
+              gap: "clamp(12px, 1.8vw, 24px)",
             }}
           >
             {/* Search Trigger */}
@@ -447,48 +540,310 @@ export default function HomePage() {
               <Search style={{ width: "20px", height: "20px", strokeWidth: 2.4 }} />
             </button>
 
-            {/* Log In */}
-            <Link
-              href="/login"
-              className="navbar-link-item"
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "13px",
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.14em",
-                color: "#2B0D28",
-                textDecoration: "none",
-                transition: "color 0.15s ease",
-              }}
-            >
-              Log In
-            </Link>
+            {currentUser ? (
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", position: "relative" }}>
+                {/* User Profile Pill */}
+                <div style={{ position: "relative" }}>
+                  <button
+                    type="button"
+                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      backgroundColor: "#FFFFFF",
+                      border: "1.5px solid #2B0D28",
+                      padding: "5px 12px 5px 6px",
+                      borderRadius: "10px",
+                      cursor: "pointer",
+                      boxShadow: "0 2px 8px rgba(43, 13, 40, 0.08)",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "8px",
+                        backgroundColor: "#2B0D28",
+                        color: "#5EE819",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "12px",
+                        fontWeight: 900,
+                        border: "1px solid #5EE819",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {currentUser.name?.[0]?.toUpperCase() || "U"}
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", textAlign: "left", lineHeight: 1.1 }}>
+                      <span
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontWeight: 900,
+                          fontSize: "12px",
+                          color: "#18212F",
+                          maxWidth: "140px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {currentUser.name}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "9.5px",
+                          fontWeight: 800,
+                          color: "#176B5B",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.08em",
+                          marginTop: "2px",
+                        }}
+                      >
+                        {currentUser.role === "admin"
+                          ? "Admin"
+                          : currentUser.role === "attendant"
+                          ? "Attendant"
+                          : "Rider"}
+                      </span>
+                    </div>
+                    <ChevronDown
+                      style={{
+                        width: "14px",
+                        height: "14px",
+                        color: "#2B0D28",
+                        transform: userDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                        transition: "transform 0.2s ease",
+                        flexShrink: 0,
+                      }}
+                    />
+                  </button>
 
-            {/* Sign Up CTA Button */}
-            <Link
-              href="/register"
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "10px 24px",
-                backgroundColor: "#5EE819",
-                color: "#111",
-                fontWeight: 900,
-                fontSize: "12px",
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                textDecoration: "none",
-                borderRadius: "3px",
-                boxShadow: "0 2px 10px rgba(94, 232, 25, 0.4)",
-                transition: "all 0.2s ease",
-              }}
-              className="navbar-signup-btn"
-            >
-              Sign Up
-            </Link>
+                  {/* Luxury Dropdown Menu */}
+                  {userDropdownOpen && (
+                    <>
+                      <div
+                        style={{ position: "fixed", inset: 0, zIndex: 40 }}
+                        onClick={() => setUserDropdownOpen(false)}
+                      />
+                      <div
+                        style={{
+                          position: "absolute",
+                          right: 0,
+                          top: "calc(100% + 8px)",
+                          width: "240px",
+                          backgroundColor: "#FFFFFF",
+                          border: "1.5px solid #2B0D28",
+                          borderRadius: "14px",
+                          boxShadow: "0 18px 36px rgba(43, 13, 40, 0.18)",
+                          zIndex: 50,
+                          padding: "10px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            padding: "8px 10px",
+                            backgroundColor: "#F7F8FA",
+                            borderRadius: "10px",
+                            border: "1px solid #E2E8F0",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <p style={{ fontSize: "12px", fontWeight: 900, color: "#18212F", margin: 0 }}>
+                            {currentUser.name}
+                          </p>
+                          <p style={{ fontSize: "10.5px", color: "#667085", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {currentUser.email}
+                          </p>
+                        </div>
+
+                        <Link
+                          href={currentUser.role === "admin" ? "/admin" : currentUser.role === "attendant" ? "/attendant" : "/dashboard"}
+                          onClick={() => setUserDropdownOpen(false)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "8px 10px",
+                            borderRadius: "8px",
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            color: "#18212F",
+                            textDecoration: "none",
+                            transition: "background 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F1F5F9")}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                        >
+                          <User style={{ width: "14px", height: "14px", color: "#176B5B" }} />
+                          <span>Go to Dashboard</span>
+                        </Link>
+
+                        <Link
+                          href="/dashboard/my-parking"
+                          onClick={() => setUserDropdownOpen(false)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "8px 10px",
+                            borderRadius: "8px",
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            color: "#18212F",
+                            textDecoration: "none",
+                            transition: "background 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F1F5F9")}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                        >
+                          <MapPin style={{ width: "14px", height: "14px", color: "#176B5B" }} />
+                          <span>My Active Parking</span>
+                        </Link>
+
+                        <Link
+                          href="/dashboard/profile"
+                          onClick={() => setUserDropdownOpen(false)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "8px 10px",
+                            borderRadius: "8px",
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            color: "#18212F",
+                            textDecoration: "none",
+                            transition: "background 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F1F5F9")}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                        >
+                          <Shield style={{ width: "14px", height: "14px", color: "#176B5B" }} />
+                          <span>Profile &amp; Settings</span>
+                        </Link>
+
+                        <div style={{ height: "1px", backgroundColor: "#E2E8F0", margin: "6px 0" }} />
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserDropdownOpen(false);
+                            handleLogout();
+                          }}
+                          style={{
+                            width: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "8px 10px",
+                            borderRadius: "8px",
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            color: "#DC2626",
+                            backgroundColor: "transparent",
+                            border: "none",
+                            cursor: "pointer",
+                            textAlign: "left",
+                            transition: "background 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#FEE2E2")}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                        >
+                          <LogOut style={{ width: "14px", height: "14px" }} />
+                          <span>Log Out</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Direct Log Out Button */}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "11px",
+                    fontWeight: 900,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.12em",
+                    color: "#2B0D28",
+                    backgroundColor: "transparent",
+                    border: "1.5px solid #2B0D28",
+                    padding: "7px 14px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#DC2626";
+                    e.currentTarget.style.borderColor = "#DC2626";
+                    e.currentTarget.style.color = "#FFFFFF";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.borderColor = "#2B0D28";
+                    e.currentTarget.style.color = "#2B0D28";
+                  }}
+                  title="Log Out"
+                >
+                  <LogOut style={{ width: "13px", height: "13px" }} />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Log In */}
+                <Link
+                  href="/login"
+                  className="navbar-link-item"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "13px",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.14em",
+                    color: "#2B0D28",
+                    textDecoration: "none",
+                    transition: "color 0.15s ease",
+                  }}
+                >
+                  Log In
+                </Link>
+
+                {/* Sign Up CTA Button */}
+                <Link
+                  href="/register"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "10px 24px",
+                    backgroundColor: "#5EE819",
+                    color: "#111",
+                    fontWeight: 900,
+                    fontSize: "12px",
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    textDecoration: "none",
+                    borderRadius: "3px",
+                    boxShadow: "0 2px 10px rgba(94, 232, 25, 0.4)",
+                    transition: "all 0.2s ease",
+                  }}
+                  className="navbar-signup-btn"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </header>
 
