@@ -87,7 +87,7 @@ export default function HomePage() {
       style={{
         minHeight: "100vh",
         width: "100%",
-        backgroundColor: "#DDE3E8",
+        backgroundColor: "#FAF7F2",
         color: "#18212F",
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         overflowX: "hidden",
@@ -1158,15 +1158,12 @@ export default function HomePage() {
       </section>
 
       {/* ═════════════════════════════════════════════════════════════════
-          HOW IT WORKS - 3 DEDICATED INTERFACES
-          1) Rider (Book slots, QR pass)
-          2) Gate Attendant (Number plate check-in / check-out)
-          3) Administrator (City overview, live counts, slot status)
+          HOW IT WORKS - 3 DEDICATED INTERFACES (Luxury Beige, Forest Green & Gold)
       ═════════════════════════════════════════════════════════════════ */}
       <section
         id="how-it-works"
         style={{
-          padding: "88px 36px",
+          padding: "96px 36px",
           maxWidth: "1320px",
           margin: "0 auto",
         }}
@@ -1178,6 +1175,10 @@ export default function HomePage() {
               alignItems: "center",
               gap: "8px",
               marginBottom: "12px",
+              backgroundColor: "#FAF6EE",
+              border: "1px solid #DFD1BD",
+              padding: "4px 14px",
+              borderRadius: "999px",
             }}
           >
             <span
@@ -1185,17 +1186,17 @@ export default function HomePage() {
                 width: "8px",
                 height: "8px",
                 borderRadius: "50%",
-                backgroundColor: "#5EE819",
+                backgroundColor: "#176B5B",
                 display: "inline-block",
               }}
             />
             <span
               style={{
                 fontSize: "11px",
-                fontWeight: 800,
+                fontWeight: 900,
                 textTransform: "uppercase",
-                letterSpacing: "0.22em",
-                color: "#2B0D28",
+                letterSpacing: "0.2em",
+                color: "#176B5B",
               }}
             >
               Complete Two-Wheeler Lifecycle
@@ -1204,8 +1205,8 @@ export default function HomePage() {
           <h2
             style={{
               fontWeight: 900,
-              fontSize: "clamp(30px, 4.2vw, 50px)",
-              color: "#2B0D28",
+              fontSize: "clamp(30px, 4.2vw, 48px)",
+              color: "#1C1815",
               letterSpacing: "-0.03em",
               textTransform: "uppercase",
               marginBottom: "14px",
@@ -1216,7 +1217,7 @@ export default function HomePage() {
           <p
             style={{
               fontSize: "14px",
-              color: "#263238",
+              color: "#706254",
               fontWeight: 500,
               maxWidth: "680px",
               margin: "0 auto",
@@ -1235,19 +1236,32 @@ export default function HomePage() {
             gap: "28px",
           }}
         >
-          {/* Card 1: Rider */}
+          {/* Card 1: Rider (Luxury White & Gold Card) */}
           <div
             className="card-interface"
             style={{
-              backgroundColor: "#fff",
-              border: "2px solid #BAC4CC",
+              backgroundColor: "#FFFFFF",
+              border: "1.5px solid #E2D9CC",
+              borderRadius: "24px",
               padding: "36px",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              boxShadow: "0 4px 16px rgba(0,0,0,0.04)",
+              boxShadow: "0 10px 30px rgba(28,24,21,0.05)",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: "4px",
+                backgroundColor: "#D4AF37",
+              }}
+            />
             <div>
               <div
                 style={{
@@ -1260,10 +1274,10 @@ export default function HomePage() {
                 <span
                   style={{
                     fontSize: "11px",
-                    fontWeight: 800,
+                    fontWeight: 900,
                     textTransform: "uppercase",
                     letterSpacing: "0.15em",
-                    color: "#2B0D28",
+                    color: "#176B5B",
                   }}
                 >
                   01 &bull; Rider
@@ -1271,36 +1285,43 @@ export default function HomePage() {
                 <span
                   style={{
                     padding: "4px 10px",
-                    backgroundColor: "#2B0D28",
-                    color: "#5EE819",
-                    fontSize: "10px",
+                    backgroundColor: "#FAF6EE",
+                    border: "1px solid #DFD1BD",
+                    color: "#176B5B",
+                    fontSize: "10.5px",
                     fontWeight: 800,
-                    letterSpacing: "0.1em",
+                    letterSpacing: "0.08em",
                     textTransform: "uppercase",
+                    borderRadius: "8px",
                   }}
                 >
                   Mobile &amp; Web
                 </span>
               </div>
+
               <div
                 style={{
                   width: "52px",
                   height: "52px",
-                  backgroundColor: "#2B0D28",
+                  backgroundColor: "#FAF6EE",
+                  border: "1px solid #DFD1BD",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   marginBottom: "22px",
-                  borderRadius: "2px",
+                  borderRadius: "14px",
+                  color: "#176B5B",
+                  boxShadow: "0 2px 8px rgba(23,107,91,0.1)",
                 }}
               >
-                <Bike style={{ width: "24px", height: "24px", color: "#5EE819" }} />
+                <Bike style={{ width: "26px", height: "26px", strokeWidth: 2.2 }} />
               </div>
+
               <h3
                 style={{
                   fontWeight: 900,
                   fontSize: "22px",
-                  color: "#2B0D28",
+                  color: "#1C1815",
                   letterSpacing: "-0.02em",
                   textTransform: "uppercase",
                   marginBottom: "12px",
@@ -1311,7 +1332,7 @@ export default function HomePage() {
               <p
                 style={{
                   fontSize: "13.5px",
-                  color: "#263238",
+                  color: "#706254",
                   fontWeight: 500,
                   lineHeight: 1.65,
                   marginBottom: "24px",
@@ -1321,11 +1342,12 @@ export default function HomePage() {
                 generate an encrypted QR pass, and save exact location markers to easily navigate
                 back.
               </p>
+
               <ul
                 style={{
                   listStyle: "none",
                   padding: 0,
-                  borderTop: "1.5px solid #BAC4CC",
+                  borderTop: "1px solid #F0EBE1",
                   paddingTop: "18px",
                   display: "flex",
                   flexDirection: "column",
@@ -1344,34 +1366,38 @@ export default function HomePage() {
                       alignItems: "center",
                       gap: "10px",
                       fontSize: "12.5px",
-                      color: "#18212F",
+                      color: "#1C1815",
                       fontWeight: 600,
                     }}
                   >
                     <CheckCircle
-                      style={{ width: "16px", height: "16px", color: "#5EE819", flexShrink: 0 }}
+                      style={{ width: "16px", height: "16px", color: "#176B5B", flexShrink: 0 }}
                     />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
-            <div style={{ paddingTop: "24px", borderTop: "1.5px solid #BAC4CC", marginTop: "24px" }}>
+
+            <div style={{ paddingTop: "24px", borderTop: "1px solid #F0EBE1", marginTop: "24px" }}>
               <Link
                 href="/dashboard"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "14px 18px",
-                  backgroundColor: "#2B0D28",
-                  color: "#fff",
-                  fontWeight: 800,
-                  fontSize: "11px",
+                  padding: "14px 20px",
+                  backgroundColor: "#176B5B",
+                  color: "#FFFFFF",
+                  fontWeight: 900,
+                  fontSize: "11.5px",
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
                   textDecoration: "none",
-                  borderRadius: "2px",
+                  borderRadius: "14px",
+                  border: "1px solid #115245",
+                  boxShadow: "0 4px 14px rgba(23,107,91,0.25)",
+                  transition: "all 0.15s ease",
                 }}
               >
                 <span>Open Rider Dashboard</span>
@@ -1380,17 +1406,20 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Card 2: Gate Attendant */}
+          {/* Card 2: Gate Attendant (Luxury Deep Forest Green & Royal Gold) */}
           <div
             className="card-interface"
             style={{
-              backgroundColor: "#1D0C1B",
-              border: "2px solid #1D0C1B",
+              backgroundColor: "#0F3830",
+              border: "1.5px solid #B08528",
+              borderRadius: "24px",
               padding: "36px",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
               position: "relative",
+              overflow: "hidden",
+              boxShadow: "0 14px 40px rgba(15,56,48,0.28)",
             }}
           >
             <div
@@ -1400,7 +1429,7 @@ export default function HomePage() {
                 left: 0,
                 right: 0,
                 height: "4px",
-                backgroundColor: "#5EE819",
+                backgroundColor: "#D4AF37",
               }}
             />
             <div>
@@ -1415,10 +1444,10 @@ export default function HomePage() {
                 <span
                   style={{
                     fontSize: "11px",
-                    fontWeight: 800,
+                    fontWeight: 900,
                     textTransform: "uppercase",
                     letterSpacing: "0.15em",
-                    color: "#5EE819",
+                    color: "#D4AF37",
                   }}
                 >
                   02 &bull; Gate Personnel
@@ -1426,35 +1455,41 @@ export default function HomePage() {
                 <span
                   style={{
                     padding: "4px 10px",
-                    backgroundColor: "#5EE819",
-                    color: "#111",
-                    fontSize: "10px",
+                    backgroundColor: "#D4AF37",
+                    color: "#0F3830",
+                    fontSize: "10.5px",
                     fontWeight: 900,
-                    letterSpacing: "0.1em",
+                    letterSpacing: "0.08em",
                     textTransform: "uppercase",
+                    borderRadius: "8px",
                   }}
                 >
                   Ground Station
                 </span>
               </div>
+
               <div
                 style={{
                   width: "52px",
                   height: "52px",
-                  backgroundColor: "#5EE819",
+                  backgroundColor: "#D4AF37",
+                  color: "#0F3830",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   marginBottom: "22px",
+                  borderRadius: "14px",
+                  boxShadow: "0 4px 16px rgba(212,175,55,0.3)",
                 }}
               >
-                <Receipt style={{ width: "24px", height: "24px", color: "#111" }} />
+                <Receipt style={{ width: "26px", height: "26px", strokeWidth: 2.2 }} />
               </div>
+
               <h3
                 style={{
                   fontWeight: 900,
                   fontSize: "22px",
-                  color: "#fff",
+                  color: "#FFFFFF",
                   letterSpacing: "-0.02em",
                   textTransform: "uppercase",
                   marginBottom: "12px",
@@ -1465,7 +1500,7 @@ export default function HomePage() {
               <p
                 style={{
                   fontSize: "13px",
-                  color: "rgba(204,213,220,0.85)",
+                  color: "#D6E4E0",
                   lineHeight: 1.65,
                   marginBottom: "24px",
                 }}
@@ -1474,11 +1509,12 @@ export default function HomePage() {
                 automatically assign vacant slots, maintain live parked records, and calculate
                 departure fees in ₹.
               </p>
+
               <ul
                 style={{
                   listStyle: "none",
                   padding: 0,
-                  borderTop: "1px solid #541D4C",
+                  borderTop: "1px solid rgba(212,175,55,0.25)",
                   paddingTop: "18px",
                   display: "flex",
                   flexDirection: "column",
@@ -1497,33 +1533,37 @@ export default function HomePage() {
                       alignItems: "center",
                       gap: "10px",
                       fontSize: "12px",
-                      color: "rgba(204,213,220,0.85)",
-                      fontWeight: 500,
+                      color: "#E2EBE8",
+                      fontWeight: 600,
                     }}
                   >
                     <CheckCircle
-                      style={{ width: "15px", height: "15px", color: "#5EE819", flexShrink: 0 }}
+                      style={{ width: "15px", height: "15px", color: "#D4AF37", flexShrink: 0 }}
                     />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
-            <div style={{ paddingTop: "24px", borderTop: "1px solid #541D4C", marginTop: "24px" }}>
+
+            <div style={{ paddingTop: "24px", borderTop: "1px solid rgba(212,175,55,0.25)", marginTop: "24px" }}>
               <Link
                 href="/attendant"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "14px 18px",
-                  backgroundColor: "#5EE819",
-                  color: "#111",
+                  padding: "14px 20px",
+                  backgroundColor: "#D4AF37",
+                  color: "#0F3830",
                   fontWeight: 900,
-                  fontSize: "11px",
+                  fontSize: "11.5px",
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
                   textDecoration: "none",
+                  borderRadius: "14px",
+                  boxShadow: "0 4px 18px rgba(212,175,55,0.35)",
+                  transition: "all 0.15s ease",
                 }}
               >
                 <span>Launch Booth Station</span>
@@ -1532,18 +1572,32 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Card 3: Administrator */}
+          {/* Card 3: Administrator (Luxury White & Forest Green Card) */}
           <div
             className="card-interface"
             style={{
-              backgroundColor: "#fff",
-              border: "2px solid #CDD5DC",
+              backgroundColor: "#FFFFFF",
+              border: "1.5px solid #E2D9CC",
+              borderRadius: "24px",
               padding: "36px",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
+              boxShadow: "0 10px 30px rgba(28,24,21,0.05)",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: "4px",
+                backgroundColor: "#176B5B",
+              }}
+            />
             <div>
               <div
                 style={{
@@ -1556,10 +1610,10 @@ export default function HomePage() {
                 <span
                   style={{
                     fontSize: "11px",
-                    fontWeight: 800,
+                    fontWeight: 900,
                     textTransform: "uppercase",
                     letterSpacing: "0.15em",
-                    color: "#2B0D28",
+                    color: "#176B5B",
                   }}
                 >
                   03 &bull; Oversight
@@ -1567,35 +1621,43 @@ export default function HomePage() {
                 <span
                   style={{
                     padding: "4px 10px",
-                    backgroundColor: "#2B0D28",
-                    color: "#5EE819",
-                    fontSize: "10px",
+                    backgroundColor: "#FAF6EE",
+                    border: "1px solid #DFD1BD",
+                    color: "#176B5B",
+                    fontSize: "10.5px",
                     fontWeight: 800,
-                    letterSpacing: "0.1em",
+                    letterSpacing: "0.08em",
                     textTransform: "uppercase",
+                    borderRadius: "8px",
                   }}
                 >
                   Admin Center
                 </span>
               </div>
+
               <div
                 style={{
                   width: "52px",
                   height: "52px",
-                  backgroundColor: "#2B0D28",
+                  backgroundColor: "#FAF6EE",
+                  border: "1px solid #DFD1BD",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   marginBottom: "22px",
+                  borderRadius: "14px",
+                  color: "#176B5B",
+                  boxShadow: "0 2px 8px rgba(23,107,91,0.1)",
                 }}
               >
-                <Layers style={{ width: "24px", height: "24px", color: "#5EE819" }} />
+                <Layers style={{ width: "26px", height: "26px", strokeWidth: 2.2 }} />
               </div>
+
               <h3
                 style={{
                   fontWeight: 900,
                   fontSize: "22px",
-                  color: "#2B0D28",
+                  color: "#1C1815",
                   letterSpacing: "-0.02em",
                   textTransform: "uppercase",
                   marginBottom: "12px",
@@ -1606,7 +1668,7 @@ export default function HomePage() {
               <p
                 style={{
                   fontSize: "13px",
-                  color: "rgba(43,13,40,0.72)",
+                  color: "#706254",
                   lineHeight: 1.65,
                   marginBottom: "24px",
                 }}
@@ -1615,11 +1677,12 @@ export default function HomePage() {
                 verify which parking lots have vacancies or are full, adjust slot status, and review
                 security incidents.
               </p>
+
               <ul
                 style={{
                   listStyle: "none",
                   padding: 0,
-                  borderTop: "1px solid #CDD5DC",
+                  borderTop: "1px solid #F0EBE1",
                   paddingTop: "18px",
                   display: "flex",
                   flexDirection: "column",
@@ -1638,33 +1701,38 @@ export default function HomePage() {
                       alignItems: "center",
                       gap: "10px",
                       fontSize: "12px",
-                      color: "#2B0D28",
-                      fontWeight: 500,
+                      color: "#1C1815",
+                      fontWeight: 600,
                     }}
                   >
                     <CheckCircle
-                      style={{ width: "15px", height: "15px", color: "#5EE819", flexShrink: 0 }}
+                      style={{ width: "15px", height: "15px", color: "#176B5B", flexShrink: 0 }}
                     />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
-            <div style={{ paddingTop: "24px", borderTop: "1px solid #CDD5DC", marginTop: "24px" }}>
+
+            <div style={{ paddingTop: "24px", borderTop: "1px solid #F0EBE1", marginTop: "24px" }}>
               <Link
                 href="/admin"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "14px 18px",
-                  backgroundColor: "#2B0D28",
-                  color: "#fff",
-                  fontWeight: 800,
-                  fontSize: "11px",
+                  padding: "14px 20px",
+                  backgroundColor: "#176B5B",
+                  color: "#FFFFFF",
+                  fontWeight: 900,
+                  fontSize: "11.5px",
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
                   textDecoration: "none",
+                  borderRadius: "14px",
+                  border: "1px solid #115245",
+                  boxShadow: "0 4px 14px rgba(23,107,91,0.25)",
+                  transition: "all 0.15s ease",
                 }}
               >
                 <span>Open Command Center</span>
@@ -1676,15 +1744,15 @@ export default function HomePage() {
       </section>
 
       {/* ═════════════════════════════════════════════════════════════════
-          ACTIVE PARKING LOTS (Live MongoDB Backend Data)
+          ACTIVE PARKING LOTS (Warm Cream Luxury Canvas)
       ═════════════════════════════════════════════════════════════════ */}
       <section
         id="facilities"
         style={{
-          padding: "88px 36px",
-          backgroundColor: "#D4DAE0",
-          borderTop: "1px solid #CDD5DC",
-          borderBottom: "1px solid #CDD5DC",
+          padding: "96px 36px",
+          backgroundColor: "#FAF6EE",
+          borderTop: "1px solid #E2D9CC",
+          borderBottom: "1px solid #E2D9CC",
         }}
       >
         <div style={{ maxWidth: "1320px", margin: "0 auto" }}>
@@ -1701,21 +1769,25 @@ export default function HomePage() {
             <div>
               <div
                 style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
                   fontSize: "11px",
-                  fontWeight: 800,
+                  fontWeight: 900,
                   textTransform: "uppercase",
-                  letterSpacing: "0.22em",
-                  color: "rgba(43,13,40,0.6)",
+                  letterSpacing: "0.2em",
+                  color: "#176B5B",
                   marginBottom: "8px",
                 }}
               >
-                Database Records &bull; Two-Wheeler Facilities
+                <span className="w-2 h-2 rounded-full bg-[#D4AF37]" />
+                <span>Database Records &bull; Two-Wheeler Facilities</span>
               </div>
               <h2
                 style={{
                   fontWeight: 900,
                   fontSize: "clamp(26px, 3.5vw, 42px)",
-                  color: "#2B0D28",
+                  color: "#1C1815",
                   letterSpacing: "-0.02em",
                   textTransform: "uppercase",
                   marginBottom: "8px",
@@ -1723,24 +1795,29 @@ export default function HomePage() {
               >
                 Active Parking Lots
               </h2>
-              <p style={{ fontSize: "13px", color: "rgba(43,13,40,0.68)" }}>
+              <p style={{ fontSize: "13px", color: "#706254", fontWeight: 500 }}>
                 Verified locations across India with slot capacity and rates in Indian Rupees.
               </p>
             </div>
+
             <Link
               href="/parking"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                fontSize: "11px",
-                fontWeight: 800,
+                fontSize: "11.5px",
+                fontWeight: 900,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
-                color: "#2B0D28",
+                color: "#176B5B",
+                backgroundColor: "#FFFFFF",
                 textDecoration: "none",
-                padding: "8px 16px",
-                border: "1.5px solid #2B0D28",
+                padding: "10px 20px",
+                border: "1.5px solid #176B5B",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(23,107,91,0.12)",
+                transition: "all 0.15s ease",
               }}
             >
               Explore All on Map <ArrowRight style={{ width: "15px", height: "15px" }} />
@@ -1750,7 +1827,7 @@ export default function HomePage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
               gap: "24px",
             }}
           >
@@ -1761,7 +1838,7 @@ export default function HomePage() {
                   textAlign: "center",
                   padding: "48px",
                   fontSize: "12px",
-                  color: "rgba(43,13,40,0.5)",
+                  color: "#706254",
                   fontFamily: "monospace",
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
@@ -1776,7 +1853,7 @@ export default function HomePage() {
                   textAlign: "center",
                   padding: "48px",
                   fontSize: "12px",
-                  color: "rgba(43,13,40,0.5)",
+                  color: "#706254",
                   fontFamily: "monospace",
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
@@ -1790,12 +1867,14 @@ export default function HomePage() {
                   key={lot._id || lot.id || `lot-${idx}`}
                   className="lot-card"
                   style={{
-                    backgroundColor: "#fff",
-                    border: "2px solid #CDD5DC",
+                    backgroundColor: "#FFFFFF",
+                    border: "1.5px solid #E2D9CC",
+                    borderRadius: "20px",
                     padding: "26px",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
+                    boxShadow: "0 6px 24px rgba(28,24,21,0.05)",
                   }}
                 >
                   <div>
@@ -1809,26 +1888,39 @@ export default function HomePage() {
                     >
                       <span
                         style={{
-                          padding: "3px 8px",
-                          backgroundColor: "#2B0D28",
-                          color: "#5EE819",
-                          fontSize: "10px",
+                          padding: "4px 10px",
+                          backgroundColor: "#FAF6EE",
+                          border: "1px solid #DFD1BD",
+                          color: "#176B5B",
+                          fontSize: "10.5px",
                           fontWeight: 800,
-                          letterSpacing: "0.1em",
+                          letterSpacing: "0.08em",
                           textTransform: "uppercase",
+                          borderRadius: "8px",
                         }}
                       >
                         {lot.city}
                       </span>
-                      <span style={{ fontWeight: 900, fontSize: "14px", color: "#2B0D28" }}>
+                      <span
+                        style={{
+                          fontWeight: 900,
+                          fontSize: "14px",
+                          color: "#176B5B",
+                          backgroundColor: "#EAF4F1",
+                          border: "1px solid #BDE0D8",
+                          padding: "3px 10px",
+                          borderRadius: "10px",
+                        }}
+                      >
                         ₹{lot.hourlyRate}/hr
                       </span>
                     </div>
+
                     <h3
                       style={{
                         fontWeight: 900,
-                        fontSize: "16px",
-                        color: "#2B0D28",
+                        fontSize: "17px",
+                        color: "#1C1815",
                         marginBottom: "8px",
                         lineHeight: 1.3,
                       }}
@@ -1838,7 +1930,7 @@ export default function HomePage() {
                     <p
                       style={{
                         fontSize: "12px",
-                        color: "rgba(43,13,40,0.65)",
+                        color: "#706254",
                         marginBottom: "18px",
                         lineHeight: 1.5,
                         display: "-webkit-box",
@@ -1849,9 +1941,10 @@ export default function HomePage() {
                     >
                       {lot.address}
                     </p>
+
                     <div
                       style={{
-                        borderTop: "1px solid #CDD5DC",
+                        borderTop: "1px solid #F0EBE1",
                         paddingTop: "12px",
                         display: "flex",
                         flexDirection: "column",
@@ -1863,12 +1956,11 @@ export default function HomePage() {
                           display: "flex",
                           justifyContent: "space-between",
                           fontSize: "11px",
-                          fontFamily: "monospace",
-                          color: "rgba(43,13,40,0.55)",
+                          color: "#706254",
                         }}
                       >
                         <span>Total Bays:</span>
-                        <span style={{ fontWeight: 800, color: "#2B0D28" }}>
+                        <span style={{ fontWeight: 800, color: "#1C1815" }}>
                           {lot.totalCapacity} slots
                         </span>
                       </div>
@@ -1877,17 +1969,17 @@ export default function HomePage() {
                           display: "flex",
                           justifyContent: "space-between",
                           fontSize: "11px",
-                          fontFamily: "monospace",
-                          color: "rgba(43,13,40,0.55)",
+                          color: "#706254",
                         }}
                       >
                         <span>Hours:</span>
-                        <span style={{ fontWeight: 800, color: "#2B0D28" }}>
+                        <span style={{ fontWeight: 800, color: "#1C1815" }}>
                           {lot.openingHours}
                         </span>
                       </div>
                     </div>
                   </div>
+
                   <div style={{ marginTop: "22px" }}>
                     <Link
                       href={`/parking/${lot._id}`}
@@ -1896,17 +1988,21 @@ export default function HomePage() {
                         alignItems: "center",
                         justifyContent: "center",
                         gap: "8px",
-                        padding: "11px",
-                        backgroundColor: "#2B0D28",
-                        color: "#fff",
-                        fontWeight: 800,
-                        fontSize: "11px",
+                        padding: "12px",
+                        backgroundColor: "#176B5B",
+                        color: "#FFFFFF",
+                        fontWeight: 900,
+                        fontSize: "11.5px",
                         letterSpacing: "0.1em",
                         textTransform: "uppercase",
                         textDecoration: "none",
+                        borderRadius: "12px",
+                        border: "1px solid #115245",
+                        boxShadow: "0 3px 12px rgba(23,107,91,0.22)",
+                        transition: "all 0.15s ease",
                       }}
                     >
-                      <MapPin style={{ width: "13px", height: "13px", color: "#5EE819" }} />
+                      <MapPin style={{ width: "14px", height: "14px", color: "#D4AF37" }} />
                       Select This Bay
                     </Link>
                   </div>
@@ -1918,12 +2014,12 @@ export default function HomePage() {
       </section>
 
       {/* ═════════════════════════════════════════════════════════════════
-          FEATURES & INFRASTRUCTURE GUARANTEES
+          FEATURES & INFRASTRUCTURE GUARANTEES (Luxury White & Beige)
       ═════════════════════════════════════════════════════════════════ */}
       <section
         id="features"
         style={{
-          padding: "88px 36px",
+          padding: "96px 36px",
           maxWidth: "1320px",
           margin: "0 auto",
         }}
@@ -1940,50 +2036,64 @@ export default function HomePage() {
               Icon: ShieldCheck,
               title: "Atomic Allocation",
               desc: "Every slot claim uses MongoDB atomic operations. Duplicate bookings are impossible even during peak traffic.",
-              green: false,
             },
             {
               Icon: MapPin,
               title: "Pin-Drop Location",
               desc: "Save your bike's exact parked coordinates. Never wander through crowded two-wheeler parking structures again.",
-              green: true,
             },
             {
               Icon: Receipt,
               title: "Accurate ₹ Billing",
               desc: "Fair hourly tariffs computed precisely from entry to checkout timestamp. Digital receipt issued at gate clearance.",
-              green: false,
             },
             {
               Icon: Layers,
               title: "Three Unified Roles",
               desc: "Riders, booth attendants, and city administrators all interact with the same synchronized dataset in real time.",
-              green: true,
             },
-          ].map(({ Icon, title, desc, green }) => (
+          ].map(({ Icon, title, desc }) => (
             <div
               key={title}
               style={{
-                padding: "28px",
-                backgroundColor: "#fff",
-                border: "2px solid #CDD5DC",
+                padding: "32px 28px",
+                backgroundColor: "#FFFFFF",
+                border: "1.5px solid #E2D9CC",
+                borderRadius: "20px",
+                boxShadow: "0 6px 24px rgba(28,24,21,0.04)",
               }}
             >
-              <Icon
+              <div
                 style={{
-                  width: "28px",
-                  height: "28px",
-                  color: green ? "#5EE819" : "#2B0D28",
-                  marginBottom: "16px",
+                  width: "48px",
+                  height: "48px",
+                  borderRadius: "14px",
+                  backgroundColor: "#FAF6EE",
+                  border: "1px solid #DFD1BD",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "18px",
+                  color: "#176B5B",
+                  boxShadow: "0 2px 8px rgba(23,107,91,0.1)",
                 }}
-              />
+              >
+                <Icon
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    strokeWidth: 2.2,
+                  }}
+                />
+              </div>
+
               <h4
                 style={{
                   fontWeight: 900,
-                  fontSize: "14px",
+                  fontSize: "15px",
                   textTransform: "uppercase",
-                  color: "#2B0D28",
-                  letterSpacing: "0.05em",
+                  color: "#1C1815",
+                  letterSpacing: "0.04em",
                   marginBottom: "8px",
                 }}
               >
@@ -1991,8 +2101,8 @@ export default function HomePage() {
               </h4>
               <p
                 style={{
-                  fontSize: "12px",
-                  color: "rgba(43,13,40,0.72)",
+                  fontSize: "12.5px",
+                  color: "#706254",
                   lineHeight: 1.65,
                 }}
               >
@@ -2004,13 +2114,13 @@ export default function HomePage() {
       </section>
 
       {/* ═════════════════════════════════════════════════════════════════
-          FOOTER
+          LUXURY ROYAL FOREST GREEN & GOLD FOOTER
       ═════════════════════════════════════════════════════════════════ */}
       <footer
         style={{
-          backgroundColor: "#1D0C1B",
-          color: "#CCD5DC",
-          borderTop: "1px solid #541D4C",
+          backgroundColor: "#0B2E26",
+          color: "#E2EBE8",
+          borderTop: "2px solid #D4AF37",
         }}
       >
         <div style={{ maxWidth: "1320px", margin: "0 auto", padding: "64px 36px 40px" }}>
@@ -2023,8 +2133,8 @@ export default function HomePage() {
             }}
           >
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <Logo variant="dark" size={34} />
-              <p style={{ fontSize: "12px", color: "rgba(204,213,220,0.75)", lineHeight: 1.65 }}>
+              <Logo size={38} />
+              <p style={{ fontSize: "12.5px", color: "#C5D8D3", lineHeight: 1.65, maxWidth: "300px" }}>
                 Smart Two-Wheeler Parking Management System for riders, gate attendants, and city
                 administrators across India.
               </p>
@@ -2034,10 +2144,10 @@ export default function HomePage() {
               <h5
                 style={{
                   fontSize: "11px",
-                  fontWeight: 800,
+                  fontWeight: 900,
                   textTransform: "uppercase",
                   letterSpacing: "0.22em",
-                  color: "#5EE819",
+                  color: "#D4AF37",
                   marginBottom: "14px",
                 }}
               >
@@ -2061,10 +2171,13 @@ export default function HomePage() {
                     <Link
                       href={href}
                       style={{
-                        fontSize: "12px",
-                        color: "rgba(204,213,220,0.75)",
+                        fontSize: "12.5px",
+                        color: "#C5D8D3",
                         textDecoration: "none",
+                        transition: "color 0.15s ease",
                       }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = "#D4AF37")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "#C5D8D3")}
                     >
                       {label}
                     </Link>
@@ -2077,10 +2190,10 @@ export default function HomePage() {
               <h5
                 style={{
                   fontSize: "11px",
-                  fontWeight: 800,
+                  fontWeight: 900,
                   textTransform: "uppercase",
                   letterSpacing: "0.22em",
-                  color: "#5EE819",
+                  color: "#D4AF37",
                   marginBottom: "14px",
                 }}
               >
@@ -2092,14 +2205,15 @@ export default function HomePage() {
                   display: "flex",
                   flexDirection: "column",
                   gap: "10px",
-                  fontSize: "12px",
-                  color: "rgba(204,213,220,0.75)",
+                  fontSize: "12.5px",
+                  color: "#C5D8D3",
                 }}
               >
                 <li>Connaught Place, New Delhi</li>
                 <li>Koramangala 5th Block, Bengaluru</li>
                 <li>Bandra West Station, Mumbai</li>
                 <li>Shivaji Nagar Metro, Pune</li>
+                <li>Phagwara (LPU Campus)</li>
               </ul>
             </div>
 
@@ -2107,10 +2221,10 @@ export default function HomePage() {
               <h5
                 style={{
                   fontSize: "11px",
-                  fontWeight: 800,
+                  fontWeight: 900,
                   textTransform: "uppercase",
                   letterSpacing: "0.22em",
-                  color: "#5EE819",
+                  color: "#D4AF37",
                   marginBottom: "14px",
                 }}
               >
@@ -2120,14 +2234,25 @@ export default function HomePage() {
                 href="/login"
                 style={{
                   display: "inline-block",
-                  padding: "11px 20px",
-                  backgroundColor: "#5EE819",
-                  color: "#111",
+                  padding: "12px 22px",
+                  backgroundColor: "#D4AF37",
+                  color: "#0B2E26",
                   fontWeight: 900,
-                  fontSize: "11px",
-                  letterSpacing: "0.1em",
+                  fontSize: "11.5px",
+                  letterSpacing: "0.12em",
                   textTransform: "uppercase",
                   textDecoration: "none",
+                  borderRadius: "12px",
+                  boxShadow: "0 4px 18px rgba(212,175,55,0.35)",
+                  transition: "all 0.15s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#F3E5AB";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#D4AF37";
+                  e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
                 Sign In to Account &rarr;
@@ -2138,22 +2263,21 @@ export default function HomePage() {
           <div
             style={{
               paddingTop: "24px",
-              borderTop: "1px solid #541D4C",
+              borderTop: "1px solid rgba(212,175,55,0.25)",
               display: "flex",
               flexWrap: "wrap",
               justifyContent: "space-between",
               alignItems: "center",
               gap: "12px",
               fontSize: "11px",
-              fontFamily: "monospace",
-              color: "rgba(204,213,220,0.5)",
+              color: "#A0B5AF",
             }}
           >
             <span>&copy; {new Date().getFullYear()} Where Did I Park? All rights reserved.</span>
             <div style={{ display: "flex", gap: "24px" }}>
-              <span>Privacy Policy</span>
-              <span>Terms of Service</span>
-              <span>Audit Log</span>
+              <Link href="/privacy" style={{ color: "#A0B5AF", textDecoration: "none" }}>Privacy Policy</Link>
+              <Link href="/terms" style={{ color: "#A0B5AF", textDecoration: "none" }}>Terms of Service</Link>
+              <Link href="/support" style={{ color: "#A0B5AF", textDecoration: "none" }}>Help &amp; Support</Link>
             </div>
           </div>
         </div>
