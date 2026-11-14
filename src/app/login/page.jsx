@@ -506,10 +506,10 @@ function LoginFormContent() {
 
 export default function LoginPage() {
   return (
-    <div className="h-screen max-h-screen w-full bg-[#FAF7F2] flex flex-col justify-between overflow-hidden relative">
+    <div className="h-screen w-full bg-[#FAF7F2] flex flex-col lg:flex-row overflow-hidden relative">
       
       {/* Decorative Dot Matrix in Top Right (Matches reference image) */}
-      <div className="absolute top-4 right-5 sm:top-6 sm:right-8 hidden sm:grid grid-cols-4 gap-1.5 opacity-80 z-0 pointer-events-none">
+      <div className="absolute top-3 right-4 sm:top-5 sm:right-6 hidden sm:grid grid-cols-4 gap-1.5 opacity-80 z-0 pointer-events-none">
         {[...Array(16)].map((_, i) => (
           <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#52FF00]" />
         ))}
@@ -519,42 +519,43 @@ export default function LoginPage() {
       <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full border border-[#52FF00]/30 pointer-events-none hidden sm:block" />
       <div className="absolute -bottom-36 -right-36 w-[420px] h-[420px] rounded-full border border-[#52FF00]/20 pointer-events-none hidden sm:block" />
 
-      {/* Main Full-Height Split Screen Container */}
-      <main className="flex-1 w-full flex flex-col lg:flex-row items-stretch min-h-0 overflow-hidden z-10">
-        
-        {/* Left Column: Seamless Hero Artwork (Full bleed, matches reference image) */}
-        <div className="hidden lg:flex lg:w-[54%] xl:w-[58%] h-full relative items-center justify-center overflow-hidden bg-[#FAF7F2]">
-          <img
-            src="/images/login-hero-left.jpg"
-            alt="Where Did I Park - Never lose your ride again!"
-            className="w-full h-full object-cover object-left select-none pointer-events-none"
-          />
-        </div>
+      {/* Left Column: Seamless Hero Artwork - Full Bleed 100% Height */}
+      <div className="hidden lg:block lg:w-[50%] xl:w-[54%] h-full relative overflow-hidden bg-[#FAF7F2] shrink-0">
+        <img
+          src="/images/login-hero-left.jpg"
+          alt="Where Did I Park - Never lose your ride again!"
+          className="w-full h-full object-cover object-left-bottom select-none pointer-events-none"
+        />
+      </div>
 
-        {/* Right Column: Centered Floating Card */}
-        <div className="w-full lg:w-[46%] xl:w-[42%] h-full flex flex-col items-center justify-center px-4 py-2 sm:px-6 lg:px-8 relative min-h-0 overflow-y-auto lg:overflow-hidden">
+      {/* Right Column: Full Height Container with Balanced Vertical Fit */}
+      <div className="w-full lg:w-[50%] xl:w-[46%] h-full flex flex-col justify-between items-center px-4 py-2.5 sm:px-6 lg:px-8 relative z-10 overflow-y-auto">
+        
+        {/* Subtle top spacer */}
+        <div className="hidden lg:block shrink-0 h-1" />
+
+        {/* Floating Auth Card */}
+        <div className="w-full max-w-[420px] my-auto py-1">
           <Suspense fallback={<div className="p-8 text-center text-xs text-[#706254]">Loading portal...</div>}>
             <LoginFormContent />
           </Suspense>
         </div>
 
-      </main>
-
-      {/* Sleek Minimal Auth Footer */}
-      <footer className="w-full h-7 shrink-0 px-6 z-10 text-[10px] font-semibold text-[#8C7E72] flex items-center justify-between max-w-7xl mx-auto">
-        <div className="flex items-center space-x-2">
+        {/* Integrated Clean Auth Footer at Bottom of Right Panel */}
+        <footer className="w-full max-w-[420px] shrink-0 pt-1 pb-1 text-[10px] font-semibold text-[#8C7E72] flex items-center justify-between">
           <Link href="/" className="hover:text-[#176B5B] transition-colors">
             ← Return to Homepage
           </Link>
-          <span>•</span>
-          <span>© {new Date().getFullYear()} Where Did I Park?</span>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Link href="/privacy" className="hover:text-[#176B5B] transition-colors">Privacy</Link>
-          <Link href="/terms" className="hover:text-[#176B5B] transition-colors">Terms</Link>
-          <Link href="/support" className="hover:text-[#176B5B] transition-colors">Help &amp; Support</Link>
-        </div>
-      </footer>
+          <div className="flex items-center space-x-2">
+            <Link href="/privacy" className="hover:text-[#176B5B] transition-colors">Privacy</Link>
+            <span>•</span>
+            <Link href="/terms" className="hover:text-[#176B5B] transition-colors">Terms</Link>
+            <span>•</span>
+            <Link href="/support" className="hover:text-[#176B5B] transition-colors">Support</Link>
+          </div>
+        </footer>
+
+      </div>
     </div>
   );
 }
