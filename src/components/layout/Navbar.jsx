@@ -15,6 +15,7 @@ import {
   Shield,
   Clock,
   ArrowRight,
+  ChevronDown,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -24,17 +25,18 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    fetch("/api/auth/me")
+  const fetchAuthUser = () => {
+    fetch("/api/auth/me", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
-        if (data.authenticated) {
+        if (data.authenticated && data.user) {
           setCurrentUser(data.user);
-          setActiveSession(data.activeSession);
+          setActiveSession(data.activeSession || null);
         } else {
           setCurrentUser(null);
           setActiveSession(null);
@@ -44,6 +46,22 @@ export default function Navbar() {
         setCurrentUser(null);
         setActiveSession(null);
       });
+  };
+
+  useEffect(() => {
+    fetchAuthUser();
+    setUserDropdownOpen(false);
+
+    const handleFocus = () => fetchAuthUser();
+    const handleAuthChange = () => fetchAuthUser();
+
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("auth-changed", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("auth-changed", handleAuthChange);
+    };
   }, [pathname]);
 
   const handleLogout = async () => {
@@ -51,6 +69,8 @@ export default function Navbar() {
       await fetch("/api/auth/logout", { method: "POST" });
       setCurrentUser(null);
       setActiveSession(null);
+      setUserDropdownOpen(false);
+      window.dispatchEvent(new Event("auth-changed"));
       toast.success("Signed out successfully");
       router.push("/");
       router.refresh();
@@ -599,85 +619,125 @@ export default function Navbar() {
             <Search style={{ width: "18px", height: "18px", strokeWidth: 2.2 }} />
           </button>
 
-          {/* Conditional Auth Elements */}
+          {/* Conditional Auth Elements: Prominent Logged-In User Badge or Login/Sign Up */}
           {currentUser ? (
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              {/* User profile identifier */}
-              <Link
-                href="/dashboard/profile"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  textDecoration: "none",
-                  color: "#1C1815",
-                  backgroundColor: "#FAF6EE",
-                  border: "1px solid #DFD1BD",
-                  padding: "4px 10px 4px 5px",
-                  borderRadius: "10px",
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: "12px",
-                  fontWeight: 800,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  transition: "border-color 0.15s ease",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#176B5B")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#DFD1BD")}
-              >
-                <div
-                  style={{
-                    width: "26px",
-                    height: "26px",
-                    borderRadius: "7px",
-                    backgroundColor: "#176B5B",
-                    color: "#FFFFFF",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "11px",
-                    fontWeight: 900,
-                    border: "1px solid #D4AF37",
-                  }}
+            <div className="relative flex items-center gap-2 sm:gap-2.5">
+              {/* User Profile Dropdown Pill (Prominent Name Display) */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center gap-2 bg-[#FAF6EE] hover:bg-white border border-[#DFD1BD] hover:border-[#176B5B] px-3 py-1.5 rounded-xl transition-all shadow-xs cursor-pointer group"
+                  aria-expanded={userDropdownOpen}
                 >
-                  {currentUser.name?.[0]?.toUpperCase() || "U"}
-                </div>
-                <span className="hidden lg:inline max-w-[110px] truncate">
-                  {currentUser.name}
-                </span>
-              </Link>
+                  <div className="w-7 h-7 rounded-lg bg-[#176B5B] text-white flex items-center justify-center font-black text-xs border border-[#D4AF37] shadow-xs group-hover:scale-105 transition-transform shrink-0">
+                    {currentUser.name?.[0]?.toUpperCase() || "U"}
+                  </div>
+                  <div className="flex flex-col text-left leading-none">
+                    <span className="font-black text-xs sm:text-[13px] text-[#1C1815] max-w-[130px] sm:max-w-[170px] truncate">
+                      {currentUser.name}
+                    </span>
+                    <span className="text-[10px] font-extrabold text-[#176B5B] uppercase tracking-wider mt-0.5">
+                      {currentUser.role === "admin"
+                        ? "Admin"
+                        : currentUser.role === "attendant"
+                        ? "Attendant"
+                        : "Rider"}
+                    </span>
+                  </div>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 text-[#706254] transition-transform duration-200 shrink-0 ${
+                      userDropdownOpen ? "rotate-180 text-[#176B5B]" : ""
+                    }`}
+                  />
+                </button>
 
-              {/* Logout Button */}
+                {/* Luxury Dropdown Menu */}
+                {userDropdownOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setUserDropdownOpen(false)}
+                    />
+                    <div className="absolute right-0 top-full mt-2 w-60 bg-white border border-[#E2D9CC] rounded-2xl shadow-2xl z-50 p-2.5 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="px-3 py-2.5 bg-[#FAF7F2] rounded-xl border border-[#EFE9DF] mb-2">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-8 h-8 rounded-lg bg-[#176B5B] text-white flex items-center justify-center font-black text-xs border border-[#D4AF37]">
+                            {currentUser.name?.[0]?.toUpperCase() || "U"}
+                          </div>
+                          <div className="overflow-hidden">
+                            <p className="text-xs font-black text-[#1C1815] truncate">
+                              {currentUser.name}
+                            </p>
+                            <p className="text-[10.5px] font-medium text-[#706254] truncate">
+                              {currentUser.email}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-0.5">
+                        <Link
+                          href={
+                            currentUser.role === "admin"
+                              ? "/admin"
+                              : currentUser.role === "attendant"
+                              ? "/attendant"
+                              : "/dashboard"
+                          }
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold text-[#1C1815] hover:bg-[#FAF6EE] hover:text-[#176B5B] transition-colors"
+                        >
+                          <User className="w-3.5 h-3.5 text-[#176B5B]" />
+                          <span>Go to Dashboard</span>
+                        </Link>
+
+                        <Link
+                          href="/dashboard/my-parking"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold text-[#1C1815] hover:bg-[#FAF6EE] hover:text-[#176B5B] transition-colors"
+                        >
+                          <MapPin className="w-3.5 h-3.5 text-[#176B5B]" />
+                          <span>My Active Parking</span>
+                        </Link>
+
+                        <Link
+                          href="/dashboard/profile"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold text-[#1C1815] hover:bg-[#FAF6EE] hover:text-[#176B5B] transition-colors"
+                        >
+                          <Shield className="w-3.5 h-3.5 text-[#176B5B]" />
+                          <span>Profile &amp; Settings</span>
+                        </Link>
+                      </div>
+
+                      <div className="border-t border-[#F0EBE1] my-1.5" />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          handleLogout();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors text-left cursor-pointer"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        <span>Log Out</span>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Direct Quick 1-Click Logout Button */}
               <button
                 type="button"
                 onClick={handleLogout}
-                style={{
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: "11px",
-                  fontWeight: 900,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  color: "#706254",
-                  background: "#FAF6EE",
-                  border: "1px solid #DFD1BD",
-                  padding: "7px 12px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#BA2D2D";
-                  e.currentTarget.style.borderColor = "#BA2D2D";
-                  e.currentTarget.style.color = "#FFFFFF";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "#FAF6EE";
-                  e.currentTarget.style.borderColor = "#DFD1BD";
-                  e.currentTarget.style.color = "#706254";
-                }}
-                title="Log Out"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#DFD1BD] bg-[#FAF6EE] hover:bg-red-50 hover:text-red-700 hover:border-red-300 text-[11px] font-black uppercase tracking-wider text-[#706254] transition-all cursor-pointer shadow-xs shrink-0"
+                title="Log Out of your account"
               >
-                Log Out
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log Out</span>
               </button>
             </div>
           ) : (
@@ -862,6 +922,25 @@ export default function Navbar() {
 
           {currentUser ? (
             <div style={{ paddingTop: "12px", borderTop: "1px solid #E2D9CC", display: "flex", flexDirection: "column", gap: "10px" }}>
+              {/* Mobile User Header */}
+              <div className="flex items-center gap-2.5 pb-2 border-b border-[#E2D9CC]">
+                <div className="w-8 h-8 rounded-lg bg-[#176B5B] text-white flex items-center justify-center font-black text-sm border border-[#D4AF37]">
+                  {currentUser.name?.[0]?.toUpperCase() || "U"}
+                </div>
+                <div className="overflow-hidden">
+                  <p className="text-xs font-black text-[#1C1815] truncate">
+                    {currentUser.name}
+                  </p>
+                  <p className="text-[10px] font-bold text-[#176B5B] uppercase tracking-wider">
+                    {currentUser.role === "admin"
+                      ? "Admin"
+                      : currentUser.role === "attendant"
+                      ? "Attendant"
+                      : "Rider"}
+                  </p>
+                </div>
+              </div>
+
               <Link
                 href="/dashboard/my-parking"
                 onClick={() => setMobileMenuOpen(false)}

@@ -7,11 +7,22 @@ import ParkingLot from "@/models/ParkingLot";
 import ParkingSlot from "@/models/ParkingSlot";
 import Vehicle from "@/models/Vehicle";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const session = await getSession();
     if (!session) {
-      return NextResponse.json({ authenticated: false, user: null }, { status: 200 });
+      return NextResponse.json(
+        { authenticated: false, user: null },
+        {
+          status: 200,
+          headers: {
+            "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          },
+        }
+      );
     }
 
     await connectDB();
@@ -20,7 +31,15 @@ export async function GET() {
       .populate("assignedLotId");
 
     if (!user || !user.isVerified) {
-      return NextResponse.json({ authenticated: false, user: null }, { status: 200 });
+      return NextResponse.json(
+        { authenticated: false, user: null },
+        {
+          status: 200,
+          headers: {
+            "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          },
+        }
+      );
     }
 
     // Find active parking session
@@ -32,20 +51,36 @@ export async function GET() {
       .populate("parkingSlotId")
       .populate("vehicleId");
 
-    return NextResponse.json({
-      authenticated: true,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        phoneNumber: user.phoneNumber,
-        assignedLotId: user.assignedLotId || null,
+    return NextResponse.json(
+      {
+        authenticated: true,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phoneNumber: user.phoneNumber,
+          assignedLotId: user.assignedLotId || null,
+        },
+        activeSession: activeSession || null,
       },
-      activeSession: activeSession || null,
-    });
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
+      }
+    );
   } catch (error) {
     console.error("Auth me error:", error);
-    return NextResponse.json({ error: "Failed to fetch session" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch session" },
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
+      }
+    );
   }
 }
