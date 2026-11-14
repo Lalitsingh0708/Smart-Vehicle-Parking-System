@@ -35,9 +35,15 @@ export async function POST(request) {
 
     await connectDB();
 
-    // Determine target parking lot
-    if (!lotId && auth.session.role === "attendant") {
+    // Determine target parking lot and verify attendant approval
+    if (auth.session.role === "attendant") {
       const user = await User.findById(auth.session.userId);
+      if (!user || user.isApprovedByAdmin !== true || user.attendantApprovalStatus !== "approved") {
+        return NextResponse.json(
+          { error: "Attendant account is under review. Gate check-in is unauthorized." },
+          { status: 403 }
+        );
+      }
       lotId = user?.assignedLotId?.toString();
     }
     if (!lotId) {
@@ -50,6 +56,15 @@ export async function POST(request) {
       return NextResponse.json(
         { error: "Parking lot not found or inactive" },
         { status: 404 }
+      );
+    }
+
+    if (lot.allowCheckIn === false) {
+      return NextResponse.json(
+        {
+          error: `Check-in is currently paused for "${lot.name}" by facility administration due to peak capacity. Check-outs remain active.`,
+        },
+        { status: 403 }
       );
     }
 

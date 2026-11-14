@@ -18,6 +18,8 @@ import {
   Plus,
   ArrowRight,
   CheckCircle,
+  Sparkles,
+  ExternalLink,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -101,7 +103,7 @@ export default function ParkingLotDetailPage() {
       setNewMake("");
       setNewModel("");
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to add vehicle");
     }
   };
 
@@ -113,17 +115,16 @@ export default function ParkingLotDetailPage() {
     }
 
     if (!selectedSlot) {
-      toast.error("Please select an available parking slot from the grid");
+      toast.error("Please select an available parking bay from the grid");
       return;
     }
 
     if (!selectedVehicleId) {
-      toast.error("Please select or register a vehicle first");
+      toast.error("Please select a two-wheeler to link with this ticket");
       return;
     }
 
     setAllocating(true);
-
     try {
       const res = await fetch("/api/parking-sessions", {
         method: "POST",
@@ -138,15 +139,14 @@ export default function ParkingLotDetailPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to allocate parking slot");
+        throw new Error(data.error || "Failed to allocate slot");
       }
 
-      toast.success("Parking slot allocated! Digital ticket generated.");
+      toast.success("Slot allocated! Boarding ticket pass generated.");
       router.push("/dashboard/my-parking");
     } catch (err) {
-      toast.error(err.message);
-      loadLot(); // Refresh live slots in case it was occupied
-      setSelectedSlot(null);
+      toast.error(err.message || "Failed to complete allocation");
+      loadLot(); // Refresh to catch updated occupancy
     } finally {
       setAllocating(false);
     }
@@ -154,11 +154,12 @@ export default function ParkingLotDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-surface-bg">
+      <div className="min-h-screen flex flex-col bg-[#F5F0E8] text-[#1E1B18]">
         <Navbar />
         <main className="flex-1 max-w-7xl mx-auto w-full p-8 flex items-center justify-center">
-          <div className="text-sm font-medium text-ink-secondary">
-            Loading parking lot details...
+          <div className="text-sm font-bold text-[#66584B] flex items-center space-x-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#176B5B] animate-ping" />
+            <span>Loading campus parking facility details...</span>
           </div>
         </main>
         <Footer />
@@ -168,16 +169,16 @@ export default function ParkingLotDetailPage() {
 
   if (!lotData) {
     return (
-      <div className="min-h-screen flex flex-col bg-surface-bg">
+      <div className="min-h-screen flex flex-col bg-[#F5F0E8] text-[#1E1B18]">
         <Navbar />
         <main className="flex-1 max-w-7xl mx-auto w-full p-8 text-center space-y-4">
-          <AlertCircle className="w-10 h-10 text-red-500 mx-auto" />
-          <h2 className="text-xl font-bold text-ink-primary">Parking lot not found</h2>
-          <p className="text-sm text-ink-secondary">
-            The requested parking lot does not exist or has been deactivated.
+          <AlertCircle className="w-10 h-10 text-red-600 mx-auto" />
+          <h2 className="text-xl font-black text-[#1C1815]">Parking facility not found</h2>
+          <p className="text-sm font-semibold text-[#66584B]">
+            The requested parking lot does not exist or has been archived.
           </p>
           <Link href="/parking">
-            <Button size="sm">Browse Parking Lots</Button>
+            <Button size="sm" className="bg-[#176B5B] hover:bg-[#125448]">Browse Campus Lots</Button>
           </Link>
         </main>
         <Footer />
@@ -185,54 +186,64 @@ export default function ParkingLotDetailPage() {
     );
   }
 
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lotData.coordinates?.latitude},${lotData.coordinates?.longitude}`;
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lotData.coordinates?.latitude},${lotData.coordinates?.longitude}&travelmode=two-wheeler`;
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface-bg">
+    <div className="min-h-screen flex flex-col bg-[#F5F0E8] text-[#1E1B18]">
+      {/* Universal Luxury Navbar */}
       <Navbar />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Breadcrumb */}
-        <div className="text-xs text-ink-secondary flex items-center space-x-1.5">
-          <Link href="/parking" className="hover:text-brand-500">
+        {/* Breadcrumb Navigation */}
+        <div className="text-xs font-bold text-[#7A6C5F] flex items-center space-x-2">
+          <Link href="/parking" className="hover:text-[#176B5B] transition-colors">
             Parking Lots
           </Link>
           <span>/</span>
-          <span className="text-ink-primary font-medium">{lotData.name}</span>
+          <span className="text-[#176B5B] font-black">{lotData.name}</span>
         </div>
 
-        {/* Lot Overview Header Card */}
-        <div className="bg-white p-6 rounded-card border border-border-subtle shadow-xs">
+        {/* ═════════════════════════════════════════════════════════
+            1. LUXURY LOT OVERVIEW HERO CARD (Beige, Forest Green, Gold)
+        ═════════════════════════════════════════════════════════ */}
+        <div className="bg-[#FFFFFF] p-6 sm:p-8 rounded-2xl border-2 border-[#E2D9CC] shadow-[0_12px_36px_-6px_rgba(60,45,30,0.08)]">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-brand-600 bg-brand-50 px-2 py-0.5 rounded">
-                  Two-Wheeler Facility
+            <div className="space-y-2.5">
+              {/* Luxury Tags & Status */}
+              <div className="flex items-center flex-wrap gap-2.5">
+                <span className="text-xs font-black uppercase tracking-wider text-[#916E28] bg-[#FAF3E8] border border-[#E0D0B5] px-3 py-1 rounded-lg">
+                  Two-Wheeler Campus Facility
                 </span>
-                <span className="text-xs text-ink-secondary">
-                  Last updated: {new Date(lotData.updatedAt || Date.now()).toLocaleTimeString("en-IN")}
+                <span className="text-xs font-semibold text-[#7A6C5F]">
+                  Last audited: {new Date(lotData.updatedAt || Date.now()).toLocaleTimeString("en-IN")}
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-ink-primary tracking-tight">
+
+              {/* Title & Location */}
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1C1815] tracking-tight">
                 {lotData.name}
               </h1>
-              <p className="text-sm text-ink-secondary flex items-center space-x-1.5">
-                <MapPin className="w-4 h-4 text-ink-muted flex-shrink-0" />
+              <p className="text-sm font-semibold text-[#5C5046] flex items-center space-x-1.5">
+                <MapPin className="w-4 h-4 text-[#176B5B] flex-shrink-0" />
                 <span>{lotData.address}, {lotData.city}</span>
               </p>
               {lotData.description && (
-                <p className="text-xs text-ink-secondary max-w-2xl leading-relaxed pt-1">
+                <p className="text-xs font-medium text-[#706254] max-w-2xl leading-relaxed pt-1">
                   {lotData.description}
                 </p>
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row md:flex-col items-start md:items-end justify-between gap-3">
-              <div className="text-left md:text-right">
-                <span className="text-2xl font-black text-brand-600">
-                  ₹{lotData.hourlyRate}
-                </span>
-                <span className="text-xs text-ink-secondary block">per hour</span>
+            {/* Rate & Directions */}
+            <div className="flex flex-col sm:flex-row md:flex-col items-start md:items-end justify-between gap-3 shrink-0">
+              <div className="text-left md:text-right bg-[#FAF6EE] p-3 rounded-xl border border-[#E5DACB]">
+                <div className="flex items-baseline space-x-1">
+                  <span className="text-3xl font-black text-[#B08528] tracking-tight">
+                    ₹{lotData.hourlyRate}
+                  </span>
+                  <span className="text-xs font-bold text-[#7A6C5F]">/ hour</span>
+                </div>
+                <span className="text-[11px] font-semibold text-[#916E28] block">Standard Campus Tariff</span>
               </div>
 
               <a
@@ -240,64 +251,84 @@ export default function ParkingLotDetailPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button variant="secondary" size="sm" className="text-xs">
-                  <Navigation className="w-3.5 h-3.5 mr-1.5 text-brand-500" />
-                  <span>Get Directions</span>
-                </Button>
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-[#FAF6EE] hover:bg-[#EFE7D8] text-[#176B5B] border-2 border-[#D9C49D] text-xs font-black rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <Navigation className="w-3.5 h-3.5 text-[#176B5B]" />
+                  <span>Get Turn-by-Turn GPS</span>
+                  <ExternalLink className="w-3 h-3 text-[#916E28]" />
+                </button>
               </a>
             </div>
           </div>
 
-          {/* Availability Metrics Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-border-subtle text-center">
-            <div className="p-3 bg-surface-subtle rounded-lg">
-              <span className="text-xs text-ink-secondary block">Total Capacity</span>
-              <span className="text-lg font-bold text-ink-primary">
-                {lotData.totalCapacity}
+          {/* Availability Metrics Strip (Refined Ivory, Gold & Forest Green) */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-6 pt-6 border-t-2 border-[#EFE9DF] text-center">
+            {/* Total Capacity */}
+            <div className="p-3.5 bg-[#FAF7F2] border border-[#E2D9CC] rounded-xl">
+              <span className="text-xs font-bold text-[#7A6C5F] block uppercase tracking-wider">Total Capacity</span>
+              <span className="text-xl font-black text-[#1C1815] mt-0.5 block">
+                {lotData.totalCapacity} Bays
               </span>
             </div>
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <span className="text-xs text-emerald-800 block font-medium">Available</span>
-              <span className="text-lg font-black text-emerald-700">
+
+            {/* Available Vacant */}
+            <div className="p-3.5 bg-[#F0F8F5] border-2 border-[#A3D9C9] rounded-xl shadow-xs">
+              <span className="text-xs font-black text-[#176B5B] block uppercase tracking-wider">Available Bays</span>
+              <span className="text-2xl font-black text-[#176B5B] mt-0.5 block">
                 {lotData.availableCount}
               </span>
             </div>
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <span className="text-xs text-red-800 block font-medium">Occupied</span>
-              <span className="text-lg font-bold text-red-700">
+
+            {/* Occupied */}
+            <div className="p-3.5 bg-[#FFF5F5] border-2 border-[#FBC4C4] rounded-xl">
+              <span className="text-xs font-black text-[#C53030] block uppercase tracking-wider">Occupied</span>
+              <span className="text-xl font-black text-[#C53030] mt-0.5 block">
                 {lotData.occupiedCount}
               </span>
             </div>
-            <div className="p-3 bg-surface-subtle rounded-lg">
-              <span className="text-xs text-ink-secondary block">Operating Hours</span>
-              <span className="text-sm font-semibold text-ink-primary flex items-center justify-center space-x-1 mt-1">
-                <Clock className="w-3.5 h-3.5 text-ink-muted" />
+
+            {/* Operating Hours */}
+            <div className="p-3.5 bg-[#FAF6EE] border border-[#E5DACB] rounded-xl">
+              <span className="text-xs font-bold text-[#7A6C5F] block uppercase tracking-wider">Operating Hours</span>
+              <span className="text-xs font-black text-[#1C1815] flex items-center justify-center space-x-1 mt-1.5">
+                <Clock className="w-3.5 h-3.5 text-[#916E28]" />
                 <span>{lotData.openingHours}</span>
               </span>
             </div>
           </div>
         </div>
 
-        {/* Allocation Flow Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Slot Grid Column */}
+        {/* ═════════════════════════════════════════════════════════
+            2. ALLOCATION FLOW SECTION (Grid & Summary Dock)
+        ═════════════════════════════════════════════════════════ */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Slot Matrix Column */}
           <div className="lg:col-span-8 space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between bg-[#FFFFFF] p-4 rounded-xl border border-[#E2D9CC] shadow-xs">
               <div>
-                <h2 className="text-base font-bold text-ink-primary">
-                  Select a Parking Slot
+                <h2 className="text-base font-black text-[#1C1815] tracking-tight">
+                  Select a Parking Bay
                 </h2>
-                <p className="text-xs text-ink-secondary">
-                  Click on an available green slot to allocate your spot
+                <p className="text-xs font-semibold text-[#66584B]">
+                  Click on an available green slot to allocate your spot in real time
                 </p>
               </div>
-              {selectedSlot && (
-                <div className="text-xs font-semibold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-md border border-brand-200">
-                  Selected: {selectedSlot.slotNumber}
+
+              {selectedSlot ? (
+                <div className="text-xs font-black text-[#176B5B] bg-[#FAF3E8] px-3.5 py-1.5 rounded-lg border-2 border-[#D4AF37] shadow-xs">
+                  Bay Chosen: {selectedSlot.slotNumber}
+                </div>
+              ) : (
+                <div className="text-xs font-bold text-[#916E28] bg-[#FAF6EE] px-3 py-1 rounded-lg border border-[#E0D0B5]">
+                  Select Bay Below
                 </div>
               )}
             </div>
 
+            {/* 2D Architectural Slot Grid Component */}
             <SlotGrid
               zones={zones}
               selectedSlotId={selectedSlot?.id || selectedSlot?._id}
@@ -305,48 +336,57 @@ export default function ParkingLotDetailPage() {
             />
           </div>
 
-          {/* Allocation Sidebar */}
-          <div className="lg:col-span-4">
-            <div className="bg-white p-6 rounded-card border border-border-subtle shadow-xs space-y-5 sticky top-20">
-              <div className="border-b border-border-subtle pb-3">
-                <h3 className="text-base font-bold text-ink-primary">
-                  Allocation Summary
-                </h3>
-                <span className="text-xs text-ink-secondary">
-                  Complete your parking reservation
-                </span>
+          {/* Allocation Sidebar: Luxury Reservation Dock */}
+          <div className="lg:col-span-4 sticky top-24">
+            <div className="bg-[#FFFFFF] p-6 rounded-2xl border-2 border-[#E2D9CC] shadow-[0_12px_36px_-6px_rgba(60,45,30,0.08)] space-y-5">
+              
+              {/* Header with Golden Accent */}
+              <div className="border-b-2 border-[#EFE9DF] pb-3.5 flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-black text-[#1C1815] tracking-tight">
+                    Allocation Summary
+                  </h3>
+                  <span className="text-xs font-semibold text-[#7A6C5F]">
+                    Confirmed Two-Wheeler Reservation
+                  </span>
+                </div>
+                <Sparkles className="w-4 h-4 text-[#D4AF37]" />
               </div>
 
-              {/* Slot chosen */}
-              <div className="p-3 bg-surface-subtle rounded-lg space-y-1">
-                <span className="text-xs text-ink-secondary block">Selected Slot</span>
+              {/* Slot chosen preview box */}
+              <div className="p-4 bg-[#FAF6EE] rounded-xl border-2 border-[#DFD1BD] space-y-1 shadow-xs">
+                <span className="text-[11px] font-black uppercase tracking-wider text-[#7A6C5F] block">
+                  Designated Bay
+                </span>
                 {selectedSlot ? (
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-black text-brand-600">
-                      {selectedSlot.slotNumber}
+                  <div className="flex items-center justify-between pt-0.5">
+                    <span className="text-2xl font-black text-[#176B5B]">
+                      Bay {selectedSlot.slotNumber}
                     </span>
-                    <Badge status="available" text="Available" />
+                    <span className="text-xs font-black text-[#176B5B] bg-[#E3F4ED] border border-[#176B5B] px-2.5 py-0.5 rounded-md">
+                      Available (Free)
+                    </span>
                   </div>
                 ) : (
-                  <span className="text-xs font-medium text-amber-700 italic">
-                    Click any green slot in the grid to proceed
+                  <span className="text-xs font-bold text-[#A87922] italic block pt-1">
+                    Click any green demarcated bay in the floor plan to proceed
                   </span>
                 )}
               </div>
 
-              {/* Vehicle selector */}
+              {/* Two-Wheeler Vehicle Selector */}
               {currentUser ? (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-ink-primary">
+                    <label className="text-xs font-black uppercase tracking-wider text-[#2A231E]">
                       Select Two-Wheeler
                     </label>
                     <button
                       type="button"
                       onClick={() => setShowAddVehicle(!showAddVehicle)}
-                      className="text-xs font-semibold text-brand-500 hover:text-brand-600 flex items-center space-x-1"
+                      className="text-xs font-black text-[#176B5B] hover:text-[#115245] flex items-center space-x-1 cursor-pointer"
                     >
-                      <Plus className="w-3 h-3" />
+                      <Plus className="w-3.5 h-3.5" />
                       <span>{showAddVehicle ? "Cancel" : "Add Vehicle"}</span>
                     </button>
                   </div>
@@ -354,10 +394,10 @@ export default function ParkingLotDetailPage() {
                   {showAddVehicle ? (
                     <form
                       onSubmit={handleCreateVehicle}
-                      className="p-3 bg-surface-subtle/80 border border-border-subtle rounded-lg space-y-2 text-xs"
+                      className="p-3.5 bg-[#FAF6EE] border-2 border-[#DFD1BD] rounded-xl space-y-2.5 text-xs"
                     >
                       <div>
-                        <label className="block text-[11px] font-medium text-ink-secondary mb-0.5">
+                        <label className="block text-[11px] font-black text-[#2A231E] uppercase mb-0.5">
                           Registration Number
                         </label>
                         <input
@@ -365,13 +405,13 @@ export default function ParkingLotDetailPage() {
                           required
                           value={newRegNumber}
                           onChange={(e) => setNewRegNumber(e.target.value.toUpperCase())}
-                          placeholder="DL01AB1234"
-                          className="w-full px-2.5 py-1.5 border rounded focus:ring-1 focus:ring-brand-500"
+                          placeholder="PB08AB1234"
+                          className="w-full px-3 py-2 bg-white text-[#1C1815] font-bold border-2 border-[#D8CFC2] rounded-lg focus:border-[#176B5B]"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-[11px] font-medium text-ink-secondary mb-0.5">
+                          <label className="block text-[11px] font-black text-[#2A231E] uppercase mb-0.5">
                             Make
                           </label>
                           <input
@@ -379,12 +419,12 @@ export default function ParkingLotDetailPage() {
                             required
                             value={newMake}
                             onChange={(e) => setNewMake(e.target.value)}
-                            placeholder="Honda"
-                            className="w-full px-2.5 py-1.5 border rounded focus:ring-1 focus:ring-brand-500"
+                            placeholder="Royal Enfield / Honda"
+                            className="w-full px-2.5 py-1.5 bg-white text-[#1C1815] font-bold border-2 border-[#D8CFC2] rounded-lg focus:border-[#176B5B]"
                           />
                         </div>
                         <div>
-                          <label className="block text-[11px] font-medium text-ink-secondary mb-0.5">
+                          <label className="block text-[11px] font-black text-[#2A231E] uppercase mb-0.5">
                             Model
                           </label>
                           <input
@@ -392,24 +432,27 @@ export default function ParkingLotDetailPage() {
                             required
                             value={newModel}
                             onChange={(e) => setNewModel(e.target.value)}
-                            placeholder="Activa 6G"
-                            className="w-full px-2.5 py-1.5 border rounded focus:ring-1 focus:ring-brand-500"
+                            placeholder="Classic 350 / Activa"
+                            className="w-full px-2.5 py-1.5 bg-white text-[#1C1815] font-bold border-2 border-[#D8CFC2] rounded-lg focus:border-[#176B5B]"
                           />
                         </div>
                       </div>
-                      <Button size="sm" type="submit" className="w-full text-xs mt-1">
+                      <button
+                        type="submit"
+                        className="w-full py-2 bg-[#176B5B] hover:bg-[#115245] text-white font-bold text-xs rounded-lg shadow-xs mt-1 cursor-pointer"
+                      >
                         Save &amp; Select Vehicle
-                      </Button>
+                      </button>
                     </form>
                   ) : vehicles.length === 0 ? (
-                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
-                      No vehicles registered yet. Click &quot;Add Vehicle&quot; above to add your motorcycle or scooter.
+                    <div className="p-3 bg-[#FAF3E8] border-2 border-[#E0D0B5] rounded-xl text-xs font-semibold text-[#8C6B28]">
+                      No vehicles registered yet. Click &quot;Add Vehicle&quot; above to link your motorcycle or scooter.
                     </div>
                   ) : (
                     <select
                       value={selectedVehicleId}
                       onChange={(e) => setSelectedVehicleId(e.target.value)}
-                      className="w-full px-3 py-2 text-xs border border-border-subtle rounded-button focus:outline-none focus:ring-1 focus:ring-brand-500 text-ink-primary"
+                      className="w-full px-3.5 py-2.5 bg-[#FAF7F2] text-[#1C1815] font-bold text-xs border-2 border-[#D8CFC2] rounded-xl focus:outline-none focus:border-[#176B5B] focus:bg-white"
                     >
                       {vehicles.map((v) => (
                         <option key={v._id} value={v._id}>
@@ -420,62 +463,81 @@ export default function ParkingLotDetailPage() {
                   )}
                 </div>
               ) : (
-                <div className="p-3 bg-surface-subtle border border-border-subtle rounded-lg text-xs space-y-2">
-                  <span className="font-semibold text-ink-primary block">
+                <div className="p-3.5 bg-[#FAF6EE] border-2 border-[#DFD1BD] rounded-xl text-xs space-y-2">
+                  <span className="font-black text-[#1C1815] block">
                     Account Required
                   </span>
-                  <p className="text-ink-secondary">
-                    You must be signed in to link your vehicle and receive a digital QR ticket.
+                  <p className="font-semibold text-[#66584B]">
+                    Please sign in to link your two-wheeler and receive your digital ticket pass.
                   </p>
-                  <Link href="/login" className="block">
-                    <Button variant="secondary" size="sm" className="w-full text-xs">
-                      Sign In to Proceed
-                    </Button>
+                  <Link href="/login" className="block pt-1">
+                    <button
+                      type="button"
+                      className="w-full py-2 bg-[#FAF3E8] hover:bg-[#EFE5D5] text-[#176B5B] border border-[#D9C49D] font-black text-xs rounded-lg transition-colors cursor-pointer"
+                    >
+                      Sign In to Proceed &rarr;
+                    </button>
                   </Link>
                 </div>
               )}
 
-              {/* Pricing breakdown */}
-              <div className="space-y-1.5 text-xs text-ink-secondary pt-2 border-t border-border-subtle">
+              {/* Pricing breakdown (Golden & Forest Green Accents) */}
+              <div className="space-y-2 text-xs font-semibold text-[#66584B] pt-2 border-t-2 border-[#EFE9DF]">
                 <div className="flex justify-between">
                   <span>Standard Hourly Rate:</span>
-                  <span className="font-semibold text-ink-primary">₹{lotData.hourlyRate} / hr</span>
+                  <span className="font-black text-[#1C1815]">₹{lotData.hourlyRate} / hr</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Minimum Billing:</span>
-                  <span className="font-semibold text-ink-primary">1 hour</span>
+                  <span className="font-black text-[#1C1815]">1 hour</span>
                 </div>
-                <div className="flex justify-between text-ink-primary font-bold pt-1 border-t border-border-subtle text-sm">
-                  <span>Pay upon exit:</span>
-                  <span className="text-brand-600">Calculated on checkout</span>
+                <div className="flex justify-between text-[#1C1815] font-black pt-1.5 border-t border-[#EFE9DF] text-sm">
+                  <span>Pay Upon Exit:</span>
+                  <span className="text-[#B08528] font-black">Calculated on checkout</span>
                 </div>
               </div>
 
-              {/* Confirm Allocation Button */}
-              <Button
-                size="md"
-                disabled={!selectedSlot || !selectedVehicleId || allocating || !currentUser}
+              {/* Peak Rush Administrative Notice */}
+              {lotData.allowCheckIn === false && (
+                <div className="p-3 bg-red-50 border-2 border-red-200 rounded-xl text-xs text-red-900 space-y-1">
+                  <div className="flex items-center space-x-1.5 font-black text-red-800">
+                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                    <span>Check-In Paused for Peak Rush</span>
+                  </div>
+                  <p className="text-[11px] font-semibold text-red-700 leading-snug">
+                    New bay allocations are temporarily paused by administration. Check-outs remain active.
+                  </p>
+                </div>
+              )}
+
+              {/* Confirm Allocation Button: Ultra-Luxury Forest Green with Gold Trim */}
+              <button
+                type="button"
+                disabled={!selectedSlot || !selectedVehicleId || allocating || !currentUser || lotData.allowCheckIn === false}
                 onClick={handleAllocateSlot}
-                className="w-full"
+                className="w-full py-3.5 px-4 bg-[#176B5B] hover:bg-[#10473C] text-white font-black text-sm uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg border-2 border-[#D4AF37]/50 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                {allocating ? (
-                  "Allocating Slot..."
+                {lotData.allowCheckIn === false ? (
+                  "Check-in Paused (Peak Rush)"
+                ) : allocating ? (
+                  <span>Allocating Bay...</span>
                 ) : (
                   <>
                     <span>Confirm &amp; Generate Ticket</span>
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                   </>
                 )}
-              </Button>
+              </button>
 
-              <p className="text-[11px] text-ink-muted text-center leading-relaxed">
-                Atomic slot reservation guarantees your space and immediately updates live lot occupancy.
+              <p className="text-[11px] font-medium text-[#7A6C5F] text-center leading-relaxed">
+                Atomic slot reservation guarantees your space and immediately updates campus bay occupancy.
               </p>
             </div>
           </div>
         </div>
       </main>
 
+      {/* Universal Footer */}
       <Footer />
     </div>
   );

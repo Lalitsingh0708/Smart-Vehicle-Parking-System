@@ -24,6 +24,16 @@ export async function POST(request) {
 
     await connectDB();
 
+    if (auth.session.role === "attendant") {
+      const user = await User.findById(auth.session.userId);
+      if (!user || user.isApprovedByAdmin !== true || user.attendantApprovalStatus !== "approved") {
+        return NextResponse.json(
+          { error: "Attendant account is under review. Gate check-out is unauthorized." },
+          { status: 403 }
+        );
+      }
+    }
+
     let query = { status: "active" };
 
     if (sessionId) {

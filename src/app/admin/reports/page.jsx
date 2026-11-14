@@ -45,31 +45,35 @@ export default function AdminReportsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-ink-primary tracking-tight">
+          <h1 className="text-2xl font-black text-[#1C1815] tracking-tight">
             Reports &amp; Data Export
           </h1>
-          <p className="text-xs text-ink-secondary mt-0.5">
+          <p className="text-xs text-[#706254] mt-0.5">
             Generate and export parking sessions, revenue audit records, and security incident reports in CSV format.
           </p>
         </div>
 
-        <Button size="sm" onClick={handleDownloadCsv}>
-          <Download className="w-4 h-4 mr-1.5" />
+        <button
+          type="button"
+          onClick={handleDownloadCsv}
+          className="px-4 py-2 bg-[#176B5B] hover:bg-[#125448] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"
+        >
+          <Download className="w-4 h-4 mr-1" />
           <span>Export to CSV</span>
-        </Button>
+        </button>
       </div>
 
       {/* Filter and Date Bar */}
-      <div className="bg-white p-4 rounded-card border border-border-subtle shadow-xs space-y-3">
+      <div className="bg-white p-4 rounded-2xl border border-[#E2D9CC] shadow-xs space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
           <div>
-            <label className="block font-semibold text-ink-primary mb-1">
+            <label className="block font-bold text-[#1C1815] mb-1">
               Report Subject
             </label>
             <select
               value={reportType}
               onChange={(e) => setReportType(e.target.value)}
-              className="w-full px-3 py-2 border border-border-subtle rounded-button focus:ring-1 focus:ring-brand-500 text-ink-primary"
+              className="w-full px-3 py-2 border border-[#DFD1BD] rounded-xl bg-[#FAF7F2] text-[#1C1815] focus:ring-1 focus:ring-[#176B5B]"
             >
               <option value="sessions">Parking Sessions &amp; Revenue</option>
               <option value="incidents">Security Incidents &amp; Violations</option>
@@ -77,54 +81,58 @@ export default function AdminReportsPage() {
           </div>
 
           <div>
-            <label className="block font-semibold text-ink-primary mb-1">
+            <label className="block font-bold text-[#1C1815] mb-1">
               Start Date
             </label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border border-border-subtle rounded-button focus:ring-1 focus:ring-brand-500 text-ink-primary"
+              className="w-full px-3 py-2 border border-[#DFD1BD] rounded-xl bg-[#FAF7F2] text-[#1C1815] focus:ring-1 focus:ring-[#176B5B]"
             />
           </div>
 
           <div>
-            <label className="block font-semibold text-ink-primary mb-1">
+            <label className="block font-bold text-[#1C1815] mb-1">
               End Date
             </label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border border-border-subtle rounded-button focus:ring-1 focus:ring-brand-500 text-ink-primary"
+              className="w-full px-3 py-2 border border-[#DFD1BD] rounded-xl bg-[#FAF7F2] text-[#1C1815] focus:ring-1 focus:ring-[#176B5B]"
             />
           </div>
         </div>
 
         <div className="flex justify-end pt-1">
-          <Button size="sm" variant="secondary" onClick={fetchReport}>
+          <button
+            type="button"
+            onClick={fetchReport}
+            className="px-4 py-2 bg-[#FAF6EE] hover:bg-[#EAF3EE] text-[#176B5B] border border-[#DFD1BD] font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"
+          >
             <Filter className="w-3.5 h-3.5 mr-1" />
             <span>Apply Date Filter</span>
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* Summary Stats */}
       {reportData && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-white p-4 rounded-card border border-border-subtle shadow-xs">
-            <span className="text-xs text-ink-secondary block">Total Filtered Records</span>
-            <span className="text-2xl font-bold text-ink-primary block mt-1">
+          <div className="bg-white p-4 rounded-2xl border border-[#E2D9CC] shadow-xs">
+            <span className="text-[11px] font-bold text-[#706254] uppercase tracking-wider block">Total Filtered Records</span>
+            <span className="text-2xl font-black text-[#1C1815] block mt-1">
               {reportData.count || 0}
             </span>
           </div>
 
           {reportType === "sessions" && (
-            <div className="bg-white p-4 rounded-card border border-emerald-200 bg-emerald-50/20 shadow-xs">
-              <span className="text-xs text-emerald-800 font-medium block">
+            <div className="bg-[#F0F8F5] p-4 rounded-2xl border border-[#C5DDD2] shadow-xs">
+              <span className="text-[11px] text-[#176B5B] font-bold uppercase tracking-wider block">
                 Total Accrued Revenue
               </span>
-              <span className="text-2xl font-black text-emerald-700 block mt-1">
+              <span className="text-2xl font-black text-[#176B5B] block mt-1 font-mono">
                 ₹{reportData.totalRevenue || 0}
               </span>
             </div>
@@ -133,42 +141,42 @@ export default function AdminReportsPage() {
       )}
 
       {/* Data Preview Table */}
-      <div className="bg-white rounded-card border border-border-subtle shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-border-subtle flex justify-between items-center">
-          <h3 className="text-sm font-bold text-ink-primary">
+      <div className="bg-white rounded-2xl border border-[#E2D9CC] shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-[#EFE9DF] bg-[#FAF6EE] flex justify-between items-center">
+          <h3 className="text-sm font-black text-[#1C1815]">
             {reportType === "sessions" ? "Parking Sessions Preview" : "Security Incidents Preview"}
           </h3>
-          <span className="text-xs text-ink-secondary">
+          <span className="text-xs text-[#706254] font-medium">
             Showing latest {reportType === "sessions" ? reportData?.sessions?.length || 0 : reportData?.incidents?.length || 0} records
           </span>
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-xs text-ink-secondary">
+          <div className="p-8 text-center text-xs text-[#706254]">
             Generating report preview...
           </div>
         ) : reportType === "sessions" ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-surface-subtle/80 border-b border-border-subtle text-ink-secondary uppercase tracking-wider text-[11px]">
+              <thead className="bg-[#FAF7F2] border-b border-[#E2D9CC] text-[#706254] uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th className="p-3 font-semibold">Ticket ID</th>
-                  <th className="p-3 font-semibold">Rider</th>
-                  <th className="p-3 font-semibold">Facility</th>
-                  <th className="p-3 font-semibold">Vehicle</th>
-                  <th className="p-3 font-semibold">Fee</th>
-                  <th className="p-3 font-semibold">Status</th>
+                  <th className="p-3.5 font-bold">Ticket ID</th>
+                  <th className="p-3.5 font-bold">Rider</th>
+                  <th className="p-3.5 font-bold">Facility</th>
+                  <th className="p-3.5 font-bold">Vehicle</th>
+                  <th className="p-3.5 font-bold">Fee</th>
+                  <th className="p-3.5 font-bold">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody className="divide-y divide-[#EFE9DF]">
                 {(reportData?.sessions || []).slice(0, 10).map((s) => (
-                  <tr key={s._id} className="hover:bg-surface-subtle/40">
-                    <td className="p-3 font-mono font-medium">{s.ticketId}</td>
-                    <td className="p-3">{s.userId?.name || "Rider"}</td>
-                    <td className="p-3">{s.parkingLotId?.name || "Lot"}</td>
-                    <td className="p-3 font-mono">{s.vehicleId?.registrationNumber || "N/A"}</td>
-                    <td className="p-3 font-bold">₹{s.fee || 0}</td>
-                    <td className="p-3 capitalize">{s.status}</td>
+                  <tr key={s._id} className="hover:bg-[#FAF6EE]/50 transition-colors">
+                    <td className="p-3.5 font-mono font-black text-[#1C1815]">{s.ticketId}</td>
+                    <td className="p-3.5 font-bold text-[#1C1815]">{s.userId?.name || "Rider"}</td>
+                    <td className="p-3.5 text-[#706254]">{s.parkingLotId?.name || "Lot"}</td>
+                    <td className="p-3.5 font-mono text-[#1C1815]">{s.vehicleId?.registrationNumber || "N/A"}</td>
+                    <td className="p-3.5 font-black text-[#B08528] font-mono">₹{s.fee || 0}</td>
+                    <td className="p-3.5 capitalize font-bold text-[11px] text-[#176B5B]">{s.status}</td>
                   </tr>
                 ))}
               </tbody>
@@ -177,23 +185,23 @@ export default function AdminReportsPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-surface-subtle/80 border-b border-border-subtle text-ink-secondary uppercase tracking-wider text-[11px]">
+              <thead className="bg-[#FAF7F2] border-b border-[#E2D9CC] text-[#706254] uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th className="p-3 font-semibold">Category</th>
-                  <th className="p-3 font-semibold">Reported By</th>
-                  <th className="p-3 font-semibold">Description</th>
-                  <th className="p-3 font-semibold">Date</th>
-                  <th className="p-3 font-semibold">Status</th>
+                  <th className="p-3.5 font-bold">Category</th>
+                  <th className="p-3.5 font-bold">Reported By</th>
+                  <th className="p-3.5 font-bold">Description</th>
+                  <th className="p-3.5 font-bold">Date</th>
+                  <th className="p-3.5 font-bold">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody className="divide-y divide-[#EFE9DF]">
                 {(reportData?.incidents || []).slice(0, 10).map((inc) => (
-                  <tr key={inc._id} className="hover:bg-surface-subtle/40">
-                    <td className="p-3 font-semibold capitalize">{inc.category.replace("_", " ")}</td>
-                    <td className="p-3">{inc.reportedBy?.name || "Rider"}</td>
-                    <td className="p-3 max-w-xs truncate">{inc.description}</td>
-                    <td className="p-3 text-ink-secondary">{new Date(inc.createdAt).toLocaleDateString("en-IN")}</td>
-                    <td className="p-3 capitalize">{inc.status.replace("_", " ")}</td>
+                  <tr key={inc._id} className="hover:bg-[#FAF6EE]/50 transition-colors">
+                    <td className="p-3.5 font-bold capitalize text-[#1C1815]">{inc.category.replace("_", " ")}</td>
+                    <td className="p-3.5 text-[#706254]">{inc.reportedBy?.name || "Rider"}</td>
+                    <td className="p-3.5 max-w-xs truncate text-[#706254]">{inc.description}</td>
+                    <td className="p-3.5 text-[#706254] text-[11px]">{new Date(inc.createdAt).toLocaleDateString("en-IN")}</td>
+                    <td className="p-3.5 capitalize font-bold text-[11px] text-[#D97706]">{inc.status.replace("_", " ")}</td>
                   </tr>
                 ))}
               </tbody>

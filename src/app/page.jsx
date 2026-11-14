@@ -2,608 +2,1557 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Logo from "@/components/brand/Logo";
 import {
   Search,
   MapPin,
   Bike,
-  Shield,
   ArrowRight,
-  Clock,
   CheckCircle,
-  Menu,
   X,
-  ChevronRight,
-  ShieldCheck,
-  LogIn,
   Layers,
-  Activity,
   Receipt,
-} from "lucide-react";
+  ShieldCheck,
+} from "lucide-react" ;
 
 export default function HomePage() {
   const [lots, setLots] = useState([]);
   const [loadingLots, setLoadingLots] = useState(true);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentTime, setCurrentTime] = useState("");
-
-  useEffect(() => {
-    // Local time updater
-    const updateTime = () => {
-      const now = new Date();
-      setCurrentTime(
-        now.toLocaleTimeString("en-IN", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        })
-      );
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetch("/api/parking-lots")
       .then((res) => res.json())
       .then((data) => {
-        if (data.lots) {
-          setLots(data.lots);
-        }
+        if (data.lots) setLots(data.lots);
       })
       .catch((err) => console.error("Error loading lots:", err))
       .finally(() => setLoadingLots(false));
-  }, []);
-
-  // Columns for the sliced architectural hero visual
-  const heroColumns = [0, 1, 2, 3, 4, 5];
+  }, [] ) ;
 
   return (
-    <div className="min-h-screen bg-[#EAEFF2] text-[#3A0F34] font-sans selection:bg-[#EAAA00] selection:text-[#3A0F34]">
-      {/* Top Architectural Header */}
-      <header className="sticky top-0 z-50 bg-[#EAEFF2]/95 backdrop-blur-md border-b border-[#CCD5DC]">
-        <div className="w-full grid grid-cols-12 h-16 sm:h-20">
-          {/* Brand Col */}
-          <div className="col-span-8 sm:col-span-4 lg:col-span-3 border-r border-[#CCD5DC] px-4 sm:px-8 flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-8 h-8 rounded-sm bg-[#3A0F34] text-[#EAAA00] flex items-center justify-center font-bold text-sm tracking-wider border border-[#541D4C]">
-                P
-              </div>
-              <div className="flex flex-col">
-                <span className="font-extrabold tracking-tight text-sm text-[#3A0F34] uppercase">
-                  Where Did I Park?
-                </span>
-                <span className="text-[10px] text-[#75456E] tracking-widest uppercase font-mono">
-                  Two-Wheeler Mobility
-                </span>
-              </div>
-            </Link>
-          </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        width: "100%",
+        backgroundColor: "#DDE3E8",
+        color: "#18212F",
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        overflowX: "hidden",
+      }}
+    >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          text-rendering: optimizeLegibility;
+        }
 
-          {/* Desktop Navigation Links Aligned Across Columns */}
-          <nav className="hidden lg:flex col-span-6 items-center divide-x divide-[#CCD5DC]">
-            <Link
-              href="/parking"
-              className="px-6 h-full flex items-center text-xs font-bold uppercase tracking-widest text-[#3A0F34] hover:text-[#EAAA00] transition-colors"
-            >
-              01 Explore
-            </Link>
-            <a
-              href="#portals"
-              className="px-6 h-full flex items-center text-xs font-bold uppercase tracking-widest text-[#3A0F34] hover:text-[#EAAA00] transition-colors"
-            >
-              02 Three Interfaces
-            </a>
-            <a
-              href="#facilities"
-              className="px-6 h-full flex items-center text-xs font-bold uppercase tracking-widest text-[#3A0F34] hover:text-[#EAAA00] transition-colors"
-            >
-              03 Facilities
-            </a>
-            <Link
-              href="/attendant"
-              className="px-6 h-full flex items-center text-xs font-bold uppercase tracking-widest text-[#3A0F34] hover:text-[#EAAA00] transition-colors"
-            >
-              Booth Portal
-            </Link>
-          </nav>
+        img {
+          image-rendering: -webkit-optimize-contrast;
+          image-rendering: high-quality;
+        }
 
-          {/* Right Action & Clock Col */}
-          <div className="col-span-4 sm:col-span-8 lg:col-span-3 flex items-center justify-end px-4 sm:px-8 space-x-3 border-l border-[#CCD5DC]">
-            <div className="hidden sm:flex flex-col items-end mr-3">
-              <span className="text-[10px] uppercase font-mono text-[#75456E] tracking-wider">
-                IST Time
-              </span>
-              <span className="text-xs font-mono font-bold text-[#3A0F34]">
-                {currentTime || "00:00:00"}
-              </span>
+        /* Hero Primary Button Hotspot & Focus */
+        .hero-find-btn {
+          position: absolute;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          text-decoration: none;
+          background-color: #5EE819;
+          color: #111111;
+          outline: none;
+          border-radius: 0px;
+          border: none;
+          box-sizing: border-box;
+          transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .hero-find-btn:hover {
+          background-color: #49DE0B !important;
+          box-shadow: 0 0 28px rgba(94, 232, 25, 0.85) !important;
+          transform: translateY(-1px);
+        }
+
+        .hero-find-btn:active {
+          transform: translateY(0px) scale(0.99);
+        }
+
+        .hero-find-btn:focus-visible {
+          outline: 3px solid #111111;
+          outline-offset: 2px;
+        }
+
+        .hero-hotspot-nav:hover {
+          background-color: rgba(94, 232, 25, 0.14);
+          box-shadow: 0 0 0 2px rgba(94, 232, 25, 0.45);
+        }
+
+        .hero-hotspot-btn:hover {
+          box-shadow: 0 0 24px rgba(94, 232, 25, 0.75), 0 0 0 2px #5EE819;
+          transform: scale(1.015);
+        }
+
+        .hero-hotspot-radar:hover {
+          background-color: rgba(94, 232, 25, 0.1);
+          box-shadow: 0 0 20px rgba(94, 232, 25, 0.35);
+        }
+
+        .card-interface {
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-interface:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 16px 32px rgba(43, 13, 40, 0.12);
+        }
+
+        .lot-card {
+          transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .lot-card:hover {
+          transform: translateY(-3px);
+          border-color: #2B0D28 !important;
+        }
+
+        .navbar-link-item:hover {
+          color: #49DE0B !important;
+          transform: translateY(-1px);
+        }
+
+        .navbar-search-btn:hover {
+          color: #49DE0B !important;
+          transform: scale(1.1);
+        }
+
+        .navbar-signup-btn:hover {
+          background-color: #43D800 !important;
+          box-shadow: 0 0 20px rgba(94, 232, 25, 0.75) !important;
+          transform: translateY(-1px) scale(1.02);
+        }
+      `}</style>
+
+      {/* ═════════════════════════════════════════════════════════════════
+          SEARCH MODAL OVERLAY
+      ═════════════════════════════════════════════════════════════════ */}
+      {searchOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(29, 12, 27, 0.78)",
+            backdropFilter: "blur(6px)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            paddingTop: "90px",
+            animation: "fadeIn 0.2s ease-out",
+          }}
+          onClick={() => setSearchOpen(false)}
+        >
+          <div
+            style={{
+              backgroundColor: "#1D0C1B",
+              border: "2px solid #5EE819",
+              width: "92%",
+              maxWidth: "620px",
+              padding: "24px",
+              boxShadow: "0 24px 48px rgba(0,0,0,0.6)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "16px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  color: "#5EE819",
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  letterSpacing: "0.15em",
+                  textTransform: "uppercase",
+                }}
+              >
+                <Search style={{ width: "16px", height: "16px" }} />
+                <span>Search Two-Wheeler Parking</span>
+              </div>
+              <button
+                onClick={() => setSearchOpen(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#CCD5DC",
+                  cursor: "pointer",
+                  padding: "4px",
+                }}
+                aria-label="Close search"
+              >
+                <X style={{ width: "20px", height: "20px" }} />
+              </button>
             </div>
 
-            <Link
-              href="/login"
-              className="hidden sm:inline-flex items-center space-x-1.5 px-4 py-2 bg-[#3A0F34] text-[#DDE3E8] hover:bg-[#260722] hover:text-[#EAAA00] transition-all rounded-sm text-xs font-semibold uppercase tracking-wider"
-            >
-              <LogIn className="w-3.5 h-3.5 text-[#EAAA00]" />
-              <span>Sign In</span>
-            </Link>
-
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-[#3A0F34] hover:bg-[#DDE3E8] rounded-sm"
-              aria-label="Toggle navigation menu"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#EAEFF2] border-b border-[#CCD5DC] px-6 py-4 space-y-3">
-            <Link
-              href="/parking"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-xs font-bold uppercase tracking-widest text-[#3A0F34] hover:text-[#EAAA00]"
-            >
-              01 Explore Parking
-            </Link>
-            <a
-              href="#portals"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-xs font-bold uppercase tracking-widest text-[#3A0F34] hover:text-[#EAAA00]"
-            >
-              02 Three Interfaces (Rider / Booth / Admin)
-            </a>
-            <a
-              href="#facilities"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-xs font-bold uppercase tracking-widest text-[#3A0F34] hover:text-[#EAAA00]"
-            >
-              03 Facilities & Availability
-            </a>
-            <Link
-              href="/attendant"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-xs font-bold uppercase tracking-widest text-[#3A0F34] hover:text-[#EAAA00]"
-            >
-              Attendant Booth Portal
-            </Link>
-            <Link
-              href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-xs font-bold uppercase tracking-widest text-[#3A0F34] hover:text-[#EAAA00]"
-            >
-              Admin Command Center
-            </Link>
-            <div className="pt-3 border-t border-[#CCD5DC]">
+            <div style={{ display: "flex", gap: "10px" }}>
+              <input
+                type="text"
+                placeholder="Search location, landmark, metro station, city..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    window.location.href = `/parking${
+                      searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
+                    }`;
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  padding: "14px 16px",
+                  backgroundColor: "#2B0D28",
+                  border: "1px solid rgba(94, 232, 25, 0.4)",
+                  color: "#fff",
+                  fontSize: "14px",
+                  outline: "none",
+                  fontFamily: "inherit",
+                }}
+                autoFocus
+              />
               <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full inline-flex items-center justify-center space-x-2 px-4 py-2.5 bg-[#3A0F34] text-[#EAAA00] font-semibold text-xs uppercase tracking-wider rounded-sm"
+                href={`/parking${
+                  searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""
+                }`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0 24px",
+                  backgroundColor: "#5EE819",
+                  color: "#111",
+                  fontWeight: 900,
+                  fontSize: "12px",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                  whiteSpace: "nowrap",
+                }}
               >
-                <span>Access Portals / Sign In</span>
+                Search
               </Link>
             </div>
-          </div>
-        )}
-      </header>
 
-      {/* HERO SECTION: High-End Architectural Grid Layout (Matching User Reference) */}
-      <section className="relative border-b border-[#CCD5DC] overflow-hidden">
-        {/* Full Viewport 10-Column Structural Grid */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-5rem)]">
-          
-          {/* Left Column Group: Typography & Mission (Cols 1-5) */}
-          <div className="lg:col-span-5 p-6 sm:p-10 lg:p-14 border-r border-[#CCD5DC] flex flex-col justify-between z-10 bg-[#EAEFF2]/90 backdrop-blur-xs">
-            <div>
-              {/* Category / Approach tag */}
-              <div className="flex items-center space-x-2.5 mb-6 sm:mb-10">
-                <span className="w-2 h-2 rounded-full bg-[#EAAA00] animate-pulse" />
-                <span className="text-[11px] font-mono uppercase tracking-[0.25em] text-[#75456E] font-semibold">
-                  A Systematic Urban Approach
-                </span>
-              </div>
-
-              {/* Monumental Kinetic Headline */}
-              <div className="space-y-1 mb-8">
-                <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-[#3A0F34] tracking-tight leading-[0.9] uppercase select-none">
-                  Space
-                </h1>
-                <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-[#3A0F34]/90 tracking-tight leading-[0.9] lowercase italic font-serif">
-                  is a new
-                </h2>
-                <h2 className="text-6xl sm:text-7xl lg:text-8xl font-black text-[#3A0F34] tracking-tight leading-[0.9] uppercase select-none">
-                  power
-                </h2>
-              </div>
-
-              {/* Functional Subtitle */}
-              <p className="text-sm sm:text-base text-[#3A0F34]/80 leading-relaxed max-w-md mb-8">
-                Conflict-free slot booking for riders, fast gate check-in by registration number for attendants, and unified multi-location facility oversight for city administrators.
-              </p>
-
-              {/* Circular Reference CTA & Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4">
-                <Link
-                  href="/parking"
-                  className="group inline-flex items-center space-x-3 text-xs font-bold uppercase tracking-widest text-[#3A0F34] hover:text-[#EAAA00] transition-colors"
-                >
-                  <div className="w-12 h-12 rounded-full border border-[#3A0F34] group-hover:border-[#EAAA00] group-hover:bg-[#3A0F34] flex items-center justify-center transition-all">
-                    <ArrowRight className="w-4 h-4 text-[#3A0F34] group-hover:text-[#EAAA00] group-hover:translate-x-0.5 transition-all" />
-                  </div>
-                  <span>Explore The Parking Lots</span>
-                </Link>
-
-                <Link
-                  href="/dashboard/my-parking"
-                  className="px-4 py-3 bg-[#DDE3E8] border border-[#CCD5DC] hover:border-[#3A0F34] text-[#3A0F34] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
-                >
-                  Active Session Ticket
-                </Link>
-              </div>
-            </div>
-
-            {/* Bottom Meta in Left Col */}
-            <div className="pt-8 mt-8 border-t border-[#CCD5DC]/70 grid grid-cols-2 gap-4 text-xs font-mono">
-              <div>
-                <span className="text-[10px] uppercase text-[#75456E] block">Architecture</span>
-                <span className="font-bold text-[#3A0F34]">Atomic Allocation</span>
-              </div>
-              <div>
-                <span className="text-[10px] uppercase text-[#75456E] block">Surveillance</span>
-                <span className="font-bold text-[#3A0F34]">Scannable QR Gates</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Middle & Right Column Group: Sliced Visual Art (Cols 6-11) */}
-          <div className="lg:col-span-6 relative border-r border-[#CCD5DC] min-h-[400px] lg:min-h-full overflow-hidden bg-[#3A0F34]">
-            {/* Sliced Column Artwork (Motorcycle with glowing Marigold trails) */}
-            <div className="absolute inset-0 grid grid-cols-6 h-full w-full">
-              {heroColumns.map((colIndex) => (
-                <div
-                  key={colIndex}
-                  className="relative h-full border-r border-[#CCD5DC]/20 overflow-hidden"
+            <div style={{ marginTop: "16px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              <span style={{ fontSize: "11px", color: "rgba(204,213,220,0.6)" }}>Quick:</span>
+              {["Connaught Place", "Koramangala", "Bandra West", "Shivaji Nagar"].map((city) => (
+                <button
+                  key={city}
+                  onClick={() => {
+                    setSearchQuery(city);
+                    window.location.href = `/parking?search=${encodeURIComponent(city)}`;
+                  }}
                   style={{
-                    transform: `translateY(${colIndex % 2 === 0 ? "0px" : "-6px"})`,
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    color: "#CCD5DC",
+                    fontSize: "11px",
+                    padding: "3px 8px",
+                    cursor: "pointer",
                   }}
                 >
-                  <div
-                    className="absolute inset-0 bg-cover bg-center h-full w-[600%] transition-transform duration-700 hover:scale-105"
-                    style={{
-                      backgroundImage: "url('/images/hero-art.jpg')",
-                      left: `-${colIndex * 100}%`,
-                    }}
-                  />
-                  {/* Subtle aubergine color grade overlay */}
-                  <div className="absolute inset-0 bg-[#3A0F34]/25 hover:bg-transparent transition-colors" />
-                </div>
+                  {city}
+                </button>
               ))}
             </div>
+          </div>
+        </div>
+      )}
 
-            {/* Floating Editorial Badge on Artwork */}
-            <div className="absolute bottom-6 left-6 right-6 p-4 bg-[#3A0F34]/90 backdrop-blur-md border border-[#541D4C] text-[#DDE3E8] flex items-center justify-between z-20">
-              <div className="flex items-center space-x-3">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#EAAA00] animate-ping" />
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#EAAA00]">
-                    Delhi &bull; Bengaluru &bull; Mumbai &bull; Pune
-                  </div>
-                  <div className="text-[11px] text-[#CCD5DC] font-mono">
-                    High-Density Two-Wheeler Urban Infrastructure
-                  </div>
+      {/* ═════════════════════════════════════════════════════════════════
+          EXACT 4K HERO SECTION & NAVIGATION
+          Fitted perfectly to 100vh viewport height without vertical overflow.
+          Width and height managed directly to keep full visual in view.
+      ═════════════════════════════════════════════════════════════════ */}
+      <section
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100vh",
+          backgroundColor: "#DDE3E8",
+          borderBottom: "1px solid rgba(180,192,200,0.6)",
+          overflow: "hidden",
+        }}
+      >
+        {/* ═════════════════════════════════════════════════════════════════
+            BOLD & CRISP PREMIUM TOP NAVBAR (HTML & CSS)
+        ═════════════════════════════════════════════════════════════════ */}
+        <header
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "64px",
+            backgroundColor: "#DDE3E8",
+            borderBottom: "1px solid rgba(180, 192, 200, 0.7)",
+            zIndex: 30,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 4vw",
+          }}
+        >
+          {/* Brand Logo */}
+          <div style={{ flexShrink: 0, marginRight: "32px" }}>
+            <Logo size={36} />
+          </div>
+
+          {/* Navigation Links - BOLD, PREMIUM, HIGH VISIBILITY */}
+          <nav
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "clamp(20px, 2.8vw, 44px)",
+            }}
+          >
+            <Link
+              href="/"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.14em",
+                color: "#49DE0B",
+                textDecoration: "none",
+                borderBottom: "2.5px solid #49DE0B",
+                paddingBottom: "4px",
+                transition: "color 0.15s ease",
+              }}
+            >
+              Home
+            </Link>
+
+            <Link
+              href="/parking"
+              className="navbar-link-item"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.14em",
+                color: "#2B0D28",
+                textDecoration: "none",
+                paddingBottom: "4px",
+                transition: "color 0.15s ease",
+              }}
+            >
+              Find Parking
+            </Link>
+
+            <a
+              href="#how-it-works"
+              className="navbar-link-item"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.14em",
+                color: "#2B0D28",
+                textDecoration: "none",
+                paddingBottom: "4px",
+                transition: "color 0.15s ease",
+              }}
+            >
+              How It Works
+            </a>
+
+            <a
+              href="#features"
+              className="navbar-link-item"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.14em",
+                color: "#2B0D28",
+                textDecoration: "none",
+                paddingBottom: "4px",
+                transition: "color 0.15s ease",
+              }}
+            >
+              Features
+            </a>
+
+            <a
+              href="#facilities"
+              className="navbar-link-item"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.14em",
+                color: "#2B0D28",
+                textDecoration: "none",
+                paddingBottom: "4px",
+                transition: "color 0.15s ease",
+              }}
+            >
+              About
+            </a>
+          </nav>
+
+          {/* Right Action Items: Search, Log In, Sign Up */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "clamp(16px, 2vw, 28px)",
+            }}
+          >
+            {/* Search Trigger */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "#2B0D28",
+                cursor: "pointer",
+                padding: "6px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "color 0.15s ease",
+              }}
+              className="navbar-search-btn"
+              aria-label="Open search drawer"
+              title="Search Parking Lots"
+            >
+              <Search style={{ width: "20px", height: "20px", strokeWidth: 2.4 }} />
+            </button>
+
+            {/* Log In */}
+            <Link
+              href="/login"
+              className="navbar-link-item"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.14em",
+                color: "#2B0D28",
+                textDecoration: "none",
+                transition: "color 0.15s ease",
+              }}
+            >
+              Log In
+            </Link>
+
+            {/* Sign Up CTA Button */}
+            <Link
+              href="/register"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "10px 24px",
+                backgroundColor: "#5EE819",
+                color: "#111",
+                fontWeight: 900,
+                fontSize: "12px",
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                textDecoration: "none",
+                borderRadius: "3px",
+                boxShadow: "0 2px 10px rgba(94, 232, 25, 0.4)",
+                transition: "all 0.2s ease",
+              }}
+              className="navbar-signup-btn"
+            >
+              Sign Up
+            </Link>
+          </div>
+        </header>
+
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          {/* Razor-sharp 2.5K / 4K composite visual - 100% Full Width */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/landing-design-2k.jpg?v=clean2"
+            alt="Where Did I Park? - Find your spot. Remember where. Two-Wheeler Parking Management"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "fill",
+              display: "block",
+              userSelect: "none",
+              imageRendering: "-webkit-optimize-contrast",
+            }}
+            loading="eager"
+            decoding="sync"
+          />
+
+          {/* ═════════════════════════════════════════════════════
+              CRISP 4K VECTOR ELEMENTS (100% Sharp Typography & Button)
+          ═════════════════════════════════════════════════════ */}
+
+          {/* 1. Vector Description Paragraph (Zero Compression Blur, Native Font Crispness) */}
+          <p
+            style={{
+              position: "absolute",
+              top: "62.93%",
+              left: "6.25%",
+              width: "22.5%",
+              maxWidth: "470px",
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "clamp(12px, 0.94vw, 15px)",
+              lineHeight: "1.52",
+              color: "#18212F",
+              fontWeight: 500,
+              letterSpacing: "-0.01em",
+              userSelect: "none",
+              zIndex: 24,
+            }}
+          >
+            Check nearby parking lots, get a confirmed slot, save your vehicle location, and manage your parking sessions in one place.
+          </p>
+
+          {/* 2. Primary CTA Button: FIND PARKING → (100% Vector Crisp, Exact Match) */}
+          <Link
+            href="/parking"
+            className="hero-find-btn"
+            style={{
+              top: "71.79%",
+              left: "6.21%",
+              width: "17.73%",
+              minWidth: "240px",
+              height: "6.16%",
+              minHeight: "44px",
+              padding: "0 clamp(18px, 1.8vw, 32px)",
+              fontWeight: 900,
+              fontSize: "clamp(11.5px, 0.82vw, 13.5px)",
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              zIndex: 25,
+            }}
+            aria-label="Find Parking - Browse Available Two-Wheeler Bays"
+            title="Find Parking"
+          >
+            <span>Find Parking</span>
+            <svg
+              width="44"
+              height="12"
+              viewBox="0 0 44 12"
+              fill="none"
+              style={{ flexShrink: 0 }}
+            >
+              <path
+                d="M0 6H40M40 6L33 1.5M40 6L33 10.5"
+                stroke="#111111"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Link>
+
+          {/* 3. Vector Tag: PARK SAVE RETRIEVE (Crisp Architectural Detail) */}
+          <div
+            style={{
+              position: "absolute",
+              top: "86.92%",
+              left: "6.09%",
+              display: "flex",
+              alignItems: "stretch",
+              gap: "14px",
+              zIndex: 24,
+              userSelect: "none",
+            }}
+          >
+            <div
+              style={{
+                width: "2px",
+                backgroundColor: "#8C9BA5",
+                borderRadius: "1px",
+              }}
+            />
+            <div
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "clamp(9px, 0.65vw, 11px)",
+                fontWeight: 800,
+                letterSpacing: "0.22em",
+                lineHeight: "1.6",
+                color: "#4A5568",
+                textTransform: "uppercase",
+              }}
+            >
+              Park<br />Save<br />Retrieve
+            </div>
+          </div>
+
+          {/* E. DEDICATED CRISP RIGHT SIDEBAR (100% Vector HTML) */}
+          <div
+            style={{
+              position: "absolute",
+              top: "64px",
+              bottom: 0,
+              right: 0,
+              width: "12.5%",
+              minWidth: "125px",
+              backgroundColor: "#DDE3E8",
+              borderLeft: "1px solid rgba(180, 192, 200, 0.7)",
+              zIndex: 20,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "32px 12px 24px 12px",
+            }}
+          >
+            {/* Location Saved & Radar */}
+            <Link
+              href="/dashboard/my-parking"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "12px",
+                textDecoration: "none",
+                cursor: "pointer",
+              }}
+              aria-label="My Saved Location - Return to Your Slot"
+              title="View Active Saved Location"
+            >
+              <div
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "10.5px",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.2em",
+                  color: "#2B0D28",
+                  textAlign: "center",
+                  lineHeight: 1.5,
+                }}
+              >
+                Location<br />Saved
+              </div>
+
+              {/* Sharp Vector Radar Target */}
+              <div
+                style={{
+                  position: "relative",
+                  width: "74px",
+                  height: "74px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    borderRadius: "50%",
+                    border: "2px solid rgba(94, 232, 25, 0.9)",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: "11px",
+                    borderRadius: "50%",
+                    border: "1.5px dashed rgba(94, 232, 25, 0.6)",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "-4px",
+                    right: "-4px",
+                    height: "1.5px",
+                    backgroundColor: "rgba(94, 232, 25, 0.55)",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "-4px",
+                    bottom: "-4px",
+                    width: "1.5px",
+                    backgroundColor: "rgba(94, 232, 25, 0.55)",
+                  }}
+                />
+                <div
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "50%",
+                    backgroundColor: "#5EE819",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 0 16px rgba(94, 232, 25, 0.85)",
+                    zIndex: 2,
+                  }}
+                >
+                  <MapPin style={{ width: "15px", height: "15px", color: "#111", fill: "#111" }} />
                 </div>
               </div>
-              <Link
-                href="/parking"
-                className="px-3 py-1.5 bg-[#EAAA00] text-[#3A0F34] font-bold text-[11px] uppercase tracking-wider hover:bg-[#D69700] transition-colors rounded-sm"
+            </Link>
+
+            {/* 01 FIND PARK REMEMBER */}
+            <div
+              style={{
+                textAlign: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <div
+                style={{
+                  fontWeight: 900,
+                  fontSize: "13px",
+                  color: "#2B0D28",
+                  fontFamily: "'Inter', monospace",
+                  letterSpacing: "0.08em",
+                }}
               >
-                Find Slots
-              </Link>
+                01
+              </div>
+              <div
+                style={{
+                  width: "22px",
+                  height: "2px",
+                  backgroundColor: "#2B0D28",
+                  margin: "6px auto",
+                }}
+              />
+              <div
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "10px",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.22em",
+                  color: "#2B0D28",
+                  lineHeight: 1.9,
+                }}
+              >
+                Find<br />Park<br />Remember
+              </div>
+            </div>
+
+            {/* SAME CITY MORE FREEDOM */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "9px",
+                pointerEvents: "none",
+              }}
+            >
+              <div
+                style={{
+                  width: "3.5px",
+                  height: "40px",
+                  backgroundColor: "#5EE819",
+                  borderRadius: "1px",
+                }}
+              />
+              <div
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "10px",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.2em",
+                  color: "#2B0D28",
+                  lineHeight: 1.8,
+                }}
+              >
+                Same City<br />More Freedom
+              </div>
             </div>
           </div>
-
-          {/* Rightmost Narrow Editorial Column (Col 12) */}
-          <div className="hidden lg:flex lg:col-span-1 p-6 flex-col justify-between items-center text-center bg-[#EAEFF2]">
-            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#75456E] [writing-mode:vertical-rl] rotate-180">
-              RIDERS &bull; ATTENDANTS &bull; SUPERVISORS
-            </div>
-
-            <div className="space-y-2 flex flex-col items-center">
-              <span className="w-1 h-12 bg-[#3A0F34]" />
-              <span className="text-xs font-mono font-bold text-[#3A0F34]">01</span>
-              <span className="text-[10px] font-mono text-[#75456E]">/ 03</span>
-            </div>
-
-            <div className="w-6 h-6 rounded-full border border-[#3A0F34] flex items-center justify-center">
-              <div className="w-2 h-2 rounded-full bg-[#EAAA00]" />
-            </div>
-          </div>
-
         </div>
       </section>
 
-      {/* REAL-TIME STATUS TICKER BAR */}
-      <section className="bg-[#3A0F34] text-[#DDE3E8] border-b border-[#541D4C] py-3 px-4 sm:px-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between text-xs font-mono gap-4">
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-[#EAAA00]" />
-            <span className="uppercase text-[#EAAA00] font-bold tracking-wider">
-              Live System Status:
+      {/* ═════════════════════════════════════════════════════════════════
+          HOW IT WORKS - 3 DEDICATED INTERFACES
+          1) Rider (Book slots, QR pass)
+          2) Gate Attendant (Number plate check-in / check-out)
+          3) Administrator (City overview, live counts, slot status)
+      ═════════════════════════════════════════════════════════════════ */}
+      <section
+        id="how-it-works"
+        style={{
+          padding: "88px 36px",
+          maxWidth: "1320px",
+          margin: "0 auto",
+        }}
+      >
+        <div style={{ marginBottom: "56px", textAlign: "center" }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              marginBottom: "12px",
+            }}
+          >
+            <span
+              style={{
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                backgroundColor: "#5EE819",
+                display: "inline-block",
+              }}
+            />
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.22em",
+                color: "#2B0D28",
+              }}
+            >
+              Complete Two-Wheeler Lifecycle
             </span>
-            <span className="text-[#DDE3E8]">
-              {lots.length > 0 ? `${lots.length} Urban Facilities Active` : "Syncing network..."}
-            </span>
           </div>
-
-          <div className="hidden md:flex items-center space-x-6 text-[#CCD5DC]">
-            <span>&bull; Atomic Slot Claim</span>
-            <span>&bull; Digital QR Exit</span>
-            <span>&bull; Indian Rupees (₹) Real Rates</span>
-            <span>&bull; Ground Attendant Booths</span>
-          </div>
-
-          <div className="text-[11px] text-[#EAAA00] font-bold">
-            Average Gate Clearance: 18 Seconds
-          </div>
-        </div>
-      </section>
-
-      {/* THE THREE INTERFACES SECTION (As Requested by User) */}
-      <section id="portals" className="py-20 px-4 sm:px-8 max-w-7xl mx-auto">
-        <div className="mb-14">
-          <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-widest text-[#75456E] mb-2">
-            <span>Section 02</span>
-            <span>&bull;</span>
-            <span className="text-[#EAAA00] font-bold">Connected Architecture</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-[#3A0F34] tracking-tight uppercase">
-            Three Synchronized Interfaces
+          <h2
+            style={{
+              fontWeight: 900,
+              fontSize: "clamp(30px, 4.2vw, 50px)",
+              color: "#2B0D28",
+              letterSpacing: "-0.03em",
+              textTransform: "uppercase",
+              marginBottom: "14px",
+            }}
+          >
+            How The System Works
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-[#3A0F34]/80 max-w-2xl leading-relaxed">
-            Every feature connects directly to the central MongoDB database. Changes made by riders or attendants reflect instantaneously across the entire system.
+          <p
+            style={{
+              fontSize: "14px",
+              color: "#263238",
+              fontWeight: 500,
+              maxWidth: "680px",
+              margin: "0 auto",
+              lineHeight: 1.7,
+            }}
+          >
+            Three dedicated interfaces working simultaneously on top of MongoDB database records.
+            Real-time availability, instant plate check-in, and multi-location management.
           </p>
         </div>
 
-        {/* 3 Structural Bays / Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          {/* Card 1: Rider Interface */}
-          <div className="bg-[#DDE3E8] border border-[#CCD5DC] hover:border-[#3A0F34] p-8 flex flex-col justify-between transition-all duration-300 group">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "28px",
+          }}
+        >
+          {/* Card 1: Rider */}
+          <div
+            className="card-interface"
+            style={{
+              backgroundColor: "#fff",
+              border: "2px solid #BAC4CC",
+              padding: "36px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.04)",
+            }}
+          >
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#75456E]">
-                  Interface 01
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "24px",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.15em",
+                    color: "#2B0D28",
+                  }}
+                >
+                  01 &bull; Rider
                 </span>
-                <span className="px-2.5 py-1 bg-[#3A0F34] text-[#EAAA00] font-mono text-[10px] uppercase font-bold tracking-wider rounded-sm">
-                  Riders
+                <span
+                  style={{
+                    padding: "4px 10px",
+                    backgroundColor: "#2B0D28",
+                    color: "#5EE819",
+                    fontSize: "10px",
+                    fontWeight: 800,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Mobile &amp; Web
                 </span>
               </div>
-
-              <div className="w-12 h-12 bg-[#3A0F34] text-[#EAAA00] flex items-center justify-center rounded-sm mb-6">
-                <Bike className="w-6 h-6" />
+              <div
+                style={{
+                  width: "52px",
+                  height: "52px",
+                  backgroundColor: "#2B0D28",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "22px",
+                  borderRadius: "2px",
+                }}
+              >
+                <Bike style={{ width: "24px", height: "24px", color: "#5EE819" }} />
               </div>
-
-              <h3 className="text-2xl font-black text-[#3A0F34] tracking-tight uppercase mb-3">
-                Book &amp; Navigate
+              <h3
+                style={{
+                  fontWeight: 900,
+                  fontSize: "22px",
+                  color: "#2B0D28",
+                  letterSpacing: "-0.02em",
+                  textTransform: "uppercase",
+                  marginBottom: "12px",
+                }}
+              >
+                Find &amp; Remember
               </h3>
-              <p className="text-xs sm:text-sm text-[#3A0F34]/80 leading-relaxed mb-6">
-                Search available parking on interactive maps, book your exact bay slot, receive an encrypted QR ticket on your mobile, and follow pin-drop navigation back to your vehicle.
+              <p
+                style={{
+                  fontSize: "13.5px",
+                  color: "#263238",
+                  fontWeight: 500,
+                  lineHeight: 1.65,
+                  marginBottom: "24px",
+                }}
+              >
+                Find vacant two-wheeler bays on live OpenStreetMap, book your designated slot,
+                generate an encrypted QR pass, and save exact location markers to easily navigate
+                back.
               </p>
-
-              <ul className="space-y-2 text-xs text-[#3A0F34] font-medium border-t border-[#CCD5DC] pt-4 mb-6">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#3A0F34]" />
-                  <span>Real-time slot availability map</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#3A0F34]" />
-                  <span>Conflict-free atomic reservation</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#3A0F34]" />
-                  <span>Digital QR ticket &amp; return directions</span>
-                </li>
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  borderTop: "1.5px solid #BAC4CC",
+                  paddingTop: "18px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
+                {[
+                  "Interactive map slot availability",
+                  "Conflict-free atomic slot booking",
+                  "Digital QR ticket with return pin",
+                ].map((item) => (
+                  <li
+                    key={item}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      fontSize: "12.5px",
+                      color: "#18212F",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <CheckCircle
+                      style={{ width: "16px", height: "16px", color: "#5EE819", flexShrink: 0 }}
+                    />
+                    {item}
+                  </li>
+                ))}
               </ul>
             </div>
-
-            <div className="pt-4 border-t border-[#CCD5DC]">
+            <div style={{ paddingTop: "24px", borderTop: "1.5px solid #BAC4CC", marginTop: "24px" }}>
               <Link
                 href="/dashboard"
-                className="w-full inline-flex items-center justify-between px-4 py-3 bg-[#3A0F34] text-[#EAAA00] font-bold text-xs uppercase tracking-wider hover:bg-[#260722] transition-colors rounded-sm"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "14px 18px",
+                  backgroundColor: "#2B0D28",
+                  color: "#fff",
+                  fontWeight: 800,
+                  fontSize: "11px",
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                  borderRadius: "2px",
+                }}
               >
-                <span>Enter Rider Portal</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Open Rider Dashboard</span>
+                <ArrowRight style={{ width: "16px", height: "16px" }} />
               </Link>
             </div>
           </div>
 
-          {/* Card 2: Parking Attendant Booth Interface */}
-          <div className="bg-[#3A0F34] text-[#DDE3E8] border border-[#541D4C] p-8 flex flex-col justify-between transition-all duration-300 relative shadow-xl">
-            {/* Highlight Accent */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-[#EAAA00]" />
-
+          {/* Card 2: Gate Attendant */}
+          <div
+            className="card-interface"
+            style={{
+              backgroundColor: "#1D0C1B",
+              border: "2px solid #1D0C1B",
+              padding: "36px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              position: "relative",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: "4px",
+                backgroundColor: "#5EE819",
+              }}
+            />
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#EAAA00]">
-                  Interface 02
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "24px",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.15em",
+                    color: "#5EE819",
+                  }}
+                >
+                  02 &bull; Gate Personnel
                 </span>
-                <span className="px-2.5 py-1 bg-[#EAAA00] text-[#3A0F34] font-mono text-[10px] uppercase font-bold tracking-wider rounded-sm">
-                  Gate Attendant
+                <span
+                  style={{
+                    padding: "4px 10px",
+                    backgroundColor: "#5EE819",
+                    color: "#111",
+                    fontSize: "10px",
+                    fontWeight: 900,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Ground Station
                 </span>
               </div>
-
-              <div className="w-12 h-12 bg-[#EAAA00] text-[#3A0F34] flex items-center justify-center rounded-sm mb-6">
-                <Receipt className="w-6 h-6" />
+              <div
+                style={{
+                  width: "52px",
+                  height: "52px",
+                  backgroundColor: "#5EE819",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "22px",
+                }}
+              >
+                <Receipt style={{ width: "24px", height: "24px", color: "#111" }} />
               </div>
-
-              <h3 className="text-2xl font-black text-[#DDE3E8] tracking-tight uppercase mb-3">
+              <h3
+                style={{
+                  fontWeight: 900,
+                  fontSize: "22px",
+                  color: "#fff",
+                  letterSpacing: "-0.02em",
+                  textTransform: "uppercase",
+                  marginBottom: "12px",
+                }}
+              >
                 Booth Gate Check-In
               </h3>
-              <p className="text-xs sm:text-sm text-[#CCD5DC] leading-relaxed mb-6">
-                Stationed attendant interface at the parking entrance. Logs vehicle arrival by registration number plate, automatically assigns a vacant slot, and prints departure receipts with ₹ fee calculation.
+              <p
+                style={{
+                  fontSize: "13px",
+                  color: "rgba(204,213,220,0.85)",
+                  lineHeight: 1.65,
+                  marginBottom: "24px",
+                }}
+              >
+                Dedicated gate terminal for facility attendants. Check in vehicles by number plate,
+                automatically assign vacant slots, maintain live parked records, and calculate
+                departure fees in ₹.
               </p>
-
-              <ul className="space-y-2 text-xs text-[#CCD5DC] font-medium border-t border-[#541D4C] pt-4 mb-6">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#EAAA00]" />
-                  <span>Plate number lookup &amp; check-in</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#EAAA00]" />
-                  <span>Live parked vehicles attendance table</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#EAAA00]" />
-                  <span>Exit duration &amp; Indian Rupee billing</span>
-                </li>
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  borderTop: "1px solid #541D4C",
+                  paddingTop: "18px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
+                {[
+                  "Rapid registration plate check-in",
+                  "Real-time attendance of parked vehicles",
+                  "Checkout receipt with duration & ₹ fees",
+                ].map((item) => (
+                  <li
+                    key={item}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      fontSize: "12px",
+                      color: "rgba(204,213,220,0.85)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    <CheckCircle
+                      style={{ width: "15px", height: "15px", color: "#5EE819", flexShrink: 0 }}
+                    />
+                    {item}
+                  </li>
+                ))}
               </ul>
             </div>
-
-            <div className="pt-4 border-t border-[#541D4C]">
+            <div style={{ paddingTop: "24px", borderTop: "1px solid #541D4C", marginTop: "24px" }}>
               <Link
                 href="/attendant"
-                className="w-full inline-flex items-center justify-between px-4 py-3 bg-[#EAAA00] text-[#3A0F34] font-black text-xs uppercase tracking-wider hover:bg-[#D69700] transition-colors rounded-sm"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "14px 18px",
+                  backgroundColor: "#5EE819",
+                  color: "#111",
+                  fontWeight: 900,
+                  fontSize: "11px",
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                }}
               >
                 <span>Launch Booth Station</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight style={{ width: "16px", height: "16px" }} />
               </Link>
             </div>
           </div>
 
-          {/* Card 3: Administrator Command Center */}
-          <div className="bg-[#DDE3E8] border border-[#CCD5DC] hover:border-[#3A0F34] p-8 flex flex-col justify-between transition-all duration-300 group">
+          {/* Card 3: Administrator */}
+          <div
+            className="card-interface"
+            style={{
+              backgroundColor: "#fff",
+              border: "2px solid #CDD5DC",
+              padding: "36px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#75456E]">
-                  Interface 03
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "24px",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.15em",
+                    color: "#2B0D28",
+                  }}
+                >
+                  03 &bull; Oversight
                 </span>
-                <span className="px-2.5 py-1 bg-[#3A0F34] text-[#EAAA00] font-mono text-[10px] uppercase font-bold tracking-wider rounded-sm">
-                  Supervision
+                <span
+                  style={{
+                    padding: "4px 10px",
+                    backgroundColor: "#2B0D28",
+                    color: "#5EE819",
+                    fontSize: "10px",
+                    fontWeight: 800,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Admin Center
                 </span>
               </div>
-
-              <div className="w-12 h-12 bg-[#3A0F34] text-[#EAAA00] flex items-center justify-center rounded-sm mb-6">
-                <Layers className="w-6 h-6" />
+              <div
+                style={{
+                  width: "52px",
+                  height: "52px",
+                  backgroundColor: "#2B0D28",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "22px",
+                }}
+              >
+                <Layers style={{ width: "24px", height: "24px", color: "#5EE819" }} />
               </div>
-
-              <h3 className="text-2xl font-black text-[#3A0F34] tracking-tight uppercase mb-3">
+              <h3
+                style={{
+                  fontWeight: 900,
+                  fontSize: "22px",
+                  color: "#2B0D28",
+                  letterSpacing: "-0.02em",
+                  textTransform: "uppercase",
+                  marginBottom: "12px",
+                }}
+              >
                 Command Center
               </h3>
-              <p className="text-xs sm:text-sm text-[#3A0F34]/80 leading-relaxed mb-6">
-                City-wide multi-location surveillance. Monitor currently parked vehicles at each facility, identify vacancies vs full lots, adjust slot states, and review incident reports.
+              <p
+                style={{
+                  fontSize: "13px",
+                  color: "rgba(43,13,40,0.72)",
+                  lineHeight: 1.65,
+                  marginBottom: "24px",
+                }}
+              >
+                Multi-location facility supervision. Inspect live vehicle counts across city lots,
+                verify which parking lots have vacancies or are full, adjust slot status, and review
+                security incidents.
               </p>
-
-              <ul className="space-y-2 text-xs text-[#3A0F34] font-medium border-t border-[#CCD5DC] pt-4 mb-6">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#3A0F34]" />
-                  <span>Multi-lot live occupancy monitors</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#3A0F34]" />
-                  <span>Inspect parked plates across facilities</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#3A0F34]" />
-                  <span>CSV audit export &amp; security workflow</span>
-                </li>
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  borderTop: "1px solid #CDD5DC",
+                  paddingTop: "18px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
+                {[
+                  "Multi-lot live occupancy breakdown",
+                  "Inspect parked plate numbers in real time",
+                  "Security incident audit & CSV reports",
+                ].map((item) => (
+                  <li
+                    key={item}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      fontSize: "12px",
+                      color: "#2B0D28",
+                      fontWeight: 500,
+                    }}
+                  >
+                    <CheckCircle
+                      style={{ width: "15px", height: "15px", color: "#5EE819", flexShrink: 0 }}
+                    />
+                    {item}
+                  </li>
+                ))}
               </ul>
             </div>
-
-            <div className="pt-4 border-t border-[#CCD5DC]">
+            <div style={{ paddingTop: "24px", borderTop: "1px solid #CDD5DC", marginTop: "24px" }}>
               <Link
                 href="/admin"
-                className="w-full inline-flex items-center justify-between px-4 py-3 bg-[#3A0F34] text-[#EAAA00] font-bold text-xs uppercase tracking-wider hover:bg-[#260722] transition-colors rounded-sm"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "14px 18px",
+                  backgroundColor: "#2B0D28",
+                  color: "#fff",
+                  fontWeight: 800,
+                  fontSize: "11px",
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                }}
               >
                 <span>Open Command Center</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight style={{ width: "16px", height: "16px" }} />
               </Link>
             </div>
           </div>
-
         </div>
       </section>
 
-      {/* LIVE REGISTERED FACILITIES SECTION */}
-      <section id="facilities" className="py-20 bg-[#DDE3E8] border-t border-b border-[#CCD5DC]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+      {/* ═════════════════════════════════════════════════════════════════
+          ACTIVE PARKING LOTS (Live MongoDB Backend Data)
+      ═════════════════════════════════════════════════════════════════ */}
+      <section
+        id="facilities"
+        style={{
+          padding: "88px 36px",
+          backgroundColor: "#D4DAE0",
+          borderTop: "1px solid #CDD5DC",
+          borderBottom: "1px solid #CDD5DC",
+        }}
+      >
+        <div style={{ maxWidth: "1320px", margin: "0 auto" }}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              marginBottom: "48px",
+              gap: "20px",
+            }}
+          >
             <div>
-              <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-widest text-[#75456E] mb-2">
-                <span>Section 03</span>
-                <span>&bull;</span>
-                <span className="text-[#EAAA00] font-bold">Real Data</span>
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.22em",
+                  color: "rgba(43,13,40,0.6)",
+                  marginBottom: "8px",
+                }}
+              >
+                Database Records &bull; Two-Wheeler Facilities
               </div>
-              <h2 className="text-3xl sm:text-4xl font-black text-[#3A0F34] tracking-tight uppercase">
-                Registered Parking Facilities
+              <h2
+                style={{
+                  fontWeight: 900,
+                  fontSize: "clamp(26px, 3.5vw, 42px)",
+                  color: "#2B0D28",
+                  letterSpacing: "-0.02em",
+                  textTransform: "uppercase",
+                  marginBottom: "8px",
+                }}
+              >
+                Active Parking Lots
               </h2>
-              <p className="mt-2 text-xs sm:text-sm text-[#3A0F34]/80">
-                Database-verified locations with active surveillance and slot counters.
+              <p style={{ fontSize: "13px", color: "rgba(43,13,40,0.68)" }}>
+                Verified locations across India with slot capacity and rates in Indian Rupees.
               </p>
             </div>
-
             <Link
               href="/parking"
-              className="mt-4 md:mt-0 inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-[#3A0F34] hover:text-[#EAAA00]"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                fontSize: "11px",
+                fontWeight: 800,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "#2B0D28",
+                textDecoration: "none",
+                padding: "8px 16px",
+                border: "1.5px solid #2B0D28",
+              }}
             >
-              <span>View Interactive Map</span>
-              <ArrowRight className="w-4 h-4" />
+              Explore All on Map <ArrowRight style={{ width: "15px", height: "15px" }} />
             </Link>
           </div>
 
-          {/* Lots Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: "24px",
+            }}
+          >
             {loadingLots ? (
-              <div className="col-span-full py-12 text-center text-xs font-mono text-[#75456E]">
-                Fetching active facilities from MongoDB...
+              <div
+                style={{
+                  gridColumn: "1/-1",
+                  textAlign: "center",
+                  padding: "48px",
+                  fontSize: "12px",
+                  color: "rgba(43,13,40,0.5)",
+                  fontFamily: "monospace",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Loading facility records...
               </div>
             ) : lots.length === 0 ? (
-              <div className="col-span-full py-12 text-center text-xs font-mono text-[#75456E]">
-                No facilities registered currently.
+              <div
+                style={{
+                  gridColumn: "1/-1",
+                  textAlign: "center",
+                  padding: "48px",
+                  fontSize: "12px",
+                  color: "rgba(43,13,40,0.5)",
+                  fontFamily: "monospace",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
+              >
+                No facilities found. Seed data is available at /api/seed.
               </div>
             ) : (
-              lots.map((lot) => (
+              lots.map((lot, idx) => (
                 <div
-                  key={lot._id}
-                  className="bg-[#EAEFF2] border border-[#CCD5DC] hover:border-[#3A0F34] p-5 flex flex-col justify-between transition-all"
+                  key={lot._id || lot.id || `lot-${idx}`}
+                  className="lot-card"
+                  style={{
+                    backgroundColor: "#fff",
+                    border: "2px solid #CDD5DC",
+                    padding: "26px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                  }}
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="px-2 py-0.5 bg-[#3A0F34] text-[#EAAA00] text-[10px] font-mono uppercase font-bold tracking-wider rounded-sm">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginBottom: "14px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          padding: "3px 8px",
+                          backgroundColor: "#2B0D28",
+                          color: "#5EE819",
+                          fontSize: "10px",
+                          fontWeight: 800,
+                          letterSpacing: "0.1em",
+                          textTransform: "uppercase",
+                        }}
+                      >
                         {lot.city}
                       </span>
-                      <span className="text-xs font-bold text-[#3A0F34]">
+                      <span style={{ fontWeight: 900, fontSize: "14px", color: "#2B0D28" }}>
                         ₹{lot.hourlyRate}/hr
                       </span>
                     </div>
-
-                    <h3 className="font-extrabold text-[#3A0F34] text-base leading-snug mb-2">
+                    <h3
+                      style={{
+                        fontWeight: 900,
+                        fontSize: "16px",
+                        color: "#2B0D28",
+                        marginBottom: "8px",
+                        lineHeight: 1.3,
+                      }}
+                    >
                       {lot.name}
                     </h3>
-                    <p className="text-xs text-[#3A0F34]/70 line-clamp-2 mb-4">
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "rgba(43,13,40,0.65)",
+                        marginBottom: "18px",
+                        lineHeight: 1.5,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                    >
                       {lot.address}
                     </p>
-
-                    <div className="space-y-1.5 text-[11px] font-mono text-[#75456E] border-t border-[#CCD5DC] pt-3">
-                      <div className="flex justify-between">
+                    <div
+                      style={{
+                        borderTop: "1px solid #CDD5DC",
+                        paddingTop: "12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "6px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          fontSize: "11px",
+                          fontFamily: "monospace",
+                          color: "rgba(43,13,40,0.55)",
+                        }}
+                      >
                         <span>Total Bays:</span>
-                        <span className="font-bold text-[#3A0F34]">{lot.totalCapacity} slots</span>
+                        <span style={{ fontWeight: 800, color: "#2B0D28" }}>
+                          {lot.totalCapacity} slots
+                        </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Operating Hours:</span>
-                        <span className="font-bold text-[#3A0F34]">{lot.openingHours}</span>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          fontSize: "11px",
+                          fontFamily: "monospace",
+                          color: "rgba(43,13,40,0.55)",
+                        }}
+                      >
+                        <span>Hours:</span>
+                        <span style={{ fontWeight: 800, color: "#2B0D28" }}>
+                          {lot.openingHours}
+                        </span>
                       </div>
                     </div>
                   </div>
-
-                  <div className="mt-5 pt-3 border-t border-[#CCD5DC]">
+                  <div style={{ marginTop: "22px" }}>
                     <Link
                       href={`/parking/${lot._id}`}
-                      className="w-full inline-flex items-center justify-center space-x-1.5 px-3 py-2 bg-[#3A0F34] text-[#DDE3E8] hover:text-[#EAAA00] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        padding: "11px",
+                        backgroundColor: "#2B0D28",
+                        color: "#fff",
+                        fontWeight: 800,
+                        fontSize: "11px",
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        textDecoration: "none",
+                      }}
                     >
-                      <MapPin className="w-3.5 h-3.5 text-[#EAAA00]" />
-                      <span>Select This Lot</span>
+                      <MapPin style={{ width: "13px", height: "13px", color: "#5EE819" }} />
+                      Select This Bay
                     </Link>
                   </div>
                 </div>
@@ -613,63 +1562,185 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ARCHITECTURAL FOOTER */}
-      <footer className="bg-[#3A0F34] text-[#DDE3E8] border-t border-[#541D4C]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-            {/* Col 1 */}
-            <div className="space-y-4 md:col-span-1">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-sm bg-[#EAAA00] text-[#3A0F34] flex items-center justify-center font-bold text-sm">
-                  P
-                </div>
-                <span className="font-black text-sm uppercase tracking-tight text-[#DDE3E8]">
-                  Where Did I Park?
-                </span>
-              </div>
-              <p className="text-xs text-[#CCD5DC] leading-relaxed">
-                Smart Two-Wheeler Parking Management System. Engineered for motorcycle and scooter riders, gate attendants, and city administrators across India.
+      {/* ═════════════════════════════════════════════════════════════════
+          FEATURES & INFRASTRUCTURE GUARANTEES
+      ═════════════════════════════════════════════════════════════════ */}
+      <section
+        id="features"
+        style={{
+          padding: "88px 36px",
+          maxWidth: "1320px",
+          margin: "0 auto",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "24px",
+          }}
+        >
+          {[
+            {
+              Icon: ShieldCheck,
+              title: "Atomic Allocation",
+              desc: "Every slot claim uses MongoDB atomic operations. Duplicate bookings are impossible even during peak traffic.",
+              green: false,
+            },
+            {
+              Icon: MapPin,
+              title: "Pin-Drop Location",
+              desc: "Save your bike's exact parked coordinates. Never wander through crowded two-wheeler parking structures again.",
+              green: true,
+            },
+            {
+              Icon: Receipt,
+              title: "Accurate ₹ Billing",
+              desc: "Fair hourly tariffs computed precisely from entry to checkout timestamp. Digital receipt issued at gate clearance.",
+              green: false,
+            },
+            {
+              Icon: Layers,
+              title: "Three Unified Roles",
+              desc: "Riders, booth attendants, and city administrators all interact with the same synchronized dataset in real time.",
+              green: true,
+            },
+          ].map(({ Icon, title, desc, green }) => (
+            <div
+              key={title}
+              style={{
+                padding: "28px",
+                backgroundColor: "#fff",
+                border: "2px solid #CDD5DC",
+              }}
+            >
+              <Icon
+                style={{
+                  width: "28px",
+                  height: "28px",
+                  color: green ? "#5EE819" : "#2B0D28",
+                  marginBottom: "16px",
+                }}
+              />
+              <h4
+                style={{
+                  fontWeight: 900,
+                  fontSize: "14px",
+                  textTransform: "uppercase",
+                  color: "#2B0D28",
+                  letterSpacing: "0.05em",
+                  marginBottom: "8px",
+                }}
+              >
+                {title}
+              </h4>
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: "rgba(43,13,40,0.72)",
+                  lineHeight: 1.65,
+                }}
+              >
+                {desc}
               </p>
-              <div className="text-[10px] font-mono text-[#EAAA00]">
-                ICE SILVER &bull; DEEP AUBERGINE &bull; MARIGOLD
-              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═════════════════════════════════════════════════════════════════
+          FOOTER
+      ═════════════════════════════════════════════════════════════════ */}
+      <footer
+        style={{
+          backgroundColor: "#1D0C1B",
+          color: "#CCD5DC",
+          borderTop: "1px solid #541D4C",
+        }}
+      >
+        <div style={{ maxWidth: "1320px", margin: "0 auto", padding: "64px 36px 40px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "36px",
+              marginBottom: "48px",
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <Logo variant="dark" size={34} />
+              <p style={{ fontSize: "12px", color: "rgba(204,213,220,0.75)", lineHeight: 1.65 }}>
+                Smart Two-Wheeler Parking Management System for riders, gate attendants, and city
+                administrators across India.
+              </p>
             </div>
 
-            {/* Col 2 */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-mono uppercase tracking-widest text-[#EAAA00] font-bold">
-                Portals &amp; Roles
-              </h4>
-              <ul className="space-y-2 text-xs text-[#CCD5DC]">
-                <li>
-                  <Link href="/dashboard" className="hover:text-[#EAAA00]">
-                    Rider Dashboard
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/attendant" className="hover:text-[#EAAA00]">
-                    Parking Attendant Booth
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/admin" className="hover:text-[#EAAA00]">
-                    Administrator Command Center
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/dashboard/my-parking" className="hover:text-[#EAAA00]">
-                    Active QR Ticket
-                  </Link>
-                </li>
+            <div>
+              <h5
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.22em",
+                  color: "#5EE819",
+                  marginBottom: "14px",
+                }}
+              >
+                Portals
+              </h5>
+              <ul
+                style={{
+                  listStyle: "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
+                {[
+                  ["Rider Portal", "/dashboard"],
+                  ["Attendant Gate Booth", "/attendant"],
+                  ["Administrator Command Center", "/admin"],
+                  ["Find Parking Map", "/parking"],
+                ].map(([label, href]) => (
+                  <li key={label}>
+                    <Link
+                      href={href}
+                      style={{
+                        fontSize: "12px",
+                        color: "rgba(204,213,220,0.75)",
+                        textDecoration: "none",
+                      }}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
-            {/* Col 3 */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-mono uppercase tracking-widest text-[#EAAA00] font-bold">
-                Locations
-              </h4>
-              <ul className="space-y-2 text-xs text-[#CCD5DC]">
+            <div>
+              <h5
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.22em",
+                  color: "#5EE819",
+                  marginBottom: "14px",
+                }}
+              >
+                Supported Regions
+              </h5>
+              <ul
+                style={{
+                  listStyle: "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                  fontSize: "12px",
+                  color: "rgba(204,213,220,0.75)",
+                }}
+              >
                 <li>Connaught Place, New Delhi</li>
                 <li>Koramangala 5th Block, Bengaluru</li>
                 <li>Bandra West Station, Mumbai</li>
@@ -677,30 +1748,54 @@ export default function HomePage() {
               </ul>
             </div>
 
-            {/* Col 4 */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-mono uppercase tracking-widest text-[#EAAA00] font-bold">
-                Security &amp; Integrity
-              </h4>
-              <p className="text-xs text-[#CCD5DC] leading-relaxed">
-                Atomic database slot transactions prevent double booking. All pricing reflects registered Indian Rupee (₹) rates.
-              </p>
-              <div className="pt-2">
-                <Link
-                  href="/login"
-                  className="inline-block px-3 py-1.5 bg-[#541D4C] text-[#EAAA00] hover:bg-[#EAAA00] hover:text-[#3A0F34] transition-colors rounded-sm text-xs font-mono uppercase font-bold"
-                >
-                  Authorized Login &rarr;
-                </Link>
-              </div>
+            <div>
+              <h5
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.22em",
+                  color: "#5EE819",
+                  marginBottom: "14px",
+                }}
+              >
+                Quick Access
+              </h5>
+              <Link
+                href="/login"
+                style={{
+                  display: "inline-block",
+                  padding: "11px 20px",
+                  backgroundColor: "#5EE819",
+                  color: "#111",
+                  fontWeight: 900,
+                  fontSize: "11px",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                }}
+              >
+                Sign In to Account &rarr;
+              </Link>
             </div>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-[#541D4C] flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-[#CCD5DC]/70">
-            <div>
-              &copy; {new Date().getFullYear()} Where Did I Park? Two-Wheeler Management. All rights reserved.
-            </div>
-            <div className="mt-3 sm:mt-0 flex space-x-6">
+          <div
+            style={{
+              paddingTop: "24px",
+              borderTop: "1px solid #541D4C",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "12px",
+              fontSize: "11px",
+              fontFamily: "monospace",
+              color: "rgba(204,213,220,0.5)",
+            }}
+          >
+            <span>&copy; {new Date().getFullYear()} Where Did I Park? All rights reserved.</span>
+            <div style={{ display: "flex", gap: "24px" }}>
               <span>Privacy Policy</span>
               <span>Terms of Service</span>
               <span>Audit Log</span>

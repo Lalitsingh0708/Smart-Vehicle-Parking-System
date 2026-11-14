@@ -1,4 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none">
-  <rect width="32" height="32" rx="6" fill="#176B5B"/>
-  <path d="M11 7h6a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3v8h-3V7zm3 3v4h3a2 2 0 0 0 0-4h-3z" fill="#FFFFFF"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="44" height="44" fill="none">
+  <defs>
+    <linearGradient id="fav-bg" x1="2" y1="2" x2="42" y2="42" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#176B5B"/>
+      <stop offset="1" stop-color="#0E3D34"/>
+    </linearGradient>
+    <linearGradient id="fav-gold" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5D77F"/>
+      <stop offset="0.5" stop-color="#D4AF37"/>
+      <stop offset="1" stop-color="#A0791C"/>
+    </linearGradient>
+    <linearGradient id="fav-needle" x1="26" y1="6" x2="37" y2="17" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF2B2"/>
+      <stop offset="0.5" stop-color="#E5C158"/>
+      <stop offset="1" stop-color="#B38722"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base Badge -->
+  <rect width="44" height="44" rx="12" fill="url(#fav-bg)"/>
+  <rect x="1" y="1" width="42" height="42" rx="11" stroke="url(#fav-gold)" stroke-width="1.5" stroke-opacity="0.9"/>
+  <rect x="3.75" y="3.75" width="36.5" height="36.5" rx="8.5" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="0.8"/>
+
+  <!-- Parking Mast -->
+  <rect x="12" y="10.5" width="4.5" height="23" rx="2.25" fill="#FFFFFF"/>
+
+  <!-- Head of 'P' -->
+  <path d="M14 10.5H23C27.4183 10.5 31 14.0817 31 18.5C31 22.9183 27.4183 26.5 23 26.5H14V10.5Z" fill="#FFFFFF"/>
+  <path d="M16.5 14.5H22.5C24.7091 14.5 26.5 16.2909 26.5 18.5C26.5 20.7091 24.7091 22.5 22.5 22.5H16.5V14.5Z" fill="#176B5B"/>
+
+  <!-- Target Point in Loop -->
+  <circle cx="21" cy="18.5" r="2.2" fill="url(#fav-gold)"/>
+
+  <!-- Compass Locator Needle -->
+  <path d="M32.5 8L27.5 13L29 14.5L34 9.5L35.5 11V6H30.5L32.5 8Z" fill="url(#fav-needle)"/>
+  <circle cx="14.25" cy="33.5" r="1.25" fill="url(#fav-gold)"/>
 </svg>

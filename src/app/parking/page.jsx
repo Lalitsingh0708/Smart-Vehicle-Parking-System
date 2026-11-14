@@ -8,7 +8,7 @@ import ParkingMap from "@/components/parking/ParkingMap";
 import { Search, MapPin, SlidersHorizontal, ArrowUpDown, Clock, Check, Navigation, AlertCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
 
-export default function ParkingDiscoveryPage() {
+export default function ParkingFinderPage() {
   const [lots, setLots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -136,7 +136,8 @@ export default function ParkingDiscoveryPage() {
                 onChange={(e) => setSelectedCity(e.target.value)}
                 className="w-full px-3 py-2 text-xs border border-border-subtle rounded-button focus:outline-none focus:ring-1 focus:ring-brand-500 text-ink-primary"
               >
-                <option value="">All Indian Cities</option>
+                <option value="Phagwara (LPU Campus)">Phagwara (LPU Campus)</option>
+                <option value="">All Locations</option>
                 <option value="New Delhi">New Delhi</option>
                 <option value="Bengaluru">Bengaluru</option>
                 <option value="Mumbai">Mumbai</option>

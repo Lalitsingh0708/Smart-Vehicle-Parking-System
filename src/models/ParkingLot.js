@@ -50,6 +50,11 @@ const ParkingLotSchema = new mongoose.Schema(
       min: 1,
       default: 20,
     },
+    allowCheckIn: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
     active: {
       type: Boolean,
       default: true,

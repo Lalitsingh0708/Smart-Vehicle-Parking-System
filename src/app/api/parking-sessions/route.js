@@ -94,6 +94,16 @@ export async function POST(request) {
       );
     }
 
+    if (lot.allowCheckIn === false) {
+      return NextResponse.json(
+        {
+          error:
+            "New allocations are temporarily paused for this facility by administration due to peak capacity. Check-outs remain active.",
+        },
+        { status: 403 }
+      );
+    }
+
     // 4. Concurrency-safe atomic conditional update to claim the slot
     // Only succeeds if slot status is currently 'available'
     const claimedSlot = await ParkingSlot.findOneAndUpdate(

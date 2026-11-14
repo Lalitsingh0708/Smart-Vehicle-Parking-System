@@ -41,7 +41,8 @@ export async function GET(request) {
     }
 
     if (city) {
-      filter.city = { $regex: `^${city}$`, $options: "i" };
+      const escapedCity = city.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      filter.city = { $regex: escapedCity, $options: "i" };
     }
 
     if (maxRate && !isNaN(Number(maxRate))) {
@@ -107,6 +108,7 @@ export async function GET(request) {
       }
 
       return {
+        _id: lot._id,
         id: lot._id,
         name: lot.name,
         address: lot.address,
@@ -121,6 +123,7 @@ export async function GET(request) {
         reservedCount: stats.reserved,
         blockedCount: stats.blocked,
         distanceKm,
+        allowCheckIn: lot.allowCheckIn !== false,
         active: lot.active,
         updatedAt: lot.updatedAt,
       };

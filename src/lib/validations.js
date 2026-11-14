@@ -4,6 +4,7 @@ export const registerSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(60),
   email: z.string().trim().email("Please provide a valid email address").toLowerCase(),
   password: z.string().min(8, "Password must be at least 8 characters"),
+  accountType: z.enum(["user", "attendant"]).optional().default("user"),
   phoneNumber: z
     .string()
     .trim()
@@ -74,6 +75,7 @@ export const parkingLotSchema = z.object({
   description: z.string().trim().max(1000).default(""),
   openingHours: z.string().trim().min(1, "Opening hours required").default("06:00 - 23:00"),
   hourlyRate: z.number().nonnegative("Hourly rate cannot be negative"),
+  allowCheckIn: z.boolean().default(true).optional(),
   active: z.boolean().default(true),
 });
 

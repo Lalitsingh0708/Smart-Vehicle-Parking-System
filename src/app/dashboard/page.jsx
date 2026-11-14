@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   MapPin,
   Bike,
@@ -21,6 +22,7 @@ export default function DashboardOverviewPage() {
   const [activeSession, setActiveSession] = useState(null);
   const [vehicles, setVehicles] = useState([]);
   const [recentSessions, setRecentSessions] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     Promise.all([
@@ -29,16 +31,21 @@ export default function DashboardOverviewPage() {
       fetch("/api/parking-sessions?status=completed").then((r) => r.json()),
     ])
       .then(([meData, vData, sData]) => {
-        if (meData.authenticated) {
+        if (meData.authenticated && meData.user) {
           setUserData(meData.user);
           setActiveSession(meData.activeSession);
+          setVehicles(vData.vehicles || []);
+          setRecentSessions((sData.sessions || []).slice(0, 3));
+        } else {
+          router.push("/login?error=Please%20sign%20in%20to%20access%20your%20dashboard");
         }
-        setVehicles(vData.vehicles || []);
-        setRecentSessions((sData.sessions || []).slice(0, 3));
       })
-      .catch((err) => console.error("Dashboard error:", err))
+      .catch((err) => {
+        console.error("Dashboard error:", err);
+        router.push("/login");
+      })
       .finally(() => setLoading(false));
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (

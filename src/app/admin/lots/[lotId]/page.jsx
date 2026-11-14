@@ -176,8 +176,8 @@ export default function AdminEditLotPage() {
                 onChange={(e) => setActive(e.target.value === "true")}
                 className="w-full px-3 py-2 border border-border-subtle rounded-button focus:ring-1 focus:ring-brand-500 text-ink-primary"
               >
-                <option value="true">Active (Discoverable by riders)</option>
-                <option value="false">Inactive (Hidden from discovery)</option>
+                <option value="true">Active (Visible to riders)</option>
+                <option value="false">Inactive (Hidden from search)</option>
               </select>
             </div>
           </div>

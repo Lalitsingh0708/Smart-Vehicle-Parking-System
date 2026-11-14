@@ -15,10 +15,19 @@ export async function GET(request) {
     await connectDB();
     const { searchParams } = new URL(request.url);
 
-    // If attendant, use their assigned lot; if admin, allow querying any lot or default to first
+    // If attendant, verify admin approval status and use assigned lot
     let lotId = searchParams.get("lotId");
-    if (!lotId && auth.session.role === "attendant") {
+    if (auth.session.role === "attendant") {
       const user = await User.findById(auth.session.userId);
+      if (!user || user.isApprovedByAdmin !== true || user.attendantApprovalStatus !== "approved") {
+        return NextResponse.json(
+          {
+            error: "Your attendant account is currently under administrator review. Access to parking operations is locked until approved.",
+            underReview: true,
+          },
+          { status: 403 }
+        );
+      }
       lotId = user?.assignedLotId?.toString();
     }
 
@@ -149,6 +158,7 @@ export async function GET(request) {
         city: lot.city,
         hourlyRate: lot.hourlyRate,
         openingHours: lot.openingHours,
+        allowCheckIn: lot.allowCheckIn !== false,
       },
       stats,
       zoneStats,

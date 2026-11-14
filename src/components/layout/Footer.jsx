@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "@/components/brand/Logo";
 import { Shield, MapPin, Phone } from "lucide-react";
 
 export default function Footer() {
@@ -8,14 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Col */}
           <div className="space-y-3 md:col-span-1">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-md bg-brand-500 flex items-center justify-center text-white font-bold text-sm">
-                P
-              </div>
-              <span className="font-semibold text-ink-primary tracking-tight">
-                Where Did I Park?
-              </span>
-            </div>
+            <Logo size={32} />
             <p className="text-xs text-ink-secondary leading-relaxed">
               Two-wheeler parking management system. Designed for motorcycles, scooters, and electric bikes across India.
             </p>

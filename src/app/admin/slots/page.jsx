@@ -114,26 +114,30 @@ export default function AdminSlotsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-ink-primary tracking-tight">
+          <h1 className="text-2xl font-black text-[#1C1815] tracking-tight">
             Parking Slots Management
           </h1>
-          <p className="text-xs text-ink-secondary mt-0.5">
+          <p className="text-xs text-[#706254] mt-0.5">
             Configure numbered slot statuses. Active occupied slots cannot be marked available without session checkout.
           </p>
         </div>
 
-        <Button size="sm" onClick={() => setShowAddModal(true)}>
-          <Plus className="w-4 h-4 mr-1.5" />
+        <button
+          type="button"
+          onClick={() => setShowAddModal(true)}
+          className="px-4 py-2 bg-[#176B5B] hover:bg-[#125448] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"
+        >
+          <Plus className="w-4 h-4 mr-1" />
           <span>Add Single Slot</span>
-        </Button>
+        </button>
       </div>
 
       {/* Filter Toolbar */}
-      <div className="bg-white p-4 rounded-card border border-border-subtle shadow-xs flex flex-col sm:flex-row gap-3">
+      <div className="bg-white p-4 rounded-2xl border border-[#E2D9CC] shadow-xs flex flex-col sm:flex-row gap-3">
         <select
           value={selectedLotId}
           onChange={(e) => setSelectedLotId(e.target.value)}
-          className="px-3 py-2 text-xs border border-border-subtle rounded-button focus:outline-none focus:ring-1 focus:ring-brand-500 text-ink-primary flex-1"
+          className="px-3 py-2 text-xs border border-[#DFD1BD] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#176B5B] text-[#1C1815] bg-[#FAF7F2] flex-1"
         >
           <option value="">All Parking Lots</option>
           {lots.map((l) => (
@@ -146,7 +150,7 @@ export default function AdminSlotsPage() {
         <select
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
-          className="px-3 py-2 text-xs border border-border-subtle rounded-button focus:outline-none focus:ring-1 focus:ring-brand-500 text-ink-primary"
+          className="px-3 py-2 text-xs border border-[#DFD1BD] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#176B5B] text-[#1C1815] bg-[#FAF7F2]"
         >
           <option value="">All Statuses</option>
           <option value="available">Available</option>
@@ -158,40 +162,40 @@ export default function AdminSlotsPage() {
 
       {/* Slots Table */}
       {loading ? (
-        <div className="p-12 text-center text-xs text-ink-secondary">
+        <div className="p-12 text-center text-xs text-[#706254]">
           Loading slots...
         </div>
       ) : slots.length === 0 ? (
-        <div className="bg-white p-8 rounded-card border border-border-subtle text-center text-xs text-ink-secondary">
+        <div className="bg-white p-8 rounded-2xl border border-[#E2D9CC] text-center text-xs text-[#706254]">
           No parking slots match the selected criteria.
         </div>
       ) : (
-        <div className="bg-white rounded-card border border-border-subtle shadow-xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-[#E2D9CC] shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-surface-subtle/80 border-b border-border-subtle text-ink-secondary uppercase tracking-wider text-[11px]">
+              <thead className="bg-[#FAF7F2] border-b border-[#E2D9CC] text-[#706254] uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th className="p-3.5 font-semibold">Slot Number</th>
-                  <th className="p-3.5 font-semibold">Zone</th>
-                  <th className="p-3.5 font-semibold">Parking Lot</th>
-                  <th className="p-3.5 font-semibold">Supported Types</th>
-                  <th className="p-3.5 font-semibold">Current Status</th>
-                  <th className="p-3.5 font-semibold text-right">Change Status</th>
+                  <th className="p-3.5 font-bold">Slot Number</th>
+                  <th className="p-3.5 font-bold">Zone</th>
+                  <th className="p-3.5 font-bold">Parking Lot</th>
+                  <th className="p-3.5 font-bold">Supported Types</th>
+                  <th className="p-3.5 font-bold">Current Status</th>
+                  <th className="p-3.5 font-bold text-right">Change Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody className="divide-y divide-[#EFE9DF]">
                 {slots.map((slot) => (
-                  <tr key={slot._id} className="hover:bg-surface-subtle/40 transition-colors">
-                    <td className="p-3.5 font-black text-ink-primary text-sm">
+                  <tr key={slot._id} className="hover:bg-[#FAF6EE]/50 transition-colors">
+                    <td className="p-3.5 font-black text-[#1C1815] text-sm font-mono">
                       {slot.slotNumber}
                     </td>
-                    <td className="p-3.5 font-medium text-ink-primary">
+                    <td className="p-3.5 font-bold text-[#1C1815]">
                       {slot.zone}
                     </td>
-                    <td className="p-3.5 text-ink-secondary">
+                    <td className="p-3.5 text-[#706254]">
                       {slot.parkingLotId?.name || "N/A"}
                     </td>
-                    <td className="p-3.5 text-ink-muted text-[11px]">
+                    <td className="p-3.5 text-[#706254] text-[11px]">
                       {slot.supportedVehicleTypes?.join(", ") || "All Two-Wheelers"}
                     </td>
                     <td className="p-3.5">
@@ -203,7 +207,7 @@ export default function AdminSlotsPage() {
                         onChange={(e) =>
                           handleUpdateSlotStatus(slot._id, e.target.value, slot.status)
                         }
-                        className="px-2 py-1 border border-border-subtle rounded text-xs focus:ring-1 focus:ring-brand-500"
+                        className="px-2.5 py-1 border border-[#DFD1BD] rounded-lg text-xs bg-[#FAF7F2] text-[#1C1815] focus:ring-1 focus:ring-[#176B5B]"
                       >
                         <option value="available">Available</option>
                         <option value="occupied">Occupied</option>
@@ -221,22 +225,22 @@ export default function AdminSlotsPage() {
 
       {/* Add Slot Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full rounded-card border border-border-subtle shadow-lg p-6 space-y-4">
-            <h3 className="text-base font-bold text-ink-primary">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white max-w-md w-full rounded-2xl border border-[#E2D9CC] shadow-2xl p-6 space-y-4">
+            <h3 className="text-base font-black text-[#1C1815]">
               Add Individual Parking Slot
             </h3>
 
             <form onSubmit={handleCreateSlot} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-ink-primary mb-1">
+                <label className="block font-bold text-[#1C1815] mb-1">
                   Parking Lot *
                 </label>
                 <select
                   required
                   value={addLotId}
                   onChange={(e) => setAddLotId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded text-xs focus:ring-1 focus:ring-brand-500"
+                  className="w-full px-3 py-2 border border-[#DFD1BD] rounded-xl text-xs bg-[#FAF7F2] text-[#1C1815] focus:ring-1 focus:ring-[#176B5B]"
                 >
                   {lots.map((l) => (
                     <option key={l.id || l._id} value={l.id || l._id}>
@@ -247,7 +251,7 @@ export default function AdminSlotsPage() {
               </div>
 
               <div>
-                <label className="block font-semibold text-ink-primary mb-1">
+                <label className="block font-bold text-[#1C1815] mb-1">
                   Zone *
                 </label>
                 <input
@@ -256,12 +260,12 @@ export default function AdminSlotsPage() {
                   value={addZone}
                   onChange={(e) => setAddZone(e.target.value)}
                   placeholder="Zone A"
-                  className="w-full px-3 py-2 border rounded focus:ring-1 focus:ring-brand-500"
+                  className="w-full px-3 py-2 border border-[#DFD1BD] rounded-xl bg-[#FAF7F2] text-[#1C1815] focus:ring-1 focus:ring-[#176B5B]"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-ink-primary mb-1">
+                <label className="block font-bold text-[#1C1815] mb-1">
                   Slot Number *
                 </label>
                 <input
@@ -270,18 +274,18 @@ export default function AdminSlotsPage() {
                   value={addSlotNumber}
                   onChange={(e) => setAddSlotNumber(e.target.value)}
                   placeholder="A-17"
-                  className="w-full px-3 py-2 border rounded focus:ring-1 focus:ring-brand-500"
+                  className="w-full px-3 py-2 border border-[#DFD1BD] rounded-xl bg-[#FAF7F2] text-[#1C1815] font-mono focus:ring-1 focus:ring-[#176B5B]"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-ink-primary mb-1">
+                <label className="block font-bold text-[#1C1815] mb-1">
                   Initial Status
                 </label>
                 <select
                   value={addStatus}
                   onChange={(e) => setAddStatus(e.target.value)}
-                  className="w-full px-3 py-2 border rounded text-xs focus:ring-1 focus:ring-brand-500"
+                  className="w-full px-3 py-2 border border-[#DFD1BD] rounded-xl text-xs bg-[#FAF7F2] text-[#1C1815] focus:ring-1 focus:ring-[#176B5B]"
                 >
                   <option value="available">Available</option>
                   <option value="reserved">Reserved</option>
@@ -289,18 +293,21 @@ export default function AdminSlotsPage() {
                 </select>
               </div>
 
-              <div className="flex justify-end space-x-3 pt-3 border-t border-border-subtle">
-                <Button
-                  variant="secondary"
-                  size="sm"
+              <div className="flex justify-end space-x-3 pt-3 border-t border-[#EFE9DF]">
+                <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
+                  className="px-4 py-2 border border-[#DFD1BD] text-[#706254] hover:text-[#1C1815] rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer bg-[#FAF6EE]"
                 >
                   Cancel
-                </Button>
-                <Button size="sm" type="submit" disabled={submittingSlot}>
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingSlot}
+                  className="px-4 py-2 bg-[#176B5B] hover:bg-[#125448] text-white rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer shadow-xs disabled:opacity-50"
+                >
                   {submittingSlot ? "Adding..." : "Add Slot"}
-                </Button>
+                </button>
               </div>
             </form>
           </div>

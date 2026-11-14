@@ -19,7 +19,7 @@ export async function GET() {
       .select("-passwordHash")
       .populate("assignedLotId");
 
-    if (!user) {
+    if (!user || !user.isVerified) {
       return NextResponse.json({ authenticated: false, user: null }, { status: 200 });
     }
 

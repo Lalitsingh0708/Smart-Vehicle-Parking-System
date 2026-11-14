@@ -69,6 +69,7 @@ export async function GET(request, { params }) {
         occupiedCount: stats.occupied,
         reservedCount: stats.reserved,
         blockedCount: stats.blocked,
+        allowCheckIn: lot.allowCheckIn !== false,
         active: lot.active,
         updatedAt: lot.updatedAt,
       },

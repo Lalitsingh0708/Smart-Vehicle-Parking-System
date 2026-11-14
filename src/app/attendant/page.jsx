@@ -24,6 +24,7 @@ import { QRCodeSVG } from "qrcode.react";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import SlotGrid from "@/components/parking/SlotGrid";
+import TicketCard from "@/components/parking/TicketCard";
 import toast from "react-hot-toast";
 
 export default function AttendantBoothPage() {
@@ -296,32 +297,32 @@ export default function AttendantBoothPage() {
 
   return (
     <div className="space-y-6">
-      {/* Booth Header & Facility Switcher */}
-      <div className="bg-white p-5 rounded-card border border-border-subtle shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Booth Header & Facility Switcher (Soft Luxury Finish) */}
+      <div className="bg-[#FFFFFF] p-5 sm:p-6 rounded-2xl border-2 border-[#E2D9CC] shadow-[0_6px_24px_rgba(60,45,30,0.06)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-brand-600 bg-brand-50 px-2 py-0.5 rounded border border-brand-200">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#176B5B] bg-[#EAF3EE] px-2.5 py-0.5 rounded-lg border border-[#C5DDD2]">
               Active Facility Booth
             </span>
-            <span className="text-xs text-ink-secondary">
-              Hourly Rate: <strong className="text-ink-primary">₹{lot.hourlyRate || 20}/hr</strong>
+            <span className="text-xs font-semibold text-[#706254] bg-[#FAF6EE] px-2.5 py-0.5 rounded-lg border border-[#E5DACB]">
+              Campus Tariff: <strong className="text-[#B08528] font-black">₹{lot.hourlyRate || 10}/hr</strong>
             </span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-ink-primary tracking-tight mt-1">
+          <h1 className="text-2xl sm:text-3xl font-black text-[#1C1815] tracking-tight mt-1.5">
             {lot.name}
           </h1>
-          <p className="text-xs text-ink-secondary flex items-center space-x-1 mt-0.5">
-            <MapPin className="w-3.5 h-3.5 text-ink-muted" />
+          <p className="text-xs text-[#706254] flex items-center space-x-1.5 mt-1 font-medium">
+            <MapPin className="w-3.5 h-3.5 text-[#176B5B] shrink-0" />
             <span>{lot.address}, {lot.city}</span>
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 self-start md:self-auto">
           {allLots.length > 1 && (
             <select
               value={selectedLotId}
               onChange={handleLotChange}
-              className="px-3 py-1.5 text-xs border border-border-subtle rounded-button focus:ring-1 focus:ring-brand-500 text-ink-primary bg-white"
+              className="px-3.5 py-2 text-xs font-bold border-2 border-[#DFD1BD] rounded-xl focus:ring-1 focus:ring-[#176B5B] text-[#1C1815] bg-[#FAF6EE]"
             >
               {allLots.map((l) => (
                 <option key={l._id} value={l._id}>
@@ -331,161 +332,181 @@ export default function AttendantBoothPage() {
             </select>
           )}
 
-          <Button
-            size="sm"
-            variant="secondary"
+          <button
+            type="button"
             onClick={() => {
               loadBoothStatus(selectedLotId);
               loadIncidents(selectedLotId);
             }}
-            className="text-xs"
+            className="px-4 py-2 bg-[#FAF6EE] hover:bg-[#EFE7D8] text-[#176B5B] border-2 border-[#D9C49D] text-xs font-black rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 mr-1 ${refreshing ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-[#176B5B] ${refreshing ? "animate-spin" : ""}`} />
             <span>Refresh</span>
-          </Button>
+          </button>
         </div>
       </div>
 
-      {/* Facility Metrics Strip (Module 1 Availability & Occupancy) */}
+      {/* Facility Metrics Strip (Forest Green, Warm Beige & Gold Accents) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-card border border-emerald-200 bg-emerald-50/20 shadow-xs">
+        {/* Vacant Slots */}
+        <div className="bg-[#F0F8F5] p-4 sm:p-5 rounded-2xl border-2 border-[#A3D9C9] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-emerald-800 font-semibold">Vacant Slots</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span className="text-xs text-[#176B5B] font-black uppercase tracking-wider">Vacant Slots</span>
+            <CheckCircle2 className="w-4 h-4 text-[#176B5B]" />
           </div>
-          <span className="text-2xl font-black text-emerald-700 block mt-1">
+          <span className="text-3xl font-black text-[#176B5B] block mt-1">
             {stats.available || 0}
           </span>
-          <span className="text-[11px] text-emerald-800">
+          <span className="text-[11px] text-[#176B5B] font-semibold block mt-0.5">
             of {stats.total || 0} total capacity
           </span>
         </div>
 
-        <div className="bg-white p-4 rounded-card border border-red-200 bg-red-50/20 shadow-xs">
+        {/* Vehicles Inside */}
+        <div className="bg-[#FFF5F5] p-4 sm:p-5 rounded-2xl border-2 border-[#FBC4C4] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-red-800 font-semibold">Vehicles Inside</span>
-            <Bike className="w-4 h-4 text-red-600" />
+            <span className="text-xs text-[#C53030] font-black uppercase tracking-wider">Vehicles Inside</span>
+            <Bike className="w-4 h-4 text-[#C53030]" />
           </div>
-          <span className="text-2xl font-black text-red-700 block mt-1">
+          <span className="text-3xl font-black text-[#C53030] block mt-1">
             {stats.occupied || 0}
           </span>
-          <span className="text-[11px] text-red-800">
+          <span className="text-[11px] text-[#C53030] font-semibold block mt-0.5">
             currently parked
           </span>
         </div>
 
-        <div className="bg-white p-4 rounded-card border border-border-subtle shadow-xs">
+        {/* Today's Check-ins */}
+        <div className="bg-[#FAF6EE] p-4 sm:p-5 rounded-2xl border-2 border-[#DFD1BD] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-ink-secondary font-medium">Today's Check-ins</span>
-            <LogIn className="w-4 h-4 text-brand-600" />
+            <span className="text-xs text-[#7A6C5F] font-black uppercase tracking-wider">Today's Check-ins</span>
+            <LogIn className="w-4 h-4 text-[#B08528]" />
           </div>
-          <span className="text-2xl font-bold text-ink-primary block mt-1">
+          <span className="text-3xl font-black text-[#1C1815] block mt-1">
             {today.entries || 0}
           </span>
-          <span className="text-[11px] text-ink-secondary">
+          <span className="text-[11px] text-[#7A6C5F] font-semibold block mt-0.5">
             entrance logs
           </span>
         </div>
 
-        <div className="bg-white p-4 rounded-card border border-border-subtle shadow-xs">
+        {/* Security Alerts */}
+        <div className="bg-[#FFFBEB] p-4 sm:p-5 rounded-2xl border-2 border-[#FDE68A] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-ink-secondary font-medium">Security Alerts</span>
-            <ShieldAlert className="w-4 h-4 text-amber-600" />
+            <span className="text-xs text-[#B45309] font-black uppercase tracking-wider">Security Alerts</span>
+            <ShieldAlert className="w-4 h-4 text-[#D97706]" />
           </div>
-          <span className="text-2xl font-bold text-ink-primary block mt-1">
+          <span className="text-3xl font-black text-[#B45309] block mt-1">
             {data?.openIncidentsCount || incidents.filter((i) => i.status === "open").length || 0}
           </span>
-          <span className="text-[11px] text-ink-secondary">
+          <span className="text-[11px] text-[#B45309] font-semibold block mt-0.5">
             active incidents logged
           </span>
         </div>
       </div>
 
-      {/* Attendant Operational Navigation Tabs */}
-      <div className="flex border-b border-border-subtle gap-2 overflow-x-auto text-xs font-semibold">
+      {/* Attendant Operational Navigation Tabs (Beige & Forest Green Luxury Toolbar) */}
+      <div className="bg-[#FFFFFF] p-2 rounded-2xl border-2 border-[#E2D9CC] shadow-xs flex gap-2 overflow-x-auto scrollbar-none">
         <button
+          type="button"
           onClick={() => setActiveTab("gate")}
-          className={`pb-2.5 px-3 flex items-center space-x-1.5 border-b-2 transition-colors whitespace-nowrap ${
+          className={`py-2 px-3.5 rounded-xl flex items-center space-x-1.5 transition-all whitespace-nowrap cursor-pointer text-xs font-black ${
             activeTab === "gate"
-              ? "border-brand-500 text-brand-600 font-bold"
-              : "border-transparent text-ink-secondary hover:text-ink-primary"
+              ? "bg-[#176B5B] text-white shadow-xs border border-[#D4AF37]/50"
+              : "bg-[#FAF6EE] text-[#66584B] border border-[#E5DACB] hover:bg-[#EFE7D8] hover:text-[#1C1815]"
           }`}
         >
-          <LogIn className="w-4 h-4" />
+          <LogIn className="w-4 h-4 stroke-[2.5]" />
           <span>Gate Check-In &amp; Exit</span>
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab("retrieval")}
-          className={`pb-2.5 px-3 flex items-center space-x-1.5 border-b-2 transition-colors whitespace-nowrap ${
+          className={`py-2 px-3.5 rounded-xl flex items-center space-x-1.5 transition-all whitespace-nowrap cursor-pointer text-xs font-black ${
             activeTab === "retrieval"
-              ? "border-brand-500 text-brand-600 font-bold"
-              : "border-transparent text-ink-secondary hover:text-ink-primary"
+              ? "bg-[#176B5B] text-white shadow-xs border border-[#D4AF37]/50"
+              : "bg-[#FAF6EE] text-[#66584B] border border-[#E5DACB] hover:bg-[#EFE7D8] hover:text-[#1C1815]"
           }`}
         >
-          <Compass className="w-4 h-4" />
+          <Compass className="w-4 h-4 stroke-[2.5]" />
           <span>Vehicle Retrieval Desk</span>
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab("zones")}
-          className={`pb-2.5 px-3 flex items-center space-x-1.5 border-b-2 transition-colors whitespace-nowrap ${
+          className={`py-2 px-3.5 rounded-xl flex items-center space-x-1.5 transition-all whitespace-nowrap cursor-pointer text-xs font-black ${
             activeTab === "zones"
-              ? "border-brand-500 text-brand-600 font-bold"
-              : "border-transparent text-ink-secondary hover:text-ink-primary"
+              ? "bg-[#176B5B] text-white shadow-xs border border-[#D4AF37]/50"
+              : "bg-[#FAF6EE] text-[#66584B] border border-[#E5DACB] hover:bg-[#EFE7D8] hover:text-[#1C1815]"
           }`}
         >
-          <Layers className="w-4 h-4" />
+          <Layers className="w-4 h-4 stroke-[2.5]" />
           <span>Zones &amp; Slot Map ({zoneStats.length} Zones)</span>
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab("vehicles")}
-          className={`pb-2.5 px-3 flex items-center space-x-1.5 border-b-2 transition-colors whitespace-nowrap ${
+          className={`py-2 px-3.5 rounded-xl flex items-center space-x-1.5 transition-all whitespace-nowrap cursor-pointer text-xs font-black ${
             activeTab === "vehicles"
-              ? "border-brand-500 text-brand-600 font-bold"
-              : "border-transparent text-ink-secondary hover:text-ink-primary"
+              ? "bg-[#176B5B] text-white shadow-xs border border-[#D4AF37]/50"
+              : "bg-[#FAF6EE] text-[#66584B] border border-[#E5DACB] hover:bg-[#EFE7D8] hover:text-[#1C1815]"
           }`}
         >
-          <Bike className="w-4 h-4" />
+          <Bike className="w-4 h-4 stroke-[2.5]" />
           <span>Parked Vehicles ({parkedVehicles.length})</span>
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab("incidents")}
-          className={`pb-2.5 px-3 flex items-center space-x-1.5 border-b-2 transition-colors whitespace-nowrap ${
+          className={`py-2 px-3.5 rounded-xl flex items-center space-x-1.5 transition-all whitespace-nowrap cursor-pointer text-xs font-black ${
             activeTab === "incidents"
-              ? "border-brand-500 text-brand-600 font-bold"
-              : "border-transparent text-ink-secondary hover:text-ink-primary"
+              ? "bg-[#176B5B] text-white shadow-xs border border-[#D4AF37]/50"
+              : "bg-[#FAF6EE] text-[#66584B] border border-[#E5DACB] hover:bg-[#EFE7D8] hover:text-[#1C1815]"
           }`}
         >
-          <ShieldAlert className="w-4 h-4" />
+          <ShieldAlert className="w-4 h-4 stroke-[2.5]" />
           <span>Security &amp; Violations ({incidents.length})</span>
         </button>
       </div>
 
-      {/* TAB 1: GATE CHECK-IN & CHECK-OUT (Modules 1 & 2) */}
+      {/* TAB 1: GATE CHECK-IN & CHECK-OUT (Soft Luxury Finish) */}
       {activeTab === "gate" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Entrance Gate: Check-In & Slot Allocation */}
-          <div className="bg-white p-6 rounded-card border border-border-subtle shadow-xs space-y-4">
-            <div className="flex items-center space-x-2 border-b border-border-subtle pb-3">
-              <div className="w-8 h-8 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                <LogIn className="w-4 h-4" />
+          <div className="bg-[#FFFFFF] p-6 rounded-2xl border-2 border-[#E2D9CC] shadow-[0_6px_24px_rgba(60,45,30,0.06)] space-y-4">
+            <div className="flex items-center space-x-3 border-b-2 border-[#EFE9DF] pb-3.5">
+              <div className="w-9 h-9 rounded-xl bg-[#176B5B] border border-[#D4AF37]/50 text-[#D4AF37] flex items-center justify-center shadow-xs">
+                <LogIn className="w-5 h-5 stroke-[2.5]" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-ink-primary">
+                <h2 className="text-base font-black text-[#1C1815] tracking-tight">
                   Entrance Gate Check-In
                 </h2>
-                <p className="text-[11px] text-ink-secondary">
+                <p className="text-[11px] font-semibold text-[#7A6C5F]">
                   Record two-wheeler arrival, allocate parking zone, and issue digital ticket.
                 </p>
               </div>
             </div>
 
-            <form onSubmit={handleCheckIn} className="space-y-3 text-xs">
+            {data?.lot?.allowCheckIn === false && (
+              <div className="p-3.5 bg-amber-50 border-2 border-amber-200 rounded-xl text-xs text-amber-900 space-y-1">
+                <div className="flex items-center space-x-1.5 font-black text-amber-800">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <span>Entrance Gate Paused by Admin</span>
+                </div>
+                <p className="text-[11px] font-medium text-amber-700 leading-snug">
+                  New check-ins are temporarily paused by facility administration due to peak capacity. Exit gate check-outs remain fully operational.
+                </p>
+              </div>
+            )}
+
+            <form onSubmit={handleCheckIn} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-ink-primary mb-1">
+                <label className="block font-black text-[#1C1815] uppercase tracking-wider mb-1">
                   Registration Number *
                 </label>
                 <input
@@ -493,20 +514,20 @@ export default function AttendantBoothPage() {
                   required
                   value={inRegNumber}
                   onChange={(e) => setInRegNumber(e.target.value.toUpperCase().replace(/\s+/g, ""))}
-                  placeholder="e.g. DL01AB1234 or KA03HA5566"
-                  className="w-full px-3 py-2.5 border-2 border-brand-500 rounded-button text-sm font-mono font-bold tracking-wide uppercase focus:ring-2 focus:ring-brand-200"
+                  placeholder="e.g. PB08AB1234 or KA03HA5566"
+                  className="w-full px-3.5 py-2.5 bg-[#FAF7F2] border-2 border-[#176B5B] rounded-xl text-sm font-mono font-black tracking-wide uppercase text-[#1C1815] focus:outline-none focus:bg-white"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-ink-primary mb-1">
+                  <label className="block font-bold text-[#1C1815] uppercase tracking-wider text-[11px] mb-1">
                     Vehicle Type
                   </label>
                   <select
                     value={inVehicleType}
                     onChange={(e) => setInVehicleType(e.target.value)}
-                    className="w-full px-3 py-2 border border-border-subtle rounded-button focus:ring-1 focus:ring-brand-500 bg-white"
+                    className="w-full px-3 py-2 bg-[#FAF7F2] border-2 border-[#DFD1BD] rounded-xl font-bold text-xs text-[#1C1815] focus:border-[#176B5B]"
                   >
                     <option value="motorcycle">Motorcycle / Bike</option>
                     <option value="scooter">Scooter (Petrol)</option>
@@ -516,13 +537,13 @@ export default function AttendantBoothPage() {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-ink-primary mb-1">
+                  <label className="block font-bold text-[#1C1815] uppercase tracking-wider text-[11px] mb-1">
                     Zone &amp; Slot Allocation
                   </label>
                   <select
                     value={inSlotId}
                     onChange={(e) => setInSlotId(e.target.value)}
-                    className="w-full px-3 py-2 border border-border-subtle rounded-button focus:ring-1 focus:ring-brand-500 bg-white"
+                    className="w-full px-3 py-2 bg-[#FAF7F2] border-2 border-[#DFD1BD] rounded-xl font-bold text-xs text-[#1C1815] focus:border-[#176B5B]"
                   >
                     <option value="">Auto-Allocate Next Available Slot</option>
                     {availableSlots.map((s) => (
@@ -536,7 +557,7 @@ export default function AttendantBoothPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-ink-secondary mb-1">
+                  <label className="block font-bold text-[#7A6C5F] text-[11px] mb-1">
                     Make (Optional)
                   </label>
                   <input
@@ -544,11 +565,11 @@ export default function AttendantBoothPage() {
                     value={inMake}
                     onChange={(e) => setInMake(e.target.value)}
                     placeholder="Honda / Hero / Bajaj"
-                    className="w-full px-3 py-1.5 border border-border-subtle rounded-button"
+                    className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#DFD1BD] rounded-xl font-medium text-[#1C1815]"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-ink-secondary mb-1">
+                  <label className="block font-bold text-[#7A6C5F] text-[11px] mb-1">
                     Model (Optional)
                   </label>
                   <input
@@ -556,14 +577,14 @@ export default function AttendantBoothPage() {
                     value={inModel}
                     onChange={(e) => setInModel(e.target.value)}
                     placeholder="Activa / Splendor / Pulsar"
-                    className="w-full px-3 py-1.5 border border-border-subtle rounded-button"
+                    className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#DFD1BD] rounded-xl font-medium text-[#1C1815]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-ink-secondary mb-1">
+                  <label className="block font-bold text-[#7A6C5F] text-[11px] mb-1">
                     Rider Name (Optional)
                   </label>
                   <input
@@ -571,11 +592,11 @@ export default function AttendantBoothPage() {
                     value={inRiderName}
                     onChange={(e) => setInRiderName(e.target.value)}
                     placeholder="Walk-in Rider"
-                    className="w-full px-3 py-1.5 border border-border-subtle rounded-button"
+                    className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#DFD1BD] rounded-xl font-medium text-[#1C1815]"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-ink-secondary mb-1">
+                  <label className="block font-bold text-[#7A6C5F] text-[11px] mb-1">
                     Phone (Optional)
                   </label>
                   <input
@@ -583,48 +604,49 @@ export default function AttendantBoothPage() {
                     value={inRiderPhone}
                     onChange={(e) => setInRiderPhone(e.target.value)}
                     placeholder="9876543210"
-                    className="w-full px-3 py-1.5 border border-border-subtle rounded-button"
+                    className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#DFD1BD] rounded-xl font-medium text-[#1C1815]"
                   />
                 </div>
               </div>
 
-              <Button
+              <button
                 type="submit"
-                disabled={inSubmitting || stats.available === 0}
-                className="w-full mt-2"
-                size="md"
+                disabled={inSubmitting || stats.available === 0 || data?.lot?.allowCheckIn === false}
+                className="w-full py-3.5 px-4 bg-[#176B5B] hover:bg-[#125448] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg border-2 border-[#D4AF37]/50 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer mt-3"
               >
-                <LogIn className="w-4 h-4 mr-1.5" />
+                <LogIn className="w-4 h-4 stroke-[2.5]" />
                 <span>
                   {inSubmitting
                     ? "Assigning Slot..."
+                    : data?.lot?.allowCheckIn === false
+                    ? "Check-In Paused by Admin (Rush)"
                     : stats.available === 0
                     ? "Lot Full (No Vacant Slots)"
                     : "Check In Vehicle & Issue QR Slip"}
                 </span>
-              </Button>
+              </button>
             </form>
           </div>
 
           {/* Exit Gate: Check-Out & Fee Collection */}
-          <div className="bg-white p-6 rounded-card border border-border-subtle shadow-xs space-y-4">
-            <div className="flex items-center space-x-2 border-b border-border-subtle pb-3">
-              <div className="w-8 h-8 rounded-md bg-red-100 text-red-700 flex items-center justify-center">
-                <LogOut className="w-4 h-4" />
+          <div className="bg-[#FFFFFF] p-6 rounded-2xl border-2 border-[#E2D9CC] shadow-[0_6px_24px_rgba(60,45,30,0.06)] space-y-4">
+            <div className="flex items-center space-x-3 border-b-2 border-[#EFE9DF] pb-3.5">
+              <div className="w-9 h-9 rounded-xl bg-[#FFF5F5] border border-[#FBC4C4] text-[#C53030] flex items-center justify-center shadow-xs">
+                <LogOut className="w-5 h-5 stroke-[2.5]" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-ink-primary">
+                <h2 className="text-base font-black text-[#1C1815] tracking-tight">
                   Exit Gate Check-Out
                 </h2>
-                <p className="text-[11px] text-ink-secondary">
+                <p className="text-[11px] font-semibold text-[#7A6C5F]">
                   Scan ticket or enter plate number to calculate fee and release slot.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-ink-primary mb-1">
+                <label className="block font-black text-[#1C1815] uppercase tracking-wider mb-1">
                   Registration Number or Ticket ID
                 </label>
                 <div className="flex gap-2">
@@ -632,27 +654,26 @@ export default function AttendantBoothPage() {
                     type="text"
                     value={outIdentifier}
                     onChange={(e) => setOutIdentifier(e.target.value.toUpperCase())}
-                    placeholder="e.g. DL01AB1234 or WDIP-20261026-XXXX"
-                    className="w-full px-3 py-2.5 border border-border-subtle rounded-button text-sm font-mono font-bold tracking-wide uppercase focus:ring-1 focus:ring-brand-500"
+                    placeholder="e.g. PB08AB1234 or WDIP-20261113-XXXX"
+                    className="flex-1 px-3.5 py-2.5 bg-[#FAF7F2] border-2 border-[#DFD1BD] rounded-xl text-sm font-mono font-black tracking-wide uppercase text-[#1C1815] focus:outline-none focus:border-[#176B5B] focus:bg-white"
                   />
-                  <Button
+                  <button
+                    type="button"
                     onClick={() => handleCheckOut()}
                     disabled={outSubmitting || !outIdentifier.trim()}
-                    size="md"
-                    variant="danger"
-                    className="whitespace-nowrap px-4"
+                    className="whitespace-nowrap px-5 py-2.5 bg-[#BA2D2D] hover:bg-[#9E2424] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center space-x-1.5"
                   >
-                    <LogOut className="w-4 h-4 mr-1.5" />
+                    <LogOut className="w-4 h-4" />
                     <span>{outSubmitting ? "Processing..." : "Process Exit"}</span>
-                  </Button>
+                  </button>
                 </div>
               </div>
 
-              <div className="p-3.5 bg-surface-subtle/80 rounded-lg border border-border-subtle text-[11px] space-y-2 text-ink-secondary">
-                <span className="font-semibold text-ink-primary block">
+              <div className="p-4 bg-[#FAF6EE] rounded-xl border-2 border-[#DFD1BD] text-xs space-y-2 text-[#706254] shadow-xs">
+                <span className="font-black text-[#1C1815] block">
                   Exit Gate Verification Checklist:
                 </span>
-                <ul className="space-y-1 list-disc list-inside">
+                <ul className="space-y-1.5 list-disc list-inside font-medium">
                   <li>Verify rider matches vehicle registration on record.</li>
                   <li>Calculate duration and collect total fee in ₹.</li>
                   <li>Clear departure; slot automatically updates to Available for new arrivals.</li>
@@ -663,19 +684,19 @@ export default function AttendantBoothPage() {
         </div>
       )}
 
-      {/* TAB 2: VEHICLE RETRIEVAL DESK (Module 3 - "Where Did I Park?") */}
+      {/* TAB 2: VEHICLE RETRIEVAL DESK (Soft Luxury Finish) */}
       {activeTab === "retrieval" && (
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-card border border-border-subtle shadow-xs space-y-4">
-            <div className="flex items-center space-x-2 border-b border-border-subtle pb-3">
-              <div className="w-8 h-8 rounded-md bg-brand-100 text-brand-700 flex items-center justify-center">
-                <Compass className="w-4 h-4" />
+          <div className="bg-[#FFFFFF] p-6 rounded-2xl border-2 border-[#E2D9CC] shadow-[0_6px_24px_rgba(60,45,30,0.06)] space-y-4">
+            <div className="flex items-center space-x-3 border-b-2 border-[#EFE9DF] pb-3.5">
+              <div className="w-9 h-9 rounded-xl bg-[#FAF6EE] border-2 border-[#D4AF37]/50 text-[#176B5B] flex items-center justify-center shadow-xs">
+                <Compass className="w-5 h-5 stroke-[2.5]" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-ink-primary">
+                <h2 className="text-base font-black text-[#1C1815] tracking-tight">
                   Vehicle Retrieval Assistance
                 </h2>
-                <p className="text-[11px] text-ink-secondary">
+                <p className="text-[11px] font-semibold text-[#7A6C5F]">
                   Help riders remember where their two-wheeler is parked by searching registration plate or ticket identifier.
                 </p>
               </div>
@@ -686,109 +707,112 @@ export default function AttendantBoothPage() {
                 type="text"
                 value={retrievalQuery}
                 onChange={(e) => setRetrievalQuery(e.target.value.toUpperCase())}
-                placeholder="Enter Registration Number (e.g. DL01AB1234) or Ticket ID"
-                className="flex-1 px-3.5 py-2.5 border-2 border-brand-500 rounded-button text-sm font-mono font-bold uppercase tracking-wider focus:ring-2 focus:ring-brand-200"
+                placeholder="Enter Registration Number (e.g. PB08AB1234) or Ticket ID"
+                className="flex-1 px-3.5 py-2.5 bg-[#FAF7F2] border-2 border-[#176B5B] rounded-xl text-sm font-mono font-black uppercase tracking-wider text-[#1C1815] focus:outline-none focus:bg-white"
               />
-              <Button type="submit" size="md">
-                <Search className="w-4 h-4 mr-1" />
+              <button
+                type="submit"
+                className="px-5 py-2.5 bg-[#176B5B] hover:bg-[#125448] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs border border-[#D4AF37]/50 flex items-center space-x-1.5 cursor-pointer"
+              >
+                <Search className="w-4 h-4 stroke-[2.5]" />
                 <span>Find Vehicle</span>
-              </Button>
+              </button>
             </form>
 
             {retrievalSearched && !retrievalResult && (
-              <div className="p-8 text-center bg-surface-subtle/60 rounded-card border border-border-subtle text-xs space-y-2">
-                <AlertCircle className="w-8 h-8 text-ink-muted mx-auto" />
-                <div className="font-bold text-ink-primary">Vehicle Not Found Inside Facility</div>
-                <p className="text-ink-secondary max-w-md mx-auto">
+              <div className="p-8 text-center bg-[#FAF6EE] rounded-2xl border-2 border-[#DFD1BD] text-xs space-y-2">
+                <AlertCircle className="w-8 h-8 text-[#916E28] mx-auto" />
+                <div className="font-black text-[#1C1815] text-sm">Vehicle Not Found Inside Facility</div>
+                <p className="text-[#706254] max-w-md mx-auto font-medium">
                   No active parking record found for "{retrievalQuery}". Check for typos or confirm if the vehicle has already checked out.
                 </p>
               </div>
             )}
 
             {retrievalResult && (
-              <div className="p-6 bg-brand-50/40 rounded-card border-2 border-brand-500/40 space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-200 pb-3">
+              <div className="p-6 bg-[#FAF6EE] rounded-2xl border-2 border-[#D4AF37] space-y-5 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-[#EFE9DF] pb-3">
                   <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-brand-700 bg-brand-100 px-2 py-0.5 rounded">
+                    <span className="text-[10px] uppercase font-black tracking-wider text-[#176B5B] bg-[#EAF3EE] px-2.5 py-0.5 rounded-md border border-[#C5DDD2]">
                       Active Parking Session Located
                     </span>
-                    <h3 className="text-xl font-mono font-black text-ink-primary mt-1">
+                    <h3 className="text-2xl font-mono font-black text-[#1C1815] mt-1.5">
                       {retrievalResult.registrationNumber}
                     </h3>
                   </div>
                   <div className="text-left sm:text-right">
-                    <span className="text-xs text-ink-secondary block">Ticket ID</span>
-                    <span className="font-mono text-xs font-bold text-ink-primary">
+                    <span className="text-xs text-[#7A6C5F] font-bold block uppercase tracking-wider">Ticket ID</span>
+                    <span className="font-mono text-sm font-black text-[#1C1815]">
                       {retrievalResult.ticketId}
                     </span>
                   </div>
                 </div>
 
                 {/* Big Location Banner */}
-                <div className="bg-white p-5 rounded-card border border-brand-200 shadow-xs grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                <div className="bg-white p-5 rounded-xl border-2 border-[#DFD1BD] shadow-xs grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                   <div>
-                    <span className="text-xs text-ink-secondary block uppercase tracking-wider">
+                    <span className="text-xs text-[#7A6C5F] font-bold block uppercase tracking-wider">
                       Designated Zone
                     </span>
-                    <span className="text-2xl font-black text-brand-600">
+                    <span className="text-2xl font-black text-[#176B5B] mt-0.5 block">
                       {retrievalResult.zone}
                     </span>
                   </div>
-                  <div className="border-t sm:border-t-0 sm:border-x border-border-subtle pt-2 sm:pt-0">
-                    <span className="text-xs text-ink-secondary block uppercase tracking-wider">
+                  <div className="border-t sm:border-t-0 sm:border-x-2 border-[#EFE9DF] pt-2 sm:pt-0">
+                    <span className="text-xs text-[#7A6C5F] font-bold block uppercase tracking-wider">
                       Slot Number
                     </span>
-                    <span className="text-3xl font-black text-ink-primary">
+                    <span className="text-3xl font-black text-[#1C1815] mt-0.5 block">
                       {retrievalResult.slotNumber}
                     </span>
                   </div>
-                  <div className="border-t sm:border-t-0 border-border-subtle pt-2 sm:pt-0">
-                    <span className="text-xs text-ink-secondary block uppercase tracking-wider">
+                  <div className="border-t sm:border-t-0 border-[#EFE9DF] pt-2 sm:pt-0">
+                    <span className="text-xs text-[#7A6C5F] font-bold block uppercase tracking-wider">
                       Parked Duration
                     </span>
-                    <span className="text-2xl font-black text-emerald-700">
+                    <span className="text-2xl font-black text-[#B08528] mt-0.5 block">
                       {Math.floor(retrievalResult.elapsedMinutes / 60)}h {retrievalResult.elapsedMinutes % 60}m
                     </span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div className="p-3 bg-white rounded-card border border-border-subtle space-y-1.5">
-                    <span className="font-bold text-ink-primary block">Vehicle Information:</span>
-                    <div className="text-ink-secondary">
-                      Make / Model: <strong>{retrievalResult.make || "Standard"} {retrievalResult.model || "Two-Wheeler"}</strong>
+                  <div className="p-3.5 bg-white rounded-xl border border-[#DFD1BD] space-y-1.5">
+                    <span className="font-black text-[#1C1815] block uppercase text-[11px]">Vehicle Information:</span>
+                    <div className="text-[#706254]">
+                      Make / Model: <strong className="text-[#1C1815]">{retrievalResult.make || "Standard"} {retrievalResult.model || "Two-Wheeler"}</strong>
                     </div>
-                    <div className="text-ink-secondary capitalize">
-                      Type: <strong>{retrievalResult.vehicleType?.replace("_", " ")}</strong>
+                    <div className="text-[#706254] capitalize">
+                      Type: <strong className="text-[#1C1815]">{retrievalResult.vehicleType?.replace("_", " ")}</strong>
                     </div>
-                    <div className="text-ink-secondary">
-                      Rider: <strong>{retrievalResult.riderName}</strong> ({retrievalResult.riderPhone || "No phone"})
+                    <div className="text-[#706254]">
+                      Rider: <strong className="text-[#1C1815]">{retrievalResult.riderName}</strong> ({retrievalResult.riderPhone || "No phone"})
                     </div>
                   </div>
 
-                  <div className="p-3 bg-white rounded-card border border-border-subtle space-y-1.5">
-                    <span className="font-bold text-ink-primary block">Payment &amp; Timing:</span>
-                    <div className="text-ink-secondary">
-                      Entry Time: <strong>{new Date(retrievalResult.entryTime).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" })}</strong>
+                  <div className="p-3.5 bg-white rounded-xl border border-[#DFD1BD] space-y-1.5">
+                    <span className="font-black text-[#1C1815] block uppercase text-[11px]">Payment &amp; Timing:</span>
+                    <div className="text-[#706254]">
+                      Entry Time: <strong className="text-[#1C1815]">{new Date(retrievalResult.entryTime).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" })}</strong>
                     </div>
-                    <div className="text-ink-secondary">
-                      Hourly Rate: <strong>₹{lot.hourlyRate || 20} / hr</strong>
+                    <div className="text-[#706254]">
+                      Hourly Rate: <strong className="text-[#1C1815]">₹{lot.hourlyRate || 10} / hr</strong>
                     </div>
-                    <div className="text-ink-primary font-bold">
-                      Current Accrued Fee: <span className="text-brand-600 text-sm">₹{retrievalResult.currentFee}</span>
+                    <div className="text-[#1C1815] font-black pt-0.5">
+                      Current Accrued Fee: <span className="text-[#B08528] text-base font-mono">₹{retrievalResult.currentFee}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex justify-end gap-3 pt-2">
-                  <Button
-                    size="sm"
-                    variant="danger"
+                  <button
+                    type="button"
                     onClick={() => handleCheckOut(retrievalResult.registrationNumber)}
+                    className="px-5 py-2.5 bg-[#BA2D2D] hover:bg-[#9E2424] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"
                   >
-                    <LogOut className="w-3.5 h-3.5 mr-1" />
+                    <LogOut className="w-4 h-4" />
                     <span>Proceed to Exit &amp; Collect ₹{retrievalResult.currentFee}</span>
-                  </Button>
+                  </button>
                 </div>
               </div>
             )}
@@ -804,35 +828,35 @@ export default function AttendantBoothPage() {
             {zoneStats.map((z) => {
               const occupancyPct = z.total > 0 ? Math.round(((z.total - z.available) / z.total) * 100) : 0;
               return (
-                <div key={z.zone} className="bg-white p-5 rounded-card border border-border-subtle shadow-xs space-y-3">
+                <div key={z.zone} className="bg-white p-5 rounded-2xl border border-[#E2D9CC] shadow-xs space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-bold text-ink-primary">{z.zone}</span>
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-surface-subtle text-ink-secondary">
+                    <span className="text-sm font-black text-[#1C1815]">{z.zone}</span>
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-[#FAF6EE] border border-[#DFD1BD] text-[#706254]">
                       {occupancyPct}% full
                     </span>
                   </div>
 
-                  <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-[#EFE9DF] rounded-full h-2 overflow-hidden">
                     <div
-                      className={`h-2 rounded-full ${
-                        occupancyPct > 85 ? "bg-red-500" : occupancyPct > 60 ? "bg-amber-500" : "bg-emerald-500"
+                      className={`h-2 rounded-full transition-all ${
+                        occupancyPct > 85 ? "bg-[#BA2D2D]" : occupancyPct > 60 ? "bg-[#D97706]" : "bg-[#176B5B]"
                       }`}
                       style={{ width: `${occupancyPct}%` }}
                     />
                   </div>
 
-                  <div className="grid grid-cols-3 text-center text-xs pt-1">
+                  <div className="grid grid-cols-3 text-center text-xs pt-1 border-t border-[#EFE9DF]">
                     <div>
-                      <span className="text-[10px] text-ink-muted uppercase block">Vacant</span>
-                      <span className="font-bold text-emerald-700">{z.available}</span>
+                      <span className="text-[10px] text-[#706254] uppercase font-bold block">Vacant</span>
+                      <span className="font-black text-[#176B5B] text-sm">{z.available}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-ink-muted uppercase block">Parked</span>
-                      <span className="font-bold text-red-700">{z.occupied}</span>
+                      <span className="text-[10px] text-[#706254] uppercase font-bold block">Parked</span>
+                      <span className="font-black text-[#BA2D2D] text-sm">{z.occupied}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-ink-muted uppercase block">Total</span>
-                      <span className="font-bold text-ink-primary">{z.total}</span>
+                      <span className="text-[10px] text-[#706254] uppercase font-bold block">Total</span>
+                      <span className="font-black text-[#1C1815] text-sm">{z.total}</span>
                     </div>
                   </div>
                 </div>
@@ -841,12 +865,12 @@ export default function AttendantBoothPage() {
           </div>
 
           {/* Full Interactive Slot Grid */}
-          <div className="bg-white p-6 rounded-card border border-border-subtle shadow-xs space-y-4">
-            <div className="border-b border-border-subtle pb-3">
-              <h3 className="text-base font-bold text-ink-primary">
+          <div className="bg-white p-6 rounded-2xl border border-[#E2D9CC] shadow-xs space-y-4">
+            <div className="border-b border-[#EFE9DF] pb-3">
+              <h3 className="text-base font-black text-[#1C1815]">
                 Facility Slot Occupancy Grid
               </h3>
-              <p className="text-[11px] text-ink-secondary">
+              <p className="text-[11px] text-[#706254]">
                 Real-time visual map of all two-wheeler parking slots across zones.
               </p>
             </div>
@@ -858,82 +882,82 @@ export default function AttendantBoothPage() {
 
       {/* TAB 4: PARKED VEHICLES ATTENDANCE LIST (Module 2 Occupancy) */}
       {activeTab === "vehicles" && (
-        <div className="bg-white rounded-card border border-border-subtle shadow-xs overflow-hidden space-y-0">
-          <div className="p-4 border-b border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-subtle/40">
+        <div className="bg-white rounded-2xl border border-[#E2D9CC] shadow-xs overflow-hidden space-y-0">
+          <div className="p-4 border-b border-[#EFE9DF] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF6EE]">
             <div>
-              <h3 className="text-sm font-bold text-ink-primary flex items-center space-x-2">
-                <Bike className="w-4 h-4 text-brand-600" />
+              <h3 className="text-sm font-black text-[#1C1815] flex items-center space-x-2">
+                <Bike className="w-4 h-4 text-[#176B5B]" />
                 <span>Vehicles Currently Parked Inside ({parkedVehicles.length})</span>
               </h3>
-              <span className="text-[11px] text-ink-secondary">
+              <span className="text-[11px] text-[#706254]">
                 Live attendance list with elapsed parking duration and accrued fee in ₹.
               </span>
             </div>
 
             <div className="relative w-full sm:w-64">
-              <Search className="w-3.5 h-3.5 text-ink-muted absolute left-3 top-2.5" />
+              <Search className="w-3.5 h-3.5 text-[#706254] absolute left-3 top-2.5" />
               <input
                 type="text"
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
                 placeholder="Search plate or slot..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs border border-border-subtle rounded-button focus:ring-1 focus:ring-brand-500 bg-white"
+                className="w-full pl-8 pr-3 py-1.5 text-xs border border-[#DFD1BD] rounded-xl focus:ring-1 focus:ring-[#176B5B] focus:border-[#176B5B] bg-[#FAF7F2] text-[#1C1815]"
               />
             </div>
           </div>
 
           {parkedVehicles.length === 0 ? (
-            <div className="p-10 text-center text-xs text-ink-secondary space-y-2">
-              <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
-              <div className="font-semibold text-ink-primary">
+            <div className="p-10 text-center text-xs text-[#706254] space-y-2">
+              <CheckCircle2 className="w-8 h-8 text-[#176B5B] mx-auto" />
+              <div className="font-bold text-[#1C1815]">
                 Facility Currently Empty
               </div>
-              <p className="text-ink-muted max-w-xs mx-auto">
+              <p className="text-[#706254] max-w-xs mx-auto">
                 No two-wheelers are currently parked in this lot. Check in arriving vehicles using the Entrance Gate tab.
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-surface-subtle/80 border-b border-border-subtle text-ink-secondary uppercase tracking-wider text-[11px]">
+                <thead className="bg-[#FAF7F2] border-b border-[#E2D9CC] text-[#706254] uppercase tracking-wider text-[11px]">
                   <tr>
-                    <th className="p-3.5 font-semibold">Plate Number</th>
-                    <th className="p-3.5 font-semibold">Slot &amp; Zone</th>
-                    <th className="p-3.5 font-semibold">Vehicle Details</th>
-                    <th className="p-3.5 font-semibold">Rider</th>
-                    <th className="p-3.5 font-semibold">Check-In Time</th>
-                    <th className="p-3.5 font-semibold">Duration</th>
-                    <th className="p-3.5 font-semibold">Accrued Fee</th>
-                    <th className="p-3.5 font-semibold text-right">Departure</th>
+                    <th className="p-3.5 font-bold">Plate Number</th>
+                    <th className="p-3.5 font-bold">Slot &amp; Zone</th>
+                    <th className="p-3.5 font-bold">Vehicle Details</th>
+                    <th className="p-3.5 font-bold">Rider</th>
+                    <th className="p-3.5 font-bold">Check-In Time</th>
+                    <th className="p-3.5 font-bold">Duration</th>
+                    <th className="p-3.5 font-bold">Accrued Fee</th>
+                    <th className="p-3.5 font-bold text-right">Departure</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border-subtle">
+                <tbody className="divide-y divide-[#EFE9DF]">
                   {filteredParked.map((v) => (
-                    <tr key={v.sessionId} className="hover:bg-surface-subtle/40 transition-colors">
+                    <tr key={v.sessionId} className="hover:bg-[#FAF6EE]/50 transition-colors">
                       <td className="p-3.5">
-                        <span className="font-mono font-black text-sm text-ink-primary block">
+                        <span className="font-mono font-black text-sm text-[#1C1815] block">
                           {v.registrationNumber}
                         </span>
-                        <span className="font-mono text-[10px] text-ink-muted">
+                        <span className="font-mono text-[10px] text-[#706254]">
                           {v.ticketId}
                         </span>
                       </td>
                       <td className="p-3.5">
-                        <span className="font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded border border-brand-200">
+                        <span className="font-bold text-[#176B5B] bg-[#EAF3EE] px-2.5 py-0.5 rounded-md border border-[#C5DDD2]">
                           {v.zone} • {v.slotNumber}
                         </span>
                       </td>
-                      <td className="p-3.5 text-ink-secondary">
-                        <div className="font-medium text-ink-primary">{v.make} {v.model}</div>
-                        <div className="text-[11px] text-ink-muted capitalize">
+                      <td className="p-3.5 text-[#706254]">
+                        <div className="font-bold text-[#1C1815]">{v.make} {v.model}</div>
+                        <div className="text-[11px] text-[#706254] capitalize">
                           {v.vehicleType?.replace("_", " ")} {v.color ? `• ${v.color}` : ""}
                         </div>
                       </td>
-                      <td className="p-3.5 text-ink-secondary">
-                        <div className="font-medium text-ink-primary">{v.riderName}</div>
-                        <div className="text-[11px] text-ink-muted">{v.riderPhone}</div>
+                      <td className="p-3.5 text-[#706254]">
+                        <div className="font-bold text-[#1C1815]">{v.riderName}</div>
+                        <div className="text-[11px] text-[#706254]">{v.riderPhone}</div>
                       </td>
-                      <td className="p-3.5 text-[11px] text-ink-secondary">
+                      <td className="p-3.5 text-[11px] text-[#706254]">
                         {new Date(v.entryTime).toLocaleTimeString("en-IN", {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -941,22 +965,21 @@ export default function AttendantBoothPage() {
                           month: "short",
                         })}
                       </td>
-                      <td className="p-3.5 font-semibold text-ink-primary">
+                      <td className="p-3.5 font-bold text-[#1C1815]">
                         {Math.floor(v.elapsedMinutes / 60)}h {v.elapsedMinutes % 60}m
                       </td>
-                      <td className="p-3.5 font-bold text-brand-600 text-sm">
+                      <td className="p-3.5 font-black text-[#B08528] text-sm font-mono">
                         ₹{v.currentFee}
                       </td>
                       <td className="p-3.5 text-right">
-                        <Button
-                          size="sm"
-                          variant="danger"
+                        <button
+                          type="button"
                           onClick={() => handleCheckOut(v.registrationNumber)}
-                          className="text-xs py-1 px-2.5"
+                          className="px-3 py-1.5 bg-[#BA2D2D] hover:bg-[#9E2424] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs inline-flex items-center space-x-1 cursor-pointer"
                         >
                           <LogOut className="w-3 h-3 mr-1" />
                           <span>Check Out</span>
-                        </Button>
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -971,16 +994,16 @@ export default function AttendantBoothPage() {
       {activeTab === "incidents" && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Report Violation Form */}
-          <div className="bg-white p-6 rounded-card border border-border-subtle shadow-xs space-y-4">
-            <div className="flex items-center space-x-2 border-b border-border-subtle pb-3">
-              <div className="w-8 h-8 rounded-md bg-amber-100 text-amber-800 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-2xl border border-[#E2D9CC] shadow-xs space-y-4">
+            <div className="flex items-center space-x-2 border-b border-[#EFE9DF] pb-3">
+              <div className="w-8 h-8 rounded-lg bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] flex items-center justify-center">
                 <AlertTriangle className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-ink-primary">
+                <h2 className="text-base font-black text-[#1C1815]">
                   Report Incident / Violation
                 </h2>
-                <p className="text-[11px] text-ink-secondary">
+                <p className="text-[11px] text-[#706254]">
                   Log unauthorized parking, unofficial spaces, or security issues.
                 </p>
               </div>
@@ -988,13 +1011,13 @@ export default function AttendantBoothPage() {
 
             <form onSubmit={handleSubmitIncident} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-ink-primary mb-1">
+                <label className="block font-bold text-[#1C1815] mb-1">
                   Violation Category *
                 </label>
                 <select
                   value={incidentCategory}
                   onChange={(e) => setIncidentCategory(e.target.value)}
-                  className="w-full px-3 py-2 border border-border-subtle rounded-button focus:ring-1 focus:ring-brand-500 bg-white"
+                  className="w-full px-3 py-2 border border-[#DFD1BD] rounded-xl focus:ring-1 focus:ring-[#176B5B] focus:border-[#176B5B] bg-[#FAF7F2] text-[#1C1815]"
                 >
                   <option value="unauthorized_parking">Unauthorized / Unofficial Parking Space</option>
                   <option value="damage">Vehicle Damage</option>
@@ -1006,7 +1029,7 @@ export default function AttendantBoothPage() {
               </div>
 
               <div>
-                <label className="block font-semibold text-ink-primary mb-1">
+                <label className="block font-bold text-[#1C1815] mb-1">
                   Vehicle Registration Number (Optional)
                 </label>
                 <input
@@ -1014,12 +1037,12 @@ export default function AttendantBoothPage() {
                   value={incidentReg}
                   onChange={(e) => setIncidentReg(e.target.value.toUpperCase().replace(/\s+/g, ""))}
                   placeholder="e.g. DL01AB1234"
-                  className="w-full px-3 py-2 border border-border-subtle rounded-button font-mono uppercase"
+                  className="w-full px-3 py-2 border border-[#DFD1BD] rounded-xl font-mono uppercase bg-[#FAF7F2] text-[#1C1815] focus:ring-1 focus:ring-[#176B5B] focus:border-[#176B5B]"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-ink-primary mb-1">
+                <label className="block font-bold text-[#1C1815] mb-1">
                   Incident Description *
                 </label>
                 <textarea
@@ -1028,51 +1051,49 @@ export default function AttendantBoothPage() {
                   value={incidentDesc}
                   onChange={(e) => setIncidentDesc(e.target.value)}
                   placeholder="Describe location, vehicle condition, or unauthorized behavior in detail..."
-                  className="w-full px-3 py-2 border border-border-subtle rounded-button focus:ring-1 focus:ring-brand-500"
+                  className="w-full px-3 py-2 border border-[#DFD1BD] rounded-xl focus:ring-1 focus:ring-[#176B5B] focus:border-[#176B5B] bg-[#FAF7F2] text-[#1C1815]"
                 />
               </div>
 
-              <Button
+              <button
                 type="submit"
                 disabled={submittingIncident}
-                variant="danger"
-                className="w-full mt-2"
-                size="md"
+                className="w-full mt-2 px-4 py-2.5 bg-[#BA2D2D] hover:bg-[#9E2424] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
               >
                 <ShieldAlert className="w-4 h-4 mr-1.5" />
                 <span>{submittingIncident ? "Logging Report..." : "Submit Violation Record"}</span>
-              </Button>
+              </button>
             </form>
           </div>
 
           {/* Incident Log Records */}
-          <div className="lg:col-span-2 bg-white rounded-card border border-border-subtle shadow-xs overflow-hidden space-y-0">
-            <div className="p-4 border-b border-border-subtle bg-surface-subtle/40">
-              <h3 className="text-sm font-bold text-ink-primary">
+          <div className="lg:col-span-2 bg-white rounded-2xl border border-[#E2D9CC] shadow-xs overflow-hidden space-y-0">
+            <div className="p-4 border-b border-[#EFE9DF] bg-[#FAF6EE]">
+              <h3 className="text-sm font-black text-[#1C1815]">
                 Facility Security &amp; Violation Records
               </h3>
-              <p className="text-[11px] text-ink-secondary">
+              <p className="text-[11px] text-[#706254]">
                 Recent incidents reported at {lot.name} reviewed by station attendants and admins.
               </p>
             </div>
 
             {incidents.length === 0 ? (
-              <div className="p-10 text-center text-xs text-ink-secondary space-y-2">
-                <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
-                <div className="font-bold text-ink-primary">No Violations Logged</div>
-                <p className="text-ink-muted">No security incidents have been reported for this lot.</p>
+              <div className="p-10 text-center text-xs text-[#706254] space-y-2">
+                <CheckCircle2 className="w-8 h-8 text-[#176B5B] mx-auto" />
+                <div className="font-bold text-[#1C1815]">No Violations Logged</div>
+                <p className="text-[#706254]">No security incidents have been reported for this lot.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border-subtle max-h-[500px] overflow-y-auto">
+              <div className="divide-y divide-[#EFE9DF] max-h-[500px] overflow-y-auto">
                 {incidents.map((inc) => (
-                  <div key={inc._id} className="p-4 text-xs space-y-2 hover:bg-surface-subtle/30">
+                  <div key={inc._id} className="p-4 text-xs space-y-2 hover:bg-[#FAF6EE]/40 transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <span className="font-bold uppercase tracking-wider text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
+                        <span className="font-bold uppercase tracking-wider text-[10px] px-2 py-0.5 rounded-md bg-[#FAF6EE] text-[#92400E] border border-[#DFD1BD]">
                           {inc.category.replace("_", " ")}
                         </span>
                         {inc.vehicleId?.registrationNumber && (
-                          <span className="font-mono font-bold text-ink-primary">
+                          <span className="font-mono font-black text-[#1C1815]">
                             {inc.vehicleId.registrationNumber}
                           </span>
                         )}
@@ -1080,11 +1101,11 @@ export default function AttendantBoothPage() {
                       <Badge status={inc.status} text={inc.status.replace("_", " ")} />
                     </div>
 
-                    <p className="text-ink-primary text-xs leading-relaxed">
+                    <p className="text-[#1C1815] text-xs leading-relaxed">
                       {inc.description}
                     </p>
 
-                    <div className="flex items-center justify-between text-[11px] text-ink-muted pt-1">
+                    <div className="flex items-center justify-between text-[11px] text-[#706254] pt-1">
                       <span>Reported by: {inc.reportedBy?.name || "Station Attendant"}</span>
                       <span>
                         {new Date(inc.createdAt).toLocaleString("en-IN", {
@@ -1103,161 +1124,91 @@ export default function AttendantBoothPage() {
         </div>
       )}
 
-      {/* Check-In Digital QR Ticket Slip Modal (Module 2) */}
+      {/* Check-In Digital Boarding Pass Ticket Modal (Module 2) */}
       {newTicketSlip && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white max-w-sm w-full rounded-card border border-border-subtle shadow-2xl p-6 space-y-4">
-            <div className="flex justify-between items-center border-b border-border-subtle pb-3">
-              <div className="flex items-center space-x-2">
-                <FileText className="w-4 h-4 text-brand-600" />
-                <h3 className="text-sm font-bold text-ink-primary">Digital Parking Slip</h3>
-              </div>
-              <button
-                onClick={() => setNewTicketSlip(null)}
-                className="text-ink-muted hover:text-ink-primary"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Slip Content */}
-            <div className="p-4 bg-surface-subtle/70 rounded-card border border-dashed border-border-subtle space-y-4 text-center">
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-bold text-brand-600 uppercase tracking-wider">
-                  Where Did I Park?
-                </span>
-                <div className="text-sm font-black text-ink-primary">{lot.name}</div>
-                <div className="text-[10px] text-ink-secondary">{lot.address}</div>
-              </div>
-
-              {/* Scannable QR Code */}
-              <div className="flex justify-center p-2 bg-white rounded-lg border border-border-subtle w-36 h-36 mx-auto items-center">
-                <QRCodeSVG
-                  value={JSON.stringify({
-                    ticketId: newTicketSlip.ticketId,
-                    reg: newTicketSlip.vehicleId?.registrationNumber,
-                    slot: newTicketSlip.parkingSlotId?.slotNumber,
-                    zone: newTicketSlip.parkingSlotId?.zone,
-                    lotId: lot.id,
-                  })}
-                  size={124}
-                  level="M"
-                />
-              </div>
-
-              <div className="p-2.5 bg-brand-50 rounded-lg border border-brand-200">
-                <span className="text-[10px] text-brand-700 uppercase font-semibold block">
-                  Assigned Parking Slot
-                </span>
-                <span className="text-xl font-mono font-black text-brand-700">
-                  {newTicketSlip.parkingSlotId?.zone} • {newTicketSlip.parkingSlotId?.slotNumber}
-                </span>
-              </div>
-
-              <div className="space-y-1 text-xs text-left pt-2 border-t border-border-subtle">
-                <div className="flex justify-between">
-                  <span className="text-ink-secondary">Vehicle:</span>
-                  <span className="font-mono font-bold text-ink-primary">
-                    {newTicketSlip.vehicleId?.registrationNumber}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-ink-secondary">Ticket ID:</span>
-                  <span className="font-mono text-ink-primary">{newTicketSlip.ticketId}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-ink-secondary">Rate:</span>
-                  <span className="font-semibold text-ink-primary">₹{lot.hourlyRate || 20} / hr</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-ink-secondary">Entry:</span>
-                  <span className="text-ink-primary">
-                    {new Date(newTicketSlip.entryTime).toLocaleTimeString("en-IN", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                className="flex-1 text-xs"
-                onClick={() => {
-                  window.print();
-                }}
-              >
-                <Printer className="w-3.5 h-3.5 mr-1" />
-                <span>Print Slip</span>
-              </Button>
-              <Button
-                size="sm"
-                className="flex-1 text-xs"
-                onClick={() => setNewTicketSlip(null)}
-              >
-                <span>Done</span>
-              </Button>
-            </div>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="relative max-w-md w-full my-8">
+            <button
+              onClick={() => setNewTicketSlip(null)}
+              className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-[#176B5B] border border-[#D4AF37] text-white flex items-center justify-center hover:bg-[#125448] transition-colors shadow-lg cursor-pointer"
+              title="Close Pass"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <TicketCard
+              session={{
+                ...newTicketSlip,
+                parkingLotId: {
+                  name: lot.name,
+                  address: lot.address,
+                  city: lot.city || "New Delhi",
+                  hourlyRate: lot.hourlyRate || 20,
+                },
+              }}
+            />
           </div>
         </div>
       )}
 
       {/* Checkout Receipt Modal (Module 2 & 3) */}
       {receiptData && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full rounded-card border border-border-subtle shadow-xl p-6 space-y-4">
-            <div className="flex justify-between items-center border-b border-border-subtle pb-3">
-              <h3 className="text-base font-bold text-ink-primary flex items-center space-x-2">
-                <Receipt className="w-4 h-4 text-emerald-600" />
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white max-w-md w-full rounded-2xl border border-[#E2D9CC] shadow-2xl p-6 space-y-4">
+            <div className="flex justify-between items-center border-b border-[#EFE9DF] pb-3">
+              <h3 className="text-base font-black text-[#1C1815] flex items-center space-x-2">
+                <Receipt className="w-5 h-5 text-[#176B5B]" />
                 <span>Exit Clearance Receipt</span>
               </h3>
-              <Badge status="completed" text="Checked Out" />
+              <span className="font-bold text-[11px] uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-[#EAF3EE] text-[#176B5B] border border-[#C5DDD2]">
+                Checked Out
+              </span>
             </div>
 
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-ink-secondary">Vehicle Number:</span>
-                <span className="font-mono font-bold text-sm text-ink-primary">
+            <div className="space-y-2.5 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-[#706254]">Vehicle Number:</span>
+                <span className="font-mono font-black text-sm text-[#1C1815]">
                   {receiptData.registrationNumber}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-ink-secondary">Ticket Identifier:</span>
-                <span className="font-mono font-medium text-ink-primary">
+              <div className="flex justify-between items-center">
+                <span className="text-[#706254]">Ticket Identifier:</span>
+                <span className="font-mono font-bold text-[#1C1815]">
                   {receiptData.ticketId}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-ink-secondary">Slot Released:</span>
-                <span className="font-bold text-brand-600">
-                  {receiptData.zone} • {receiptData.slotNumber} (Now Available)
+              <div className="flex justify-between items-center">
+                <span className="text-[#706254]">Slot Released:</span>
+                <span className="font-bold text-[#176B5B] bg-[#EAF3EE] px-2 py-0.5 rounded-md border border-[#C5DDD2]">
+                  {receiptData.zone} • {receiptData.slotNumber} (Available)
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-ink-secondary">Duration:</span>
-                <span className="font-medium text-ink-primary">
+              <div className="flex justify-between items-center">
+                <span className="text-[#706254]">Duration:</span>
+                <span className="font-bold text-[#1C1815]">
                   {receiptData.durationMinutes} mins ({receiptData.billedHours} hr billed)
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-ink-secondary">Hourly Rate:</span>
-                <span className="font-medium text-ink-primary">
+              <div className="flex justify-between items-center">
+                <span className="text-[#706254]">Hourly Rate:</span>
+                <span className="font-bold text-[#1C1815]">
                   ₹{receiptData.hourlyRate} / hr
                 </span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-border-subtle font-bold text-base text-ink-primary">
+              <div className="flex justify-between items-center pt-3 border-t border-[#EFE9DF] font-black text-base text-[#1C1815]">
                 <span>Total Fee Collected:</span>
-                <span className="text-emerald-700">₹{receiptData.totalFee}</span>
+                <span className="text-[#B08528] text-xl font-mono">₹{receiptData.totalFee}</span>
               </div>
             </div>
 
             <div className="pt-2 text-right">
-              <Button size="sm" onClick={() => setReceiptData(null)}>
+              <button
+                type="button"
+                onClick={() => setReceiptData(null)}
+                className="px-5 py-2.5 bg-[#176B5B] hover:bg-[#125448] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs cursor-pointer"
+              >
                 Dismiss &amp; Print
-              </Button>
+              </button>
             </div>
           </div>
         </div>

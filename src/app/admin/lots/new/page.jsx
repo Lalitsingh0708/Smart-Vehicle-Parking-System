@@ -14,10 +14,10 @@ export default function NewParkingLotPage() {
   // Form states
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("New Delhi");
-  const [latitude, setLatitude] = useState("28.6139");
-  const [longitude, setLongitude] = useState("77.2090");
-  const [hourlyRate, setHourlyRate] = useState("20");
+  const [city, setCity] = useState("Phagwara (LPU Campus)");
+  const [latitude, setLatitude] = useState("31.2536");
+  const [longitude, setLongitude] = useState("75.7037");
+  const [hourlyRate, setHourlyRate] = useState("10");
   const [openingHours, setOpeningHours] = useState("06:00 - 23:00");
   const [description, setDescription] = useState("");
   const [initialSlotsCount, setInitialSlotsCount] = useState("16");

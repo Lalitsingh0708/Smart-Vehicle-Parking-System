@@ -25,6 +25,7 @@ export async function GET() {
       lotOccupancy,
       incidentsByCategory,
       recentSessions,
+      pendingAttendants,
     ] = await Promise.all([
       ParkingLot.find({ active: true }).lean(),
       ParkingLot.countDocuments(),
@@ -40,8 +41,8 @@ export async function GET() {
       ParkingSession.find({ status: "active" })
         .populate("vehicleId", "registrationNumber make model vehicleType")
         .populate("parkingSlotId", "zone slotNumber")
-        .populate("parkingLotId", "name city")
-        .populate("userId", "name phoneNumber")
+        .populate("parkingLotId", "name address city hourlyRate")
+        .populate("userId", "name phoneNumber email")
         .lean(),
       User.countDocuments({ role: "user" }),
       SecurityIncident.countDocuments({ status: { $in: ["open", "under_review"] } }),
@@ -66,6 +67,10 @@ export async function GET() {
       })
         .select("entryTime exitTime status")
         .lean(),
+      User.countDocuments({
+        role: "attendant",
+        $or: [{ isApprovedByAdmin: false }, { attendantApprovalStatus: "pending" }],
+      }),
     ]);
 
     const slotStats = {
@@ -81,6 +86,28 @@ export async function GET() {
       }
     });
 
+    // Master list of all parked bikes with lot and location details
+    const allParkedBikes = activeSessionsList.map((s) => ({
+      sessionId: s._id,
+      ticketId: s.ticketId,
+      registrationNumber: s.vehicleId?.registrationNumber || "N/A",
+      make: s.vehicleId?.make || "",
+      model: `${s.vehicleId?.make || ""} ${s.vehicleId?.model || ""}`.trim() || "Motorcycle",
+      vehicleType: s.vehicleId?.vehicleType || "motorcycle",
+      slot: `${s.parkingSlotId?.zone || ""} ${s.parkingSlotId?.slotNumber || ""}`.trim() || "Unallocated",
+      zone: s.parkingSlotId?.zone || "",
+      slotNumber: s.parkingSlotId?.slotNumber || "",
+      lotId: s.parkingLotId?._id?.toString() || "",
+      lotName: s.parkingLotId?.name || "Parking Facility",
+      lotAddress: s.parkingLotId?.address || "",
+      lotCity: s.parkingLotId?.city || "",
+      hourlyRate: s.parkingLotId?.hourlyRate || 10,
+      rider: s.userId?.name || "Rider",
+      riderPhone: s.userId?.phoneNumber || "N/A",
+      riderEmail: s.userId?.email || "",
+      entryTime: s.entryTime,
+    }));
+
     // Map active parked vehicles by lotId
     const activeVehiclesByLot = {};
     activeSessionsList.forEach((s) => {
@@ -88,11 +115,18 @@ export async function GET() {
       if (!lid) return;
       if (!activeVehiclesByLot[lid]) activeVehiclesByLot[lid] = [];
       activeVehiclesByLot[lid].push({
+        sessionId: s._id,
+        ticketId: s.ticketId,
         registrationNumber: s.vehicleId?.registrationNumber || "N/A",
-        model: `${s.vehicleId?.make || ""} ${s.vehicleId?.model || ""}`,
-        slot: `${s.parkingSlotId?.zone || ""} ${s.parkingSlotId?.slotNumber || ""}`,
+        make: s.vehicleId?.make || "",
+        model: `${s.vehicleId?.make || ""} ${s.vehicleId?.model || ""}`.trim() || "Motorcycle",
+        vehicleType: s.vehicleId?.vehicleType || "motorcycle",
+        slot: `${s.parkingSlotId?.zone || ""} ${s.parkingSlotId?.slotNumber || ""}`.trim() || "Unallocated",
+        zone: s.parkingSlotId?.zone || "",
+        slotNumber: s.parkingSlotId?.slotNumber || "",
         rider: s.userId?.name || "Rider",
         riderPhone: s.userId?.phoneNumber || "N/A",
+        riderEmail: s.userId?.email || "",
         entryTime: s.entryTime,
       });
     });
@@ -135,6 +169,7 @@ export async function GET() {
         occupiedSlots: occupied,
         occupancyPercent: percent,
         status,
+        allowCheckIn: lot.allowCheckIn !== false,
         parkedVehicles: parked,
       };
     });
@@ -190,8 +225,10 @@ export async function GET() {
         activeSessions: activeSessionsList.length,
         totalUsers,
         openIncidents,
+        pendingAttendants: pendingAttendants || 0,
       },
       facilitiesBreakdown,
+      allParkedBikes,
       charts: {
         dailyActivity,
         utilizationByLot,

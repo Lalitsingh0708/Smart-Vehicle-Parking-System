@@ -34,6 +34,45 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "ParkingLot",
       index: true,
+      default: null,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    verificationOtp: {
+      type: String,
+      default: null,
+    },
+    verificationOtpExpires: {
+      type: Date,
+      default: null,
+    },
+    // Administrator Attendant Verification & Onboarding Workflow
+    isApprovedByAdmin: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    attendantApprovalStatus: {
+      type: String,
+      enum: ["none", "pending", "approved", "rejected"],
+      default: "none",
+      index: true,
+    },
+    approvedAt: {
+      type: Date,
+      default: null,
+    },
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    approvalNotes: {
+      type: String,
+      default: "",
     },
   },
   {

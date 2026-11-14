@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import { loginSchema } from "@/lib/validations";
 import { comparePassword, setSessionCookie } from "@/lib/auth";
+import { sendVerificationOtpEmail, PLATFORM_ADMIN_EMAIL } from "@/lib/email";
 
 export async function POST(request) {
   try {
@@ -19,8 +20,9 @@ export async function POST(request) {
     await connectDB();
 
     const { email, password } = validatedData.data;
+    const cleanEmail = email.toLowerCase().trim();
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: cleanEmail });
     if (!user) {
       return NextResponse.json(
         { error: "Invalid email or password" },
@@ -36,25 +38,26 @@ export async function POST(request) {
       );
     }
 
-    const sessionPayload = {
-      userId: user._id.toString(),
+    // Generate fresh 6-digit login verification OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.verificationOtp = otp;
+    user.verificationOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    const emailResult = await sendVerificationOtpEmail({
+      email: cleanEmail,
       name: user.name,
-      email: user.email,
-      role: user.role,
-      assignedLotId: user.assignedLotId ? user.assignedLotId.toString() : null,
-    };
+      otp,
+      purpose: "login",
+    });
 
-    await setSessionCookie(sessionPayload);
-
+    // Return requiresOtp response - DO NOT issue session cookie until OTP is verified
     return NextResponse.json({
-      message: "Signed in successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        assignedLotId: user.assignedLotId || null,
-      },
+      requiresOtp: true,
+      email: cleanEmail,
+      message: `A 6-digit login verification code has been sent to ${cleanEmail}. Enter it below to access your dashboard.`,
+      simulated: emailResult.simulated || false,
+      devOtp: emailResult.simulated ? otp : undefined,
     });
   } catch (error) {
     console.error("Login error:", error);
