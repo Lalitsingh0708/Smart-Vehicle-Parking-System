@@ -21,14 +21,6 @@ import {
 import toast from "react-hot-toast";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
-function AppleIcon({ className = "w-4 h-4" }) {
-  return (
-    <svg className={className} viewBox="0 0 170 170" fill="currentColor">
-      <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.6-7.85-11.71-14.43-5.74-9.16-10.22-19.68-13.43-31.56-3.21-11.87-4.82-22.95-4.82-33.24 0-14.82 3.73-27.18 11.2-37.08 7.46-9.9 16.9-14.92 28.32-15.07 4.9 0 10.33 1.25 16.29 3.74 5.96 2.49 9.87 3.79 11.73 3.91 1.5.12 5.67-1.28 12.5-4.22 6.84-2.93 12.7-4.26 17.58-3.98 13.06.63 23.42 4.98 31.08 13.04-11.51 6.96-17.15 16.65-16.92 29.07.24 9.99 4.13 18.25 11.67 24.77 5.76 5.09 12.39 8.24 19.89 9.47-2.61 7.9-6.09 16.14-10.45 24.71zM119.22 33.15c0-7.22 2.65-14.28 7.96-21.18 5.3-6.9 11.96-11.39 19.98-13.47.24 1.1.36 2.05.36 2.87 0 7.22-2.77 14.38-8.31 21.48-5.54 7.1-12.39 11.38-20.55 12.84-.48-.84-.72-1.74-.72-2.71z" />
-    </svg>
-  );
-}
-
 export default function RegisterPage() {
   const [step, setStep] = useState("form"); // "form" | "verify"
   const [accountType, setAccountType] = useState("user"); // "user" | "attendant"
@@ -258,20 +250,9 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                {/* Social Logins */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="w-full">
-                    <GoogleSignInButton role={accountType} text="Google" />
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => toast("Apple Sign-in is available in the upcoming native iOS app.")}
-                    className="flex items-center justify-center space-x-1.5 py-2 px-2.5 rounded-xl border border-[#D8CFC2] bg-white hover:bg-[#FAF7F2] text-xs font-bold text-[#1C1815] transition-all cursor-pointer shadow-sm hover:border-[#B5A89A]"
-                  >
-                    <AppleIcon className="w-3.5 h-3.5 fill-current text-[#1C1815]" />
-                    <span className="truncate">Apple</span>
-                  </button>
+                {/* Social Login */}
+                <div className="w-full">
+                  <GoogleSignInButton role={accountType} text="Continue with Google" />
                 </div>
 
                 {/* Divider */}
