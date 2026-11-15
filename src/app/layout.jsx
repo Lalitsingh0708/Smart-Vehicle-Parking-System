@@ -1,14 +1,6 @@
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import ActiveParkingHUD from "@/components/layout/ActiveParkingHUD";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-  fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
-});
 
 export const metadata = {
   title: "Where Did I Park? | Two-Wheeler Parking Management",
@@ -26,7 +18,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en">
       <body className="min-h-screen bg-surface-bg text-ink-primary font-sans antialiased">
         <Toaster
           position="top-right"
