@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import QRCode from "qrcode";
 
 /**
  * Platform Administrator Email (Sole authorized admin)
@@ -269,6 +270,368 @@ export async function sendAttendantApprovedEmail({ email, name, lotName }) {
     return { success: true };
   } catch (err) {
     console.error("[EMAIL SERVICE] Failed to send approval email:", err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Send Live Duty Shift Assignment Email to Attendant
+ */
+export async function sendAttendantDutyAssignmentEmail({
+  email,
+  name,
+  lotName,
+  lotAddress,
+  lotCity,
+  openingHours = "Standard Campus Operating Hours",
+  notes = "",
+}) {
+  const cleanEmail = email.toLowerCase().trim();
+  const userName = name || "Booth Attendant";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+  console.log("--------------------------------------------------");
+  console.log(`[EMAIL SERVICE] Duty Assignment Email for ${cleanEmail} -> ${lotName}`);
+  console.log("--------------------------------------------------");
+
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.log("[EMAIL SERVICE] Transporter not ready, running in simulated mode.");
+    return { success: true, simulated: true };
+  }
+
+  const user = (process.env.SMTP_USER || process.env.EMAIL_USER || "").trim();
+  const fromAddress = process.env.SMTP_FROM || `"Where Did I Park?" <${user}>`;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Parking Duty Assignment - Where Did I Park?</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #FAF7F2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1C1815;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #FAF7F2; padding: 32px 16px;">
+          <tr>
+            <td align="center">
+              <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 540px; background-color: #FFFFFF; border-radius: 16px; border: 1.5px solid #E2D9CC; box-shadow: 0 4px 16px rgba(0,0,0,0.06); overflow: hidden;">
+                <!-- Header Banner -->
+                <tr>
+                  <td style="background-color: #176B5B; padding: 28px 24px; text-align: center;">
+                    <h1 style="margin: 0; color: #FFFFFF; font-size: 22px; font-weight: 900; letter-spacing: -0.02em;">
+                      Where Did I Park?
+                    </h1>
+                    <p style="margin: 6px 0 0; color: #D4AF37; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;">
+                      Official Parking Booth Duty Assignment
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Content Area -->
+                <tr>
+                  <td style="padding: 32px 28px;">
+                    <h2 style="margin: 0 0 12px; font-size: 18px; font-weight: 800; color: #176B5B;">
+                      New Parking Duty Assigned
+                    </h2>
+                    <p style="margin: 0 0 16px; font-size: 13.5px; line-height: 1.6; color: #706254;">
+                      Hello <strong>${userName}</strong>,<br>
+                      Platform Administrator <strong>Lalit Baghel</strong> has assigned you to on-field parking operations for the following campus facility.
+                    </p>
+
+                    <!-- Assigned Facility Card -->
+                    <div style="background-color: #FAF7F2; border: 1.5px solid #E2D9CC; border-radius: 12px; padding: 18px; margin: 20px 0;">
+                      <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #8C7E72; display: block; margin-bottom: 4px;">
+                        Assigned Parking Facility
+                      </span>
+                      <span style="font-size: 18px; font-weight: 900; color: #176B5B; display: block; margin-bottom: 8px;">
+                        ${lotName}
+                      </span>
+                      <div style="font-size: 12px; color: #706254; line-height: 1.5;">
+                        <strong>Location:</strong> ${lotAddress || ""}${lotCity ? `, ${lotCity}` : ""}<br>
+                        <strong>Operational Hours:</strong> ${openingHours}
+                      </div>
+                    </div>
+
+                    <!-- On-Time Duty Instruction Notice -->
+                    <div style="background-color: #FEF3C7; border-left: 4px solid #D97706; padding: 14px 16px; border-radius: 8px; margin: 18px 0;">
+                      <p style="margin: 0; font-size: 12.5px; font-weight: 700; color: #92400E; line-height: 1.5;">
+                        Duty Instructions: Please report on duty on time. Ensure gate check-in, checkout fee collection, and two-wheeler slot allocations run without delays.
+                      </p>
+                      ${
+                        notes
+                          ? `<p style="margin: 8px 0 0; font-size: 12px; color: #78350F; font-weight: 600;">
+                               <strong>Admin Note:</strong> ${notes}
+                             </p>`
+                          : ""
+                      }
+                    </div>
+
+                    <div style="text-align: center; margin: 26px 0 12px;">
+                      <a href="${appUrl}/attendant" style="background-color: #176B5B; color: #FFFFFF; font-size: 13px; font-weight: 800; text-decoration: none; padding: 12px 28px; border-radius: 10px; display: inline-block; text-transform: uppercase; letter-spacing: 0.04em;">
+                        Open Attendant Booth Station &rarr;
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #FAF6EE; padding: 18px 24px; text-align: center; border-top: 1px solid #EFE9DF;">
+                    <p style="margin: 0; font-size: 11px; color: #706254;">
+                      © ${new Date().getFullYear()} Where Did I Park? • Two-Wheeler Parking Management System<br>
+                      Platform Administrator: Lalit Baghel (lalitbaghel0708@gmail.com)
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: fromAddress,
+      to: cleanEmail,
+      subject: `Parking Duty Assigned: ${lotName} | Where Did I Park?`,
+      html: htmlContent,
+      text: `Hello ${userName},\n\nYour parking booth duty has been assigned by Platform Administrator Lalit Baghel to "${lotName}" (${lotAddress}).\n\nPlease report on duty on time.\n\nSign in to your booth terminal at ${appUrl}/attendant.`,
+    });
+    console.log(`[EMAIL SERVICE] Duty assignment email successfully sent to ${cleanEmail}`);
+    return { success: true };
+  } catch (err) {
+    console.error("[EMAIL SERVICE] Failed to send duty assignment email:", err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Send Instant Slot Booking Confirmation Email with Embedded Check-In QR Pass
+ */
+export async function sendSlotBookingConfirmationEmail({
+  email,
+  name,
+  lotName,
+  lotAddress,
+  lotCity,
+  zone,
+  slotNumber,
+  registrationNumber,
+  vehicleModel,
+  ticketId,
+  hourlyRate = 10,
+  entryTime,
+}) {
+  const cleanEmail = email.toLowerCase().trim();
+  const userName = name || "Rider";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const formattedTime = entryTime ? new Date(entryTime).toLocaleString("en-IN") : new Date().toLocaleString("en-IN");
+
+  console.log("--------------------------------------------------");
+  console.log(`[EMAIL SERVICE] Slot Booking Confirmation for ${cleanEmail} -> ${ticketId} (${lotName})`);
+  console.log("--------------------------------------------------");
+
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.log("[EMAIL SERVICE] Transporter not ready, running in simulated mode.");
+    return { success: true, simulated: true };
+  }
+
+  const user = (process.env.SMTP_USER || process.env.EMAIL_USER || "").trim();
+  const fromAddress = process.env.SMTP_FROM || `"Where Did I Park?" <${user}>`;
+
+  // Generate QR Code PNG Buffer for inline CID embedding
+  let qrBuffer = null;
+  try {
+    qrBuffer = await QRCode.toBuffer(ticketId, {
+      width: 280,
+      margin: 2,
+      color: {
+        dark: "#1C1815",
+        light: "#FFFFFF",
+      },
+    });
+  } catch (qrErr) {
+    console.error("[EMAIL SERVICE] Failed to generate QR buffer:", qrErr);
+  }
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Parking Slot Confirmed - ${ticketId}</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #FAF7F2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1C1815;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #FAF7F2; padding: 32px 16px;">
+          <tr>
+            <td align="center">
+              <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 540px; background-color: #FFFFFF; border-radius: 16px; border: 1.5px solid #E2D9CC; box-shadow: 0 4px 16px rgba(0,0,0,0.06); overflow: hidden;">
+                <!-- Header Banner -->
+                <tr>
+                  <td style="background-color: #176B5B; padding: 28px 24px; text-align: center;">
+                    <h1 style="margin: 0; color: #FFFFFF; font-size: 22px; font-weight: 900; letter-spacing: -0.02em;">
+                      Where Did I Park?
+                    </h1>
+                    <p style="margin: 6px 0 0; color: #D4AF37; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;">
+                      Digital Parking Boarding Pass
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Content Area -->
+                <tr>
+                  <td style="padding: 32px 28px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                      <span style="background-color: #EAF3EE; color: #176B5B; border: 1px solid #C5DDD2; font-size: 11px; font-weight: 800; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.04em;">
+                        Slot Confirmed &amp; Reserved
+                      </span>
+                      <h2 style="margin: 10px 0 4px; font-size: 20px; font-weight: 900; color: #1C1815;">
+                        Your Two-Wheeler Bay is Ready!
+                      </h2>
+                      <p style="margin: 0; font-size: 13px; color: #706254;">
+                        Hello <strong>${userName}</strong>, your parking reservation has been recorded in the facility database.
+                      </p>
+                    </div>
+
+                    <!-- Digital Boarding Pass Ticket Box -->
+                    <div style="background-color: #FAF7F2; border: 2px dashed #D8CCBD; border-radius: 14px; padding: 20px; margin: 20px 0;">
+                      <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="padding-bottom: 12px;">
+                            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #8C7E72; display: block;">
+                              Parking Facility
+                            </span>
+                            <span style="font-size: 16px; font-weight: 900; color: #1C1815; display: block;">
+                              ${lotName}
+                            </span>
+                            <span style="font-size: 11.5px; color: #706254;">
+                              ${lotAddress || ""}${lotCity ? `, ${lotCity}` : ""}
+                            </span>
+                          </td>
+                          <td align="right" style="padding-bottom: 12px; vertical-align: top;">
+                            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #8C7E72; display: block;">
+                              Campus Tariff
+                            </span>
+                            <span style="font-size: 13px; font-weight: 900; color: #176B5B;">
+                              Free (Students &amp; Staff)
+                            </span>
+                          </td>
+                        </tr>
+
+                        <!-- Bay & Vehicle Row -->
+                        <tr>
+                          <td style="padding: 12px 0; border-top: 1px solid #E5DACB; border-bottom: 1px solid #E5DACB;">
+                            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #8C7E72; display: block;">
+                              Allocated Bay / Slot
+                            </span>
+                            <span style="font-size: 20px; font-weight: 900; color: #176B5B;">
+                              ${zone} • ${slotNumber}
+                            </span>
+                          </td>
+                          <td align="right" style="padding: 12px 0; border-top: 1px solid #E5DACB; border-bottom: 1px solid #E5DACB;">
+                            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #8C7E72; display: block;">
+                              Registered Plate
+                            </span>
+                            <span style="font-size: 16px; font-weight: 900; font-family: monospace; color: #1C1815;">
+                              ${registrationNumber}
+                            </span>
+                            ${vehicleModel ? `<span style="font-size: 11px; color: #706254; display: block;">${vehicleModel}</span>` : ""}
+                          </td>
+                        </tr>
+
+                        <!-- Ticket ID & Booking Time -->
+                        <tr>
+                          <td style="padding-top: 12px;">
+                            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #8C7E72; display: block;">
+                              Ticket Pass ID
+                            </span>
+                            <span style="font-size: 13px; font-weight: 800; font-family: monospace; color: #1C1815;">
+                              ${ticketId}
+                            </span>
+                          </td>
+                          <td align="right" style="padding-top: 12px;">
+                            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #8C7E72; display: block;">
+                              Booking Time
+                            </span>
+                            <span style="font-size: 11.5px; font-weight: 700; color: #706254;">
+                              ${formattedTime}
+                            </span>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+
+                    <!-- Digital Check-In QR Pass Section -->
+                    <div style="background-color: #FFFFFF; border: 1.5px solid #E2D9CC; border-radius: 14px; padding: 20px; text-align: center; margin: 22px 0;">
+                      <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #176B5B; letter-spacing: 0.05em; display: block; margin-bottom: 12px;">
+                        Scannable Gate Check-In QR Pass
+                      </span>
+
+                      ${
+                        qrBuffer
+                          ? `<img src="cid:ticketqr@wheredidipark" alt="Gate Check-In QR Pass" style="width: 180px; height: 180px; display: block; margin: 0 auto; border: 1px solid #E2D9CC; border-radius: 10px; padding: 6px; background-color: #FFFFFF;" />`
+                          : `<div style="font-family: monospace; font-size: 16px; font-weight: 900; padding: 20px; background-color: #FAF7F2; border-radius: 8px;">${ticketId}</div>`
+                      }
+
+                      <p style="margin: 12px 0 0; font-size: 11.5px; color: #706254; line-height: 1.5;">
+                        Show this digital QR code to the booth attendant upon arrival at <strong>${lotName}</strong> entrance gate.
+                      </p>
+                    </div>
+
+                    <div style="text-align: center; margin: 26px 0 12px;">
+                      <a href="${appUrl}/dashboard/my-parking" style="background-color: #176B5B; color: #FFFFFF; font-size: 13px; font-weight: 800; text-decoration: none; padding: 12px 28px; border-radius: 10px; display: inline-block; text-transform: uppercase; letter-spacing: 0.04em;">
+                        View My Parking in Dashboard &rarr;
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #FAF6EE; padding: 18px 24px; text-align: center; border-top: 1px solid #EFE9DF;">
+                    <p style="margin: 0; font-size: 11px; color: #706254;">
+                      © ${new Date().getFullYear()} Where Did I Park? • Two-Wheeler Parking Management System<br>
+                      Platform Support &amp; Assistance: lalitbaghel0708@gmail.com
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `;
+
+  const mailOptions = {
+    from: fromAddress,
+    to: cleanEmail,
+    subject: `Parking Slot Confirmed: ${zone} • ${slotNumber} (${lotName}) | Where Did I Park?`,
+    html: htmlContent,
+    text: `Hello ${userName},\n\nYour parking slot ${zone} • ${slotNumber} at "${lotName}" has been booked successfully.\n\nTicket ID: ${ticketId}\nVehicle: ${registrationNumber}\nTariff: Free Campus Parking (Students & Staff)\n\nPlease view your digital QR ticket in your dashboard at ${appUrl}/dashboard/my-parking.`,
+  };
+
+  if (qrBuffer) {
+    mailOptions.attachments = [
+      {
+        filename: `ticket-${ticketId}.png`,
+        content: qrBuffer,
+        cid: "ticketqr@wheredidipark",
+      },
+    ];
+  }
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`[EMAIL SERVICE] Booking confirmation with QR code successfully sent to ${cleanEmail}`);
+    return { success: true };
+  } catch (err) {
+    console.error("[EMAIL SERVICE] Failed to send slot booking email:", err.message);
     return { success: false, error: err.message };
   }
 }

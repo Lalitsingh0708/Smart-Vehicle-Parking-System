@@ -17,7 +17,7 @@ export default function NewParkingLotPage() {
   const [city, setCity] = useState("Phagwara (LPU Campus)");
   const [latitude, setLatitude] = useState("31.2536");
   const [longitude, setLongitude] = useState("75.7037");
-  const [hourlyRate, setHourlyRate] = useState("10");
+  const [hourlyRate, setHourlyRate] = useState("0");
   const [openingHours, setOpeningHours] = useState("06:00 - 23:00");
   const [description, setDescription] = useState("");
   const [initialSlotsCount, setInitialSlotsCount] = useState("16");
@@ -115,7 +115,7 @@ export default function NewParkingLotPage() {
 
             <div>
               <label className="block font-semibold text-ink-primary mb-1">
-                Hourly Fee in Indian Rupees (₹) *
+                Tariff in ₹ (0 for Free Campus Parking) *
               </label>
               <input
                 type="number"

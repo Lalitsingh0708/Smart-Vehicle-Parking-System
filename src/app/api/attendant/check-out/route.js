@@ -24,14 +24,26 @@ export async function POST(request) {
 
     await connectDB();
 
+    let attendantAssignedLotId = null;
+    let attendantLotName = null;
+
+    // Strict Attendant Isolation
     if (auth.session.role === "attendant") {
-      const user = await User.findById(auth.session.userId);
+      const user = await User.findById(auth.session.userId).populate("assignedLotId");
       if (!user || user.isApprovedByAdmin !== true || user.attendantApprovalStatus !== "approved") {
         return NextResponse.json(
           { error: "Attendant account is under review. Gate check-out is unauthorized." },
           { status: 403 }
         );
       }
+      if (!user.assignedLotId) {
+        return NextResponse.json(
+          { error: "No parking facility assigned to your attendant account. Gate check-out is unauthorized." },
+          { status: 403 }
+        );
+      }
+      attendantAssignedLotId = user.assignedLotId._id.toString();
+      attendantLotName = user.assignedLotId.name;
     }
 
     let query = { status: "active" };
@@ -45,7 +57,7 @@ export async function POST(request) {
       const vehicle = await Vehicle.findOne({ registrationNumber: cleanReg });
       if (!vehicle) {
         return NextResponse.json(
-          { error: `No vehicle found with registration number ${cleanReg}` },
+          { error: `No registered vehicle found with plate ${cleanReg}` },
           { status: 404 }
         );
       }
@@ -65,51 +77,62 @@ export async function POST(request) {
       );
     }
 
+    // STRICT CHECK: An attendant CANNOT check out vehicles parked in another facility!
+    if (attendantAssignedLotId && session.parkingLotId?._id?.toString() !== attendantAssignedLotId) {
+      const actualLotName = session.parkingLotId?.name || "another facility";
+      return NextResponse.json(
+        {
+          error: `Access Denied: This vehicle is parked at "${actualLotName}". As the booth attendant for "${attendantLotName}", you are only authorized to check out vehicles parked in your assigned facility.`,
+        },
+        { status: 403 }
+      );
+    }
+
     const exitTime = new Date();
     const entryTime = new Date(session.entryTime);
     const durationMs = Math.max(0, exitTime.getTime() - entryTime.getTime());
-    const durationMinutes = Math.floor(durationMs / (1000 * 60));
-    const billedHours = Math.max(1, Math.ceil(durationMinutes / 60));
+    const durationHours = Math.max(1, Math.ceil(durationMs / (1000 * 60 * 60)));
+    const hourlyRate = 0; // Free campus parking for students and staff
+    const fee = 0;
 
-    const hourlyRate = session.parkingLotId?.hourlyRate ?? 20;
-    const totalFee = billedHours * hourlyRate;
-
-    // Update session
     session.exitTime = exitTime;
     session.status = "completed";
-    session.fee = totalFee;
-    session.paymentStatus = "paid";
+    session.fee = fee;
+    session.paymentStatus = "free";
     await session.save();
 
-    // Free the parking slot atomically
-    if (session.parkingSlotId?._id) {
+    // Release parking bay
+    if (session.parkingSlotId) {
       await ParkingSlot.findByIdAndUpdate(session.parkingSlotId._id, {
         $set: { status: "available" },
       });
     }
 
     return NextResponse.json({
-      message: `Checkout confirmed for vehicle ${session.vehicleId?.registrationNumber}. Slot ${session.parkingSlotId?.slotNumber} is now available.`,
+      success: true,
+      message: `Vehicle ${session.vehicleId?.registrationNumber || ""} checkout successful at "${session.parkingLotId?.name}". Bay released.`,
       receipt: {
         ticketId: session.ticketId,
         registrationNumber: session.vehicleId?.registrationNumber,
-        vehicleModel: `${session.vehicleId?.make || ""} ${session.vehicleId?.model || ""}`,
-        riderName: session.userId?.name || "Rider",
-        parkingLotName: session.parkingLotId?.name,
+        model: session.vehicleId?.model,
+        vehicleType: session.vehicleId?.vehicleType,
+        riderName: session.userId?.name,
+        riderPhone: session.userId?.phoneNumber,
+        lotName: session.parkingLotId?.name,
+        lotAddress: session.parkingLotId?.address,
         slotNumber: session.parkingSlotId?.slotNumber,
         zone: session.parkingSlotId?.zone,
         entryTime: session.entryTime,
-        exitTime,
-        durationMinutes,
-        billedHours,
+        exitTime: session.exitTime,
+        durationHours,
         hourlyRate,
-        totalFee,
+        fee,
       },
     });
   } catch (error) {
-    console.error("Attendant checkout error:", error);
+    console.error("Attendant check-out error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to process attendant checkout" },
+      { error: "Failed to process vehicle checkout at gate terminal" },
       { status: 500 }
     );
   }

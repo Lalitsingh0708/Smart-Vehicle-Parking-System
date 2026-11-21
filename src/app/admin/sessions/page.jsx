@@ -137,8 +137,10 @@ export default function AdminSessionsPage() {
                           })
                         : "Parked (In Progress)"}
                     </td>
-                    <td className="p-3.5 font-black text-[#B08528] font-mono text-sm">
-                      ₹{s.fee || 0}
+                    <td className="p-3.5">
+                      <span className="font-bold text-[#176B5B] text-xs bg-[#EAF3EE] px-2 py-0.5 rounded border border-[#C5DDD2]">
+                        Free (Campus)
+                      </span>
                     </td>
                     <td className="p-3.5">
                       <Badge status={s.status} />

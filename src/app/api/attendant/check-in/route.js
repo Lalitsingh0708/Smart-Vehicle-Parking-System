@@ -6,6 +6,7 @@ import ParkingSession from "@/models/ParkingSession";
 import Vehicle from "@/models/Vehicle";
 import User from "@/models/User";
 import { authenticateApiRequest } from "@/lib/api-auth";
+import crypto from "crypto";
 
 export async function POST(request) {
   const auth = await authenticateApiRequest(["attendant", "admin"]);
@@ -35,26 +36,49 @@ export async function POST(request) {
 
     await connectDB();
 
-    // Determine target parking lot and verify attendant approval
+    // Determine target parking lot and enforce strict attendant isolation
+    let attendantLot = null;
     if (auth.session.role === "attendant") {
-      const user = await User.findById(auth.session.userId);
+      const user = await User.findById(auth.session.userId).populate("assignedLotId");
       if (!user || user.isApprovedByAdmin !== true || user.attendantApprovalStatus !== "approved") {
         return NextResponse.json(
           { error: "Attendant account is under review. Gate check-in is unauthorized." },
           { status: 403 }
         );
       }
-      lotId = user?.assignedLotId?.toString();
-    }
-    if (!lotId) {
-      const firstLot = await ParkingLot.findOne({ active: true });
-      if (firstLot) lotId = firstLot._id.toString();
+      if (!user.assignedLotId) {
+        return NextResponse.json(
+          { error: "No parking facility assigned to your attendant account. Gate check-in is unauthorized." },
+          { status: 403 }
+        );
+      }
+
+      attendantLot = user.assignedLotId;
+      const attendantAssignedId = attendantLot._id.toString();
+
+      // If client supplied a lotId that doesn't match their assigned facility, reject immediately
+      if (lotId && lotId.toString() !== attendantAssignedId) {
+        return NextResponse.json(
+          {
+            error: `Unauthorized: You are assigned exclusively to "${attendantLot.name}". You cannot check in vehicles into other parking facilities.`,
+          },
+          { status: 403 }
+        );
+      }
+
+      lotId = attendantAssignedId;
+    } else {
+      // Platform Admin: if no lot specified, default to first active
+      if (!lotId) {
+        const firstLot = await ParkingLot.findOne({ active: true });
+        if (firstLot) lotId = firstLot._id.toString();
+      }
     }
 
     const lot = await ParkingLot.findById(lotId);
-    if (!lot) {
+    if (!lot || !lot.active) {
       return NextResponse.json(
-        { error: "Parking lot not found or inactive" },
+        { error: "Parking facility not found or currently inactive" },
         { status: 404 }
       );
     }
@@ -62,17 +86,13 @@ export async function POST(request) {
     if (lot.allowCheckIn === false) {
       return NextResponse.json(
         {
-          error: `Check-in is currently paused for "${lot.name}" by facility administration due to peak capacity. Check-outs remain active.`,
+          error: `Check-in is currently paused for "${lot.name}" by facility administration due to peak rush. Check-outs remain operational.`,
         },
         { status: 403 }
       );
     }
 
-    // Check if vehicle is already parked in any active session
-    const existingActiveSession = await ParkingSession.findOne({
-      status: "active",
-    }).populate("vehicleId parkingLotId parkingSlotId");
-
+    // Check if vehicle is already parked in ANY active session across all lots
     const vehicleActive = await ParkingSession.findOne({
       status: "active",
     })
@@ -85,7 +105,7 @@ export async function POST(request) {
     if (vehicleActive && vehicleActive.vehicleId) {
       return NextResponse.json(
         {
-          error: `Vehicle ${cleanReg} is already checked in at ${vehicleActive.parkingLotId?.name || "a facility"} (Slot: ${vehicleActive.parkingSlotId?.slotNumber}). Check out the existing session first.`,
+          error: `Vehicle ${cleanReg} is already parked at "${vehicleActive.parkingLotId?.name || "a campus facility"}" (Slot: ${vehicleActive.parkingSlotId?.slotNumber || "Bay"}). Check out the existing session first.`,
         },
         { status: 409 }
       );
@@ -96,7 +116,7 @@ export async function POST(request) {
     let riderUser = null;
 
     if (!vehicle) {
-      // Find or create walk-in user account for unattended walk-in riders
+      // Find or create walk-in user account for gate walk-ins
       riderUser = await User.findOne({ email: "walkin@system.local" });
       if (!riderUser) {
         riderUser = await User.create({
@@ -105,6 +125,7 @@ export async function POST(request) {
           passwordHash: "NONE",
           role: "user",
           phoneNumber: riderPhone || "",
+          isVerified: true,
         });
       }
 
@@ -119,7 +140,8 @@ export async function POST(request) {
       riderUser = await User.findById(vehicle.ownerId);
     }
 
-    // Determine slot to claim: either specified slotId or first available slot in lot
+    // Determine slot to claim in THIS SPECIFIC LOT ONLY:
+    // Either specified slotId (must belong to lotId) or first available slot in this lot
     let targetSlot = null;
     if (slotId) {
       targetSlot = await ParkingSlot.findOneAndUpdate(
@@ -131,59 +153,61 @@ export async function POST(request) {
       targetSlot = await ParkingSlot.findOneAndUpdate(
         { parkingLotId: lotId, status: "available" },
         { $set: { status: "occupied" } },
-        { new: true }
+        { new: true, sort: { zone: 1, slotNumber: 1 } }
       );
     }
 
     if (!targetSlot) {
       return NextResponse.json(
-        { error: "No available slots in this parking facility to check in." },
-        { status: 409 }
+        { error: `No vacant bays available in "${lot.name}". The facility has reached full capacity.` },
+        { status: 400 }
       );
     }
 
-    // Generate ticket and create session
-    const datePrefix = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-    const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
-    const ticketId = `WDIP-${datePrefix}-${randomSuffix}`;
+    // Generate unique verifiable digital ticket
+    const ticketId = `TKT-${cleanReg.slice(-4)}-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
 
-    try {
-      const session = await ParkingSession.create({
-        userId: riderUser._id,
-        vehicleId: vehicle._id,
-        parkingLotId: lotId,
-        parkingSlotId: targetSlot._id,
-        ticketId,
-        entryTime: new Date(),
-        status: "active",
-        paymentStatus: "pending",
-        fee: 0,
-      });
+    const newSession = await ParkingSession.create({
+      userId: riderUser ? riderUser._id : vehicle.ownerId,
+      vehicleId: vehicle._id,
+      parkingLotId: lot._id,
+      parkingSlotId: targetSlot._id,
+      ticketId,
+      entryTime: new Date(),
+      status: "active",
+      fee: 0,
+      paymentStatus: "pending",
+    });
 
-      const populated = await ParkingSession.findById(session._id)
-        .populate("parkingLotId", "name address city hourlyRate")
-        .populate("parkingSlotId", "zone slotNumber")
-        .populate("vehicleId", "registrationNumber make model vehicleType");
+    const populatedSession = await ParkingSession.findById(newSession._id)
+      .populate("parkingLotId", "name address city hourlyRate")
+      .populate("parkingSlotId", "zone slotNumber")
+      .populate("vehicleId", "registrationNumber vehicleType make model")
+      .populate("userId", "name phoneNumber email")
+      .lean();
 
-      return NextResponse.json(
-        {
-          message: `Check-in successful! Vehicle ${cleanReg} assigned to Slot ${targetSlot.zone} • ${targetSlot.slotNumber}`,
-          session: populated,
-          slot: targetSlot,
-        },
-        { status: 201 }
-      );
-    } catch (err) {
-      // Compensate rollback slot
-      await ParkingSlot.findByIdAndUpdate(targetSlot._id, {
-        $set: { status: "available" },
-      });
-      throw err;
-    }
+    return NextResponse.json({
+      success: true,
+      message: `Vehicle ${cleanReg} checked in successfully at "${lot.name}" (Slot: ${targetSlot.zone} ${targetSlot.slotNumber}).`,
+      session: {
+        id: populatedSession._id,
+        ticketId: populatedSession.ticketId,
+        entryTime: populatedSession.entryTime,
+        lotName: populatedSession.parkingLotId?.name,
+        lotAddress: populatedSession.parkingLotId?.address,
+        slotNumber: populatedSession.parkingSlotId?.slotNumber,
+        zone: populatedSession.parkingSlotId?.zone,
+        registrationNumber: populatedSession.vehicleId?.registrationNumber,
+        model: populatedSession.vehicleId?.model,
+        riderName: populatedSession.userId?.name,
+        riderPhone: populatedSession.userId?.phoneNumber,
+        hourlyRate: populatedSession.parkingLotId?.hourlyRate,
+      },
+    });
   } catch (error) {
     console.error("Attendant check-in error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to process attendant check-in" },
+      { error: "Failed to check in vehicle at gate terminal" },
       { status: 500 }
     );
   }

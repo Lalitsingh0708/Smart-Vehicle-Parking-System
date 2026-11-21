@@ -16,9 +16,14 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
 
     let lotId = searchParams.get("lotId");
-    if (!lotId && auth.session.role === "attendant") {
-      const user = await User.findById(auth.session.userId);
-      lotId = user?.assignedLotId?.toString();
+
+    // Strict Attendant Isolation: Can only view incidents for their own assigned facility
+    if (auth.session.role === "attendant") {
+      const user = await User.findById(auth.session.userId).lean();
+      if (!user?.assignedLotId) {
+        return NextResponse.json({ incidents: [] });
+      }
+      lotId = user.assignedLotId.toString();
     }
 
     const query = {};
@@ -85,9 +90,17 @@ export async function POST(request) {
     await connectDB();
 
     let targetLotId = lotId;
-    if (!targetLotId && auth.session.role === "attendant") {
-      const user = await User.findById(auth.session.userId);
-      targetLotId = user?.assignedLotId?.toString();
+
+    // Strict Attendant Isolation: Can only report incidents for their own assigned facility
+    if (auth.session.role === "attendant") {
+      const user = await User.findById(auth.session.userId).lean();
+      if (!user?.assignedLotId) {
+        return NextResponse.json(
+          { error: "No parking facility assigned to your attendant account." },
+          { status: 403 }
+        );
+      }
+      targetLotId = user.assignedLotId.toString();
     }
 
     if (!targetLotId) {
@@ -98,12 +111,11 @@ export async function POST(request) {
     let vehicleId = undefined;
     let parkingSessionId = undefined;
 
-    if (registrationNumber && typeof registrationNumber === "string") {
+    if (registrationNumber) {
       const cleanReg = registrationNumber.trim().toUpperCase().replace(/\s+/g, "");
       const vehicle = await Vehicle.findOne({ registrationNumber: cleanReg });
       if (vehicle) {
         vehicleId = vehicle._id;
-        // Check for active session
         const activeSession = await ParkingSession.findOne({
           vehicleId: vehicle._id,
           status: "active",
@@ -117,30 +129,29 @@ export async function POST(request) {
     const incident = await SecurityIncident.create({
       reportedBy: auth.session.userId,
       parkingLotId: targetLotId,
-      vehicleId,
       parkingSessionId,
+      vehicleId,
       category,
       description: description.trim(),
       evidenceUrl: evidenceUrl.trim(),
       status: "open",
     });
 
-    const populated = await SecurityIncident.findById(incident._id)
-      .populate("reportedBy", "name email")
-      .populate("parkingLotId", "name address")
-      .populate("vehicleId", "registrationNumber make model");
+    const populatedIncident = await SecurityIncident.findById(incident._id)
+      .populate("reportedBy", "name email phoneNumber role")
+      .populate("parkingLotId", "name address city")
+      .populate("vehicleId", "registrationNumber make model")
+      .lean();
 
-    return NextResponse.json(
-      {
-        message: "Security incident / violation recorded successfully.",
-        incident: populated,
-      },
-      { status: 201 }
-    );
+    return NextResponse.json({
+      success: true,
+      message: "Security incident reported to campus control center.",
+      incident: populatedIncident,
+    });
   } catch (error) {
-    console.error("Attendant log incident error:", error);
+    console.error("Attendant report incident error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to record security incident" },
+      { error: "Failed to record security incident" },
       { status: 500 }
     );
   }

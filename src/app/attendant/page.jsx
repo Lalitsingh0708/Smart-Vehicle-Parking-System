@@ -65,17 +65,48 @@ export default function AttendantBoothPage() {
 
   // Parked Vehicles Search Filter
   const [searchFilter, setSearchFilter] = useState("");
+  const [recentBookingAlert, setRecentBookingAlert] = useState(null);
+  const [knownSessionIds, setKnownSessionIds] = useState(new Set());
 
-  const loadBoothStatus = (lotId = "") => {
-    setRefreshing(true);
+  const loadBoothStatus = (lotId = "", isPolling = false) => {
+    if (!isPolling) setRefreshing(true);
     const url = lotId ? `/api/attendant/status?lotId=${lotId}` : "/api/attendant/status";
 
     fetch(url)
       .then((r) => r.json())
       .then((res) => {
         if (res.error) {
-          toast.error(res.error);
+          if (!isPolling) toast.error(res.error);
         } else {
+          // Detect new booking arrivals in this facility
+          if (res.parkedVehicles && Array.isArray(res.parkedVehicles)) {
+            setKnownSessionIds((prevSet) => {
+              if (prevSet.size > 0) {
+                const newBookings = res.parkedVehicles.filter(
+                  (v) => !prevSet.has(v.sessionId?.toString())
+                );
+                if (newBookings.length > 0) {
+                  const latest = newBookings[0];
+                  setRecentBookingAlert(latest);
+                  toast.success(
+                    `New Rider Booking: ${latest.registrationNumber} reserved bay ${latest.zone} ${latest.slotNumber}`,
+                    {
+                      duration: 8000,
+                      style: {
+                        borderRadius: "14px",
+                        background: "#176B5B",
+                        color: "#FFFFFF",
+                        fontWeight: "bold",
+                        fontSize: "12px",
+                      },
+                    }
+                  );
+                }
+              }
+              return new Set(res.parkedVehicles.map((v) => v.sessionId?.toString()));
+            });
+          }
+
           setData(res);
           const currentLotId = res.lot?.id || "";
           setSelectedLotId(currentLotId);
@@ -85,7 +116,7 @@ export default function AttendantBoothPage() {
       .catch((err) => console.error("Booth error:", err))
       .finally(() => {
         setLoading(false);
-        setRefreshing(false);
+        if (!isPolling) setRefreshing(false);
       });
   };
 
@@ -106,10 +137,10 @@ export default function AttendantBoothPage() {
   useEffect(() => {
     loadBoothStatus();
     const interval = setInterval(() => {
-      loadBoothStatus(selectedLotId);
-    }, 30000);
+      loadBoothStatus(selectedLotId, true);
+    }, 6000);
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedLotId]);
 
   const handleLotChange = (e) => {
     const newLotId = e.target.value;
@@ -265,6 +296,25 @@ export default function AttendantBoothPage() {
     );
   }
 
+  if (data?.unassigned) {
+    return (
+      <div className="max-w-xl mx-auto my-12 p-8 bg-white rounded-2xl border-2 border-[#E2D9CC] shadow-md text-center space-y-4">
+        <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-300 text-amber-800 flex items-center justify-center mx-auto">
+          <ShieldAlert className="w-6 h-6 stroke-[2.2]" />
+        </div>
+        <div className="space-y-1.5">
+          <h2 className="text-lg font-black text-[#1C1815]">Parking Facility Assignment Required</h2>
+          <p className="text-xs text-[#706254] leading-relaxed">
+            Your attendant account is approved, but has not yet been assigned to a specific parking facility (such as Main Gate, 34 Block, or Hostel Block).
+          </p>
+          <p className="text-xs text-[#176B5B] font-bold">
+            Please contact Platform Administrator (lalitbaghel0708@gmail.com) to assign your campus booth.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const lot = data?.lot || {};
   const stats = data?.stats || {};
   const today = data?.todaySummary || {};
@@ -304,8 +354,8 @@ export default function AttendantBoothPage() {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#176B5B] bg-[#EAF3EE] px-2.5 py-0.5 rounded-lg border border-[#C5DDD2]">
               Active Facility Booth
             </span>
-            <span className="text-xs font-semibold text-[#706254] bg-[#FAF6EE] px-2.5 py-0.5 rounded-lg border border-[#E5DACB]">
-              Campus Tariff: <strong className="text-[#B08528] font-black">₹{lot.hourlyRate || 10}/hr</strong>
+            <span className="text-xs font-semibold text-[#176B5B] bg-[#EAF3EE] px-2.5 py-0.5 rounded-lg border border-[#C5DDD2]">
+              Campus Parking: <strong className="font-black">Free for Students &amp; Staff</strong>
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-[#1C1815] tracking-tight mt-1.5">
@@ -317,19 +367,36 @@ export default function AttendantBoothPage() {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 self-start md:self-auto">
-          {allLots.length > 1 && (
-            <select
-              value={selectedLotId}
-              onChange={handleLotChange}
-              className="px-3.5 py-2 text-xs font-bold border-2 border-[#DFD1BD] rounded-xl focus:ring-1 focus:ring-[#176B5B] text-[#1C1815] bg-[#FAF6EE]"
-            >
-              {allLots.map((l) => (
-                <option key={l._id} value={l._id}>
-                  {l.name} ({l.city})
-                </option>
-              ))}
-            </select>
+        <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+          {allLots.length > 1 ? (
+            <div className="flex items-center space-x-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#8C7E72] hidden sm:inline">
+                Admin Facility Switcher:
+              </span>
+              <select
+                value={selectedLotId}
+                onChange={handleLotChange}
+                className="px-3.5 py-2 text-xs font-bold border-2 border-[#DFD1BD] rounded-xl focus:ring-1 focus:ring-[#176B5B] text-[#1C1815] bg-[#FAF6EE]"
+              >
+                {allLots.map((l) => (
+                  <option key={l._id} value={l._id}>
+                    {l.name} ({l.city})
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="px-3.5 py-1.5 rounded-xl bg-[#FAF6EE] border-2 border-[#DFD1BD] flex items-center space-x-2">
+              <div className="w-2 h-2 rounded-full bg-[#176B5B]" />
+              <div className="text-left">
+                <span className="block text-[9.5px] font-black uppercase tracking-wider text-[#8C7E72]">
+                  Dedicated Terminal
+                </span>
+                <span className="text-xs font-black text-[#176B5B] block">
+                  {lot.name} ({data?.attendantName || "Attendant"})
+                </span>
+              </div>
+            </div>
           )}
 
           <button
@@ -404,6 +471,44 @@ export default function AttendantBoothPage() {
           </span>
         </div>
       </div>
+
+      {/* Live Rider Booking Arrival Alert Banner */}
+      {recentBookingAlert && (
+        <div className="p-4 bg-[#EAF3EE] border-2 border-[#176B5B] rounded-2xl flex items-center justify-between gap-3 shadow-xs animate-fadeIn">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-[#176B5B] text-white flex items-center justify-center font-black shrink-0 shadow-xs">
+              <Bike className="w-5 h-5 stroke-[2.5]" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-[#176B5B] bg-white px-2 py-0.5 rounded border border-[#C5DDD2]">
+                  Live Rider Slot Booking
+                </span>
+                <span className="text-xs font-mono font-black text-[#1C1815]">
+                  {recentBookingAlert.registrationNumber}
+                </span>
+                {recentBookingAlert.model && (
+                  <span className="text-xs font-semibold text-[#706254]">
+                    ({recentBookingAlert.model})
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-[#706254] mt-0.5">
+                Rider <strong>{recentBookingAlert.riderName}</strong> reserved bay{" "}
+                <strong className="text-[#176B5B]">{recentBookingAlert.zone} • {recentBookingAlert.slotNumber}</strong> in this facility. Digital QR check-in boarding pass sent to rider.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setRecentBookingAlert(null)}
+            className="p-1.5 text-[#706254] hover:text-[#1C1815] hover:bg-white rounded-lg transition-colors cursor-pointer"
+            title="Dismiss notice"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Attendant Operational Navigation Tabs (Beige & Forest Green Luxury Toolbar) */}
       <div className="bg-[#FFFFFF] p-2 rounded-2xl border-2 border-[#E2D9CC] shadow-xs flex gap-2 overflow-x-auto scrollbar-none">
@@ -675,7 +780,7 @@ export default function AttendantBoothPage() {
                 </span>
                 <ul className="space-y-1.5 list-disc list-inside font-medium">
                   <li>Verify rider matches vehicle registration on record.</li>
-                  <li>Calculate duration and collect total fee in ₹.</li>
+                  <li>Verify free campus parking authorization (Student / Staff ID).</li>
                   <li>Clear departure; slot automatically updates to Available for new arrivals.</li>
                 </ul>
               </div>
@@ -791,15 +896,15 @@ export default function AttendantBoothPage() {
                   </div>
 
                   <div className="p-3.5 bg-white rounded-xl border border-[#DFD1BD] space-y-1.5">
-                    <span className="font-black text-[#1C1815] block uppercase text-[11px]">Payment &amp; Timing:</span>
+                    <span className="font-black text-[#1C1815] block uppercase text-[11px]">Campus Access &amp; Timing:</span>
                     <div className="text-[#706254]">
                       Entry Time: <strong className="text-[#1C1815]">{new Date(retrievalResult.entryTime).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" })}</strong>
                     </div>
                     <div className="text-[#706254]">
-                      Hourly Rate: <strong className="text-[#1C1815]">₹{lot.hourlyRate || 10} / hr</strong>
+                      Campus Tariff: <strong className="text-[#176B5B]">Free for Students &amp; Staff</strong>
                     </div>
-                    <div className="text-[#1C1815] font-black pt-0.5">
-                      Current Accrued Fee: <span className="text-[#B08528] text-base font-mono">₹{retrievalResult.currentFee}</span>
+                    <div className="text-[#176B5B] font-black pt-0.5">
+                      Parking Fee: <span className="text-base font-mono">₹0.00 (Complimentary)</span>
                     </div>
                   </div>
                 </div>
@@ -808,10 +913,10 @@ export default function AttendantBoothPage() {
                   <button
                     type="button"
                     onClick={() => handleCheckOut(retrievalResult.registrationNumber)}
-                    className="px-5 py-2.5 bg-[#BA2D2D] hover:bg-[#9E2424] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"
+                    className="px-5 py-2.5 bg-[#176B5B] hover:bg-[#125448] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span>Proceed to Exit &amp; Collect ₹{retrievalResult.currentFee}</span>
+                    <span>Authorize Vehicle Departure</span>
                   </button>
                 </div>
               </div>
@@ -890,7 +995,7 @@ export default function AttendantBoothPage() {
                 <span>Vehicles Currently Parked Inside ({parkedVehicles.length})</span>
               </h3>
               <span className="text-[11px] text-[#706254]">
-                Live attendance list with elapsed parking duration and accrued fee in ₹.
+                Live attendance list of authorized student &amp; staff two-wheelers inside.
               </span>
             </div>
 
@@ -927,7 +1032,7 @@ export default function AttendantBoothPage() {
                     <th className="p-3.5 font-bold">Rider</th>
                     <th className="p-3.5 font-bold">Check-In Time</th>
                     <th className="p-3.5 font-bold">Duration</th>
-                    <th className="p-3.5 font-bold">Accrued Fee</th>
+                    <th className="p-3.5 font-bold">Tariff</th>
                     <th className="p-3.5 font-bold text-right">Departure</th>
                   </tr>
                 </thead>
@@ -968,8 +1073,10 @@ export default function AttendantBoothPage() {
                       <td className="p-3.5 font-bold text-[#1C1815]">
                         {Math.floor(v.elapsedMinutes / 60)}h {v.elapsedMinutes % 60}m
                       </td>
-                      <td className="p-3.5 font-black text-[#B08528] text-sm font-mono">
-                        ₹{v.currentFee}
+                      <td className="p-3.5">
+                        <span className="text-[11px] font-bold text-[#176B5B] bg-[#EAF3EE] px-2 py-0.5 rounded-md border border-[#C5DDD2] whitespace-nowrap">
+                          Free (Campus)
+                        </span>
                       </td>
                       <td className="p-3.5 text-right">
                         <button
@@ -1190,14 +1297,14 @@ export default function AttendantBoothPage() {
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[#706254]">Hourly Rate:</span>
-                <span className="font-bold text-[#1C1815]">
-                  ₹{receiptData.hourlyRate} / hr
+                <span className="text-[#706254]">Campus Tariff:</span>
+                <span className="font-bold text-[#176B5B]">
+                  Free for Students &amp; Staff
                 </span>
               </div>
               <div className="flex justify-between items-center pt-3 border-t border-[#EFE9DF] font-black text-base text-[#1C1815]">
-                <span>Total Fee Collected:</span>
-                <span className="text-[#B08528] text-xl font-mono">₹{receiptData.totalFee}</span>
+                <span>Total Parking Fee:</span>
+                <span className="text-[#176B5B] text-xl font-mono">₹0.00 (Free)</span>
               </div>
             </div>
 

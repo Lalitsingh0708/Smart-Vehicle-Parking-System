@@ -43,14 +43,14 @@ export async function POST(request, { params }) {
     // Billing rule: Minimum 1 hour, billed per hour or fraction thereof
     const billedHours = Math.max(1, Math.ceil(durationMinutes / 60));
 
-    const hourlyRate = session.parkingLotId?.hourlyRate ?? 20;
-    const totalFee = billedHours * hourlyRate;
+    const hourlyRate = 0; // Free campus parking for students and staff
+    const totalFee = 0;
 
     // Update session record
     session.exitTime = exitTime;
     session.status = "completed";
-    session.fee = totalFee;
-    session.paymentStatus = "paid";
+    session.fee = 0;
+    session.paymentStatus = "free";
     await session.save();
 
     // Free the parking slot atomically

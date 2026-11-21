@@ -121,8 +121,10 @@ export default function AdminLotsPage() {
                     <td className="p-3.5 font-black text-[#C53030]">
                       {lot.occupiedCount}
                     </td>
-                    <td className="p-3.5 font-black text-[#B08528] font-mono">
-                      ₹{lot.hourlyRate} / hr
+                    <td className="p-3.5">
+                      <span className="font-bold text-[#176B5B] text-xs bg-[#EAF3EE] px-2 py-0.5 rounded border border-[#C5DDD2]">
+                        Free Campus Parking
+                      </span>
                     </td>
                     <td className="p-3.5">
                       <button

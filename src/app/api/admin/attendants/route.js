@@ -13,11 +13,11 @@ export async function GET() {
 
     const [attendants, lots] = await Promise.all([
       User.find({ role: "attendant" })
-        .populate("assignedLotId", "name address hourlyRate")
+        .populate("assignedLotId", "name address hourlyRate city openingHours totalCapacity")
         .select("-passwordHash -verificationOtp")
         .sort({ createdAt: -1 })
         .lean(),
-      ParkingLot.find({ active: true }).select("name address").lean(),
+      ParkingLot.find({ active: true }).select("name address city hourlyRate openingHours totalCapacity").lean(),
     ]);
 
     return NextResponse.json({

@@ -130,10 +130,10 @@ export default function AdminReportsPage() {
           {reportType === "sessions" && (
             <div className="bg-[#F0F8F5] p-4 rounded-2xl border border-[#C5DDD2] shadow-xs">
               <span className="text-[11px] text-[#176B5B] font-bold uppercase tracking-wider block">
-                Total Accrued Revenue
+                Total Campus Parking Records
               </span>
               <span className="text-2xl font-black text-[#176B5B] block mt-1 font-mono">
-                ₹{reportData.totalRevenue || 0}
+                {reportData.sessions?.length || 0}
               </span>
             </div>
           )}
@@ -175,7 +175,7 @@ export default function AdminReportsPage() {
                     <td className="p-3.5 font-bold text-[#1C1815]">{s.userId?.name || "Rider"}</td>
                     <td className="p-3.5 text-[#706254]">{s.parkingLotId?.name || "Lot"}</td>
                     <td className="p-3.5 font-mono text-[#1C1815]">{s.vehicleId?.registrationNumber || "N/A"}</td>
-                    <td className="p-3.5 font-black text-[#B08528] font-mono">₹{s.fee || 0}</td>
+                    <td className="p-3.5 font-bold text-[#176B5B] text-xs">Free (Campus)</td>
                     <td className="p-3.5 capitalize font-bold text-[11px] text-[#176B5B]">{s.status}</td>
                   </tr>
                 ))}

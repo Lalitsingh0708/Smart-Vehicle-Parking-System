@@ -52,8 +52,8 @@ const ParkingSessionSchema = new mongoose.Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "waived"],
-      default: "pending",
+      enum: ["pending", "paid", "waived", "free"],
+      default: "free",
     },
   },
   {

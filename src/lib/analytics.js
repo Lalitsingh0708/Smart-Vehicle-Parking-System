@@ -1,0 +1,260 @@
+import { connectDB } from "@/lib/db";
+import ParkingLot from "@/models/ParkingLot";
+import ParkingSlot from "@/models/ParkingSlot";
+import ParkingSession from "@/models/ParkingSession";
+import User from "@/models/User";
+import SecurityIncident from "@/models/SecurityIncident";
+import Vehicle from "@/models/Vehicle";
+
+// In-memory cache to guarantee sub-10ms response times for repeat queries
+let analyticsCache = {
+  data: null,
+  timestamp: 0,
+};
+
+export function invalidateAnalyticsCache() {
+  analyticsCache = {
+    data: null,
+    timestamp: 0,
+  };
+}
+
+export async function getAdminAnalyticsData(forceFresh = false) {
+  // If cache is less than 15 seconds old and not forcing fresh, return cached immediately
+  if (!forceFresh && analyticsCache.data && Date.now() - analyticsCache.timestamp < 15000) {
+    return analyticsCache.data;
+  }
+
+  await connectDB();
+
+  const [
+    allLots,
+    totalLots,
+    totalSlots,
+    slotStatusCounts,
+    activeSessionsList,
+    totalUsers,
+    openIncidents,
+    lotOccupancy,
+    incidentsByCategory,
+    recentSessions,
+    pendingAttendants,
+  ] = await Promise.all([
+    ParkingLot.find({ active: true }).lean(),
+    ParkingLot.countDocuments(),
+    ParkingSlot.countDocuments(),
+    ParkingSlot.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]),
+    ParkingSession.find({ status: "active" })
+      .populate("vehicleId", "registrationNumber make model vehicleType")
+      .populate("parkingSlotId", "zone slotNumber")
+      .populate("parkingLotId", "name address city hourlyRate")
+      .populate("userId", "name phoneNumber email")
+      .lean(),
+    User.countDocuments({ role: "user" }),
+    SecurityIncident.countDocuments({ status: { $in: ["open", "under_review"] } }),
+    ParkingSlot.aggregate([
+      {
+        $group: {
+          _id: { lotId: "$parkingLotId", status: "$status" },
+          count: { $sum: 1 },
+        },
+      },
+    ]),
+    SecurityIncident.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          count: { $sum: 1 },
+        },
+      },
+    ]),
+    ParkingSession.find({
+      entryTime: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+    })
+      .select("entryTime exitTime status")
+      .lean(),
+    User.countDocuments({
+      role: "attendant",
+      $or: [{ isApprovedByAdmin: false }, { attendantApprovalStatus: "pending" }],
+    }),
+  ]);
+
+  const slotStats = {
+    available: 0,
+    occupied: 0,
+    reserved: 0,
+    blocked: 0,
+  };
+
+  slotStatusCounts.forEach((item) => {
+    if (slotStats[item._id] !== undefined) {
+      slotStats[item._id] = item.count;
+    }
+  });
+
+  // Master list of all parked bikes with lot and location details
+  const allParkedBikes = activeSessionsList.map((s) => ({
+    sessionId: s._id ? s._id.toString() : "",
+    ticketId: s.ticketId || "",
+    registrationNumber: s.vehicleId?.registrationNumber || "N/A",
+    make: s.vehicleId?.make || "",
+    model: `${s.vehicleId?.make || ""} ${s.vehicleId?.model || ""}`.trim() || "Motorcycle",
+    vehicleType: s.vehicleId?.vehicleType || "motorcycle",
+    slot: `${s.parkingSlotId?.zone || ""} ${s.parkingSlotId?.slotNumber || ""}`.trim() || "Unallocated",
+    zone: s.parkingSlotId?.zone || "",
+    slotNumber: s.parkingSlotId?.slotNumber || "",
+    lotId: s.parkingLotId?._id?.toString() || "",
+    lotName: s.parkingLotId?.name || "Parking Facility",
+    lotAddress: s.parkingLotId?.address || "",
+    lotCity: s.parkingLotId?.city || "",
+    hourlyRate: s.parkingLotId?.hourlyRate || 10,
+    rider: s.userId?.name || "Rider",
+    riderPhone: s.userId?.phoneNumber || "N/A",
+    riderEmail: s.userId?.email || "",
+    entryTime: s.entryTime ? new Date(s.entryTime).toISOString() : null,
+  }));
+
+  // Map active parked vehicles by lotId
+  const activeVehiclesByLot = {};
+  activeSessionsList.forEach((s) => {
+    const lid = s.parkingLotId?._id?.toString();
+    if (!lid) return;
+    if (!activeVehiclesByLot[lid]) activeVehiclesByLot[lid] = [];
+    activeVehiclesByLot[lid].push({
+      sessionId: s._id ? s._id.toString() : "",
+      ticketId: s.ticketId || "",
+      registrationNumber: s.vehicleId?.registrationNumber || "N/A",
+      make: s.vehicleId?.make || "",
+      model: `${s.vehicleId?.make || ""} ${s.vehicleId?.model || ""}`.trim() || "Motorcycle",
+      vehicleType: s.vehicleId?.vehicleType || "motorcycle",
+      slot: `${s.parkingSlotId?.zone || ""} ${s.parkingSlotId?.slotNumber || ""}`.trim() || "Unallocated",
+      zone: s.parkingSlotId?.zone || "",
+      slotNumber: s.parkingSlotId?.slotNumber || "",
+      rider: s.userId?.name || "Rider",
+      riderPhone: s.userId?.phoneNumber || "N/A",
+      riderEmail: s.userId?.email || "",
+      entryTime: s.entryTime ? new Date(s.entryTime).toISOString() : null,
+    });
+  });
+
+  // Map slot counts by lot
+  const lotSlotStats = {};
+  lotOccupancy.forEach((item) => {
+    const lid = item._id?.lotId?.toString();
+    if (!lid) return;
+    if (!lotSlotStats[lid]) {
+      lotSlotStats[lid] = { total: 0, available: 0, occupied: 0, reserved: 0, blocked: 0 };
+    }
+    lotSlotStats[lid].total += item.count;
+    lotSlotStats[lid][item._id.status] = item.count;
+  });
+
+  // Detailed facility breakdown for Administrator overview
+  const facilitiesBreakdown = allLots.map((lot) => {
+    const lid = lot._id.toString();
+    const stats = lotSlotStats[lid] || { total: lot.totalCapacity, available: lot.totalCapacity, occupied: 0 };
+    const parked = activeVehiclesByLot[lid] || [];
+    const total = stats.total || lot.totalCapacity;
+    const occupied = stats.occupied || 0;
+    const available = stats.available || 0;
+    const percent = total > 0 ? Math.round((occupied / total) * 100) : 0;
+
+    let status = "Normal";
+    if (occupied === 0) status = "Vacant";
+    else if (available === 0) status = "Full";
+    else if (percent >= 80) status = "Near Capacity";
+
+    return {
+      id: lid,
+      name: lot.name,
+      city: lot.city,
+      address: lot.address,
+      hourlyRate: lot.hourlyRate,
+      totalSlots: total,
+      availableSlots: available,
+      occupiedSlots: occupied,
+      occupancyPercent: percent,
+      status,
+      allowCheckIn: lot.allowCheckIn !== false,
+      parkedVehicles: parked,
+    };
+  });
+
+  // Daily activity
+  const dailyMap = {};
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    dailyMap[key] = { date: key, entries: 0, exits: 0 };
+  }
+
+  recentSessions.forEach((s) => {
+    if (s.entryTime) {
+      const entryKey = new Date(s.entryTime).toISOString().slice(0, 10);
+      if (dailyMap[entryKey]) dailyMap[entryKey].entries += 1;
+    }
+    if (s.exitTime) {
+      const exitKey = new Date(s.exitTime).toISOString().slice(0, 10);
+      if (dailyMap[exitKey]) dailyMap[exitKey].exits += 1;
+    }
+  });
+
+  const dailyActivity = Object.values(dailyMap);
+
+  const utilizationByLot = facilitiesBreakdown.map((f) => ({
+    name: f.name,
+    available: f.availableSlots,
+    occupied: f.occupiedSlots,
+  }));
+
+  const categoryLabels = {
+    theft: "Suspected Theft",
+    damage: "Vehicle Damage",
+    unauthorized_parking: "Unauthorized Parking",
+    blocked_access: "Blocked Access",
+    helmet_theft: "Helmet Theft",
+    other: "Other",
+  };
+
+  const incidentStats = incidentsByCategory.map((c) => ({
+    category: categoryLabels[c._id] || c._id,
+    count: c.count,
+  }));
+
+  const payload = {
+    overview: {
+      totalLots,
+      totalSlots,
+      availableSlots: slotStats.available,
+      occupiedSlots: slotStats.occupied,
+      reservedSlots: slotStats.reserved,
+      blockedSlots: slotStats.blocked,
+      activeSessions: activeSessionsList.length,
+      totalUsers,
+      openIncidents,
+      pendingAttendants: pendingAttendants || 0,
+    },
+    facilitiesBreakdown,
+    allParkedBikes,
+    charts: {
+      dailyActivity,
+      utilizationByLot,
+      incidentStats,
+    },
+  };
+
+  analyticsCache = {
+    data: payload,
+    timestamp: Date.now(),
+  };
+
+  return payload;
+}

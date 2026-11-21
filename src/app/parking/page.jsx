@@ -159,17 +159,14 @@ export default function ParkingFinderPage() {
               </select>
             </div>
 
-            {/* Max Hourly Rate */}
+            {/* Max Hourly Rate Filter */}
             <div>
               <select
                 value={maxRate}
                 onChange={(e) => setMaxRate(e.target.value)}
                 className="w-full px-3 py-2.5 text-xs font-semibold text-[#1C1815] bg-[#FAF7F2] border border-[#E2D9CC] rounded-xl focus:outline-none focus:border-[#176B5B] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#176B5B]/15 transition-all cursor-pointer"
               >
-                <option value="">Any Hourly Rate</option>
-                <option value="20">Up to ₹20 / hour</option>
-                <option value="30">Up to ₹30 / hour</option>
-                <option value="50">Up to ₹50 / hour</option>
+                <option value="">Campus Access: Free</option>
               </select>
             </div>
 
@@ -305,9 +302,8 @@ export default function ParkingFinderPage() {
                         </div>
 
                         <div className="text-right shrink-0">
-                          <span className="inline-block bg-[#EAF4F1] border border-[#BDE0D8] text-[#176B5B] font-black text-sm sm:text-base px-2.5 py-1 rounded-xl shadow-xs">
-                            ₹{lot.hourlyRate}
-                            <span className="text-[10.5px] font-semibold text-[#547E75]">/hr</span>
+                          <span className="inline-block bg-[#EAF4F1] border border-[#BDE0D8] text-[#176B5B] font-bold text-xs px-2.5 py-1 rounded-xl shadow-xs">
+                            Free Campus Parking
                           </span>
                           {lot.distanceKm !== null && lot.distanceKm !== undefined && (
                             <span className="text-[10.5px] text-[#706254] font-bold block mt-0.5">

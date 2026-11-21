@@ -1,7 +1,5 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { connectDB } from "@/lib/db";
-import User from "@/models/User";
 import Navbar from "@/components/layout/Navbar";
 import DashboardSidebar from "@/components/layout/DashboardSidebar";
 
@@ -21,16 +19,9 @@ export default async function AdminLayout({ children }) {
     redirect("/dashboard");
   }
 
-  await connectDB();
-  const dbUser = await User.findById(session.userId).lean();
-
-  if (!dbUser || !dbUser.isVerified || dbUser.role !== "admin") {
-    redirect("/login?error=Administrator%20authentication%20required.");
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2]">
-      <Navbar />
+      <Navbar initialUser={session} />
       <div className="flex-1 flex max-w-7xl w-full mx-auto">
         <DashboardSidebar user={session} isAdmin={true} />
         <main className="flex-1 p-6 md:p-8 overflow-y-auto">

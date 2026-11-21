@@ -100,7 +100,7 @@ export default function ParkingHistoryPage() {
                         )}
                       </td>
                       <td className="p-3.5 font-bold text-ink-primary">
-                        ₹{session.fee || 0}
+                        <span className="text-xs text-[#176B5B] bg-[#EAF3EE] px-2 py-0.5 rounded border border-[#C5DDD2]">Free</span>
                       </td>
                       <td className="p-3.5">
                         <Badge status={session.status} />
@@ -174,8 +174,8 @@ export default function ParkingHistoryPage() {
                 </div>
               )}
               <div className="flex justify-between pt-2 border-t border-border-subtle font-bold text-sm">
-                <span>Total Fee Paid:</span>
-                <span className="text-brand-600">₹{selectedSession.fee || 0}</span>
+                <span>Campus Tariff:</span>
+                <span className="text-[#176B5B]">Free (Students &amp; Staff)</span>
               </div>
             </div>
 

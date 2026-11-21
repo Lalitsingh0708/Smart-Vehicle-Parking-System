@@ -6,6 +6,7 @@ import ParkingLot from "@/models/ParkingLot";
 import Vehicle from "@/models/Vehicle";
 import { authenticateApiRequest } from "@/lib/api-auth";
 import { allocateSlotSchema } from "@/lib/validations";
+import { sendSlotBookingConfirmationEmail } from "@/lib/email";
 
 export async function GET(request) {
   const auth = await authenticateApiRequest();
@@ -151,9 +152,29 @@ export async function POST(request) {
         .populate("parkingSlotId")
         .populate("vehicleId");
 
+      // Send Instant Confirmation Email to Rider with Embedded Check-In QR Pass
+      const riderEmail = auth.session.email;
+      const riderName = auth.session.name;
+      if (riderEmail) {
+        sendSlotBookingConfirmationEmail({
+          email: riderEmail,
+          name: riderName,
+          lotName: populatedSession.parkingLotId?.name,
+          lotAddress: populatedSession.parkingLotId?.address,
+          lotCity: populatedSession.parkingLotId?.city,
+          zone: populatedSession.parkingSlotId?.zone,
+          slotNumber: populatedSession.parkingSlotId?.slotNumber,
+          registrationNumber: populatedSession.vehicleId?.registrationNumber,
+          vehicleModel: `${populatedSession.vehicleId?.make || ""} ${populatedSession.vehicleId?.model || ""}`.trim(),
+          ticketId: populatedSession.ticketId,
+          hourlyRate: populatedSession.parkingLotId?.hourlyRate,
+          entryTime: populatedSession.entryTime,
+        }).catch((err) => console.error("Async booking email dispatch error:", err));
+      }
+
       return NextResponse.json(
         {
-          message: "Parking slot allocated successfully",
+          message: "Parking slot allocated successfully. Digital QR check-in pass sent to your email.",
           session: populatedSession,
         },
         { status: 201 }

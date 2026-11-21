@@ -15,11 +15,14 @@ export async function GET(request) {
     await connectDB();
     const { searchParams } = new URL(request.url);
 
-    // If attendant, verify admin approval status and use assigned lot
     let lotId = searchParams.get("lotId");
-    if (auth.session.role === "attendant") {
-      const user = await User.findById(auth.session.userId);
-      if (!user || user.isApprovedByAdmin !== true || user.attendantApprovalStatus !== "approved") {
+    const isAttendantRole = auth.session.role === "attendant";
+    let attendantUser = null;
+
+    // Strict Facility Isolation: Attendants can ONLY access their own assigned facility
+    if (isAttendantRole) {
+      attendantUser = await User.findById(auth.session.userId).lean();
+      if (!attendantUser || attendantUser.isApprovedByAdmin !== true || attendantUser.attendantApprovalStatus !== "approved") {
         return NextResponse.json(
           {
             error: "Your attendant account is currently under administrator review. Access to parking operations is locked until approved.",
@@ -28,13 +31,25 @@ export async function GET(request) {
           { status: 403 }
         );
       }
-      lotId = user?.assignedLotId?.toString();
-    }
 
-    if (!lotId) {
-      // Default to first active lot if none specified
-      const firstLot = await ParkingLot.findOne({ active: true });
-      if (firstLot) lotId = firstLot._id.toString();
+      if (!attendantUser.assignedLotId) {
+        return NextResponse.json(
+          {
+            error: "No parking facility assigned to your attendant account. Please contact Platform Administrator (lalitbaghel0708@gmail.com) to assign your facility.",
+            unassigned: true,
+          },
+          { status: 403 }
+        );
+      }
+
+      // Overwrite lotId with the attendant's strict assignment
+      lotId = attendantUser.assignedLotId.toString();
+    } else {
+      // Platform Admin: can inspect any facility or default to first active
+      if (!lotId) {
+        const firstLot = await ParkingLot.findOne({ active: true });
+        if (firstLot) lotId = firstLot._id.toString();
+      }
     }
 
     if (!lotId) {
@@ -52,7 +67,7 @@ export async function GET(request) {
       );
     }
 
-    // Get all slots for this lot
+    // Get all slots strictly for this specific lot
     const slots = await ParkingSlot.find({ parkingLotId: lotId })
       .sort({ zone: 1, slotNumber: 1 })
       .lean();
@@ -89,7 +104,7 @@ export async function GET(request) {
     });
     const zoneStats = Object.values(zoneMap);
 
-    // Get all currently parked active sessions in this lot
+    // Get all currently parked active sessions in this specific lot
     const activeSessions = await ParkingSession.find({
       parkingLotId: lotId,
       status: "active",
@@ -105,7 +120,7 @@ export async function GET(request) {
       const entryTimeMs = new Date(session.entryTime).getTime();
       const elapsedMinutes = Math.max(0, Math.floor((now - entryTimeMs) / (1000 * 60)));
       const billedHours = Math.max(1, Math.ceil(elapsedMinutes / 60));
-      const currentFee = billedHours * (lot.hourlyRate || 20);
+      const currentFee = 0; // Free campus parking for students and staff
 
       return {
         sessionId: session._id,
@@ -127,7 +142,7 @@ export async function GET(request) {
       };
     });
 
-    // Today's summary for attendant desk (entries & exits today)
+    // Today's summary for attendant desk (entries & exits today for this lot)
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
@@ -147,12 +162,26 @@ export async function GET(request) {
       }),
     ]);
 
-    // All available lots for quick switching (if attendant covers multiple or admin views)
-    const allLots = await ParkingLot.find({ active: true }).select("name city").lean();
+    // Role-based facility switching:
+    // Attendant ONLY receives their assigned lot (cannot view or switch to others).
+    // Admin receives all active lots so they can oversee any campus booth.
+    let allLots = [];
+    if (isAttendantRole) {
+      allLots = [
+        {
+          _id: lot._id,
+          name: lot.name,
+          city: lot.city,
+        },
+      ];
+    } else {
+      allLots = await ParkingLot.find({ active: true }).select("name city").lean();
+    }
 
     return NextResponse.json({
       lot: {
         id: lot._id,
+        _id: lot._id,
         name: lot.name,
         address: lot.address,
         city: lot.city,
@@ -176,6 +205,8 @@ export async function GET(request) {
         status: s.status,
       })),
       allLots,
+      isAttendantRole,
+      attendantName: auth.session.name || "Attendant",
       lastUpdated: new Date().toISOString(),
     });
   } catch (error) {

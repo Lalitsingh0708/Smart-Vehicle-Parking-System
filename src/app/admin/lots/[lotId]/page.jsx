@@ -17,7 +17,7 @@ export default function AdminEditLotPage() {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
-  const [hourlyRate, setHourlyRate] = useState(20);
+  const [hourlyRate, setHourlyRate] = useState(0);
   const [openingHours, setOpeningHours] = useState("");
   const [description, setDescription] = useState("");
   const [active, setActive] = useState(true);
@@ -127,7 +127,7 @@ export default function AdminEditLotPage() {
 
             <div>
               <label className="block font-semibold text-ink-primary mb-1">
-                Hourly Fee in Indian Rupees (₹)
+                Tariff in ₹ (0 for Free Campus Parking)
               </label>
               <input
                 type="number"

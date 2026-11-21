@@ -167,8 +167,8 @@ export default function ParkingMap({
             <span style="color: ${isAvailable ? "#16A34A" : "#DC2626"}; font-weight: 700;">
               ${lot.availableCount ?? 0} slots free
             </span>
-            <span style="font-weight: 700; color: #18212F;">
-              ₹${lot.hourlyRate}/hr
+            <span style="font-weight: 700; color: #176B5B;">
+              Free Campus Parking
             </span>
           </div>
           <a href="/parking/${lot.id || lot._id}" style="display: block; text-align: center; background-color: #176B5B; color: white; padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none;">

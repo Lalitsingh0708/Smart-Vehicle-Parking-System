@@ -252,9 +252,8 @@ export default function DashboardFindParkingPage() {
                         <span>{lot.address}</span>
                       </p>
                     </div>
-                    <span className="font-black text-[#176B5B] text-sm whitespace-nowrap">
-                      ₹{lot.hourlyRate}
-                      <span className="text-[11px] font-normal text-ink-secondary">/hr</span>
+                    <span className="inline-block bg-[#EAF3EE] border border-[#C5DDD2] text-[#176B5B] font-bold text-xs px-2.5 py-1 rounded-lg">
+                      Free Campus Parking
                     </span>
                   </div>
 

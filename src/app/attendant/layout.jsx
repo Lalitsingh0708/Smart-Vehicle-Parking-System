@@ -48,7 +48,7 @@ export default async function AttendantLayout({ children }) {
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2]">
       {/* Universal Luxury Navbar */}
-      <Navbar />
+      <Navbar initialUser={session} />
 
       {/* Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">

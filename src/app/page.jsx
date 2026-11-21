@@ -1505,8 +1505,8 @@ export default function HomePage() {
                 }}
               >
                 Dedicated gate terminal for facility attendants. Check in vehicles by number plate,
-                automatically assign vacant slots, maintain live parked records, and calculate
-                departure fees in ₹.
+                automatically assign vacant slots, maintain live parked records, and authorize
+                departure with 100% free campus parking for students &amp; staff.
               </p>
 
               <ul
@@ -1523,7 +1523,7 @@ export default function HomePage() {
                 {[
                   "Rapid registration plate check-in",
                   "Real-time attendance of parked vehicles",
-                  "Checkout receipt with duration & ₹ fees",
+                  "Checkout clearance with student & staff authorization",
                 ].map((item) => (
                   <li
                     key={item}
@@ -1911,7 +1911,7 @@ export default function HomePage() {
                           borderRadius: "10px",
                         }}
                       >
-                        ₹{lot.hourlyRate}/hr
+                        Free Campus Parking
                       </span>
                     </div>
 
@@ -2043,8 +2043,8 @@ export default function HomePage() {
             },
             {
               Icon: Receipt,
-              title: "Accurate ₹ Billing",
-              desc: "Fair hourly tariffs computed precisely from entry to checkout timestamp. Digital receipt issued at gate clearance.",
+              title: "100% Free Campus Parking",
+              desc: "Zero-tariff campus facility for all students and university staff members. Digital passes verified at gate terminals.",
             },
             {
               Icon: Layers,

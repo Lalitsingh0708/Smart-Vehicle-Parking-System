@@ -42,7 +42,7 @@ const ParkingLotSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0,
-      default: 20, // INR per hour
+      default: 0, // Free Campus Parking for Students and Staff
     },
     totalCapacity: {
       type: Number,

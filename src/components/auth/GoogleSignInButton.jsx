@@ -1,13 +1,5 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-
-const GOOGLE_CLIENT_ID =
-  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-  "758302918973-00obct2rot1gdmceq20atkfbgn3l3vuh.apps.googleusercontent.com";
-
 function GoogleSvgIcon({ className = "w-5 h-5" }) {
   return (
     <svg
@@ -42,131 +34,17 @@ export default function GoogleSignInButton({
   text = "Continue with Google",
   className = "",
 }) {
-  const buttonContainerRef = useRef(null);
-  const [loading, setLoading] = useState(false);
-  const [gsiLoaded, setGsiLoaded] = useState(false);
-  const router = useRouter();
-
-  // Handle Google Credential Response from GSI
-  const handleCredentialResponse = async (response) => {
-    if (!response.credential) {
-      toast.error("Failed to receive Google credentials");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await fetch("/api/auth/google/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          credential: response.credential,
-          role,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Google authentication failed");
-      }
-
-      toast.success(data.message || "Signed in with Google successfully!");
-      const target = data.redirect || "/dashboard";
-      window.location.href = target;
-    } catch (err) {
-      console.error("Google sign-in error:", err);
-      toast.error(err.message || "Failed to sign in with Google");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // Load Google Identity Services script if not already present
-    const scriptId = "google-gsi-script";
-    let script = document.getElementById(scriptId);
-
-    const initializeGsi = () => {
-      if (window.google?.accounts?.id) {
-        try {
-          window.google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleCredentialResponse,
-            auto_select: false,
-            cancel_on_tap_outside: true,
-          });
-
-          // Render official Google button into container if available
-          if (buttonContainerRef.current) {
-            buttonContainerRef.current.innerHTML = "";
-            window.google.accounts.id.renderButton(buttonContainerRef.current, {
-              type: "standard",
-              theme: "outline",
-              size: "large",
-              text: "continue_with",
-              shape: "rectangular",
-              logo_alignment: "left",
-              width: "100%",
-            });
-          }
-
-          // Optional One Tap prompt
-          window.google.accounts.id.prompt();
-          setGsiLoaded(true);
-        } catch (e) {
-          console.error("Google Identity initialization error:", e);
-        }
-      }
-    };
-
-    if (!script) {
-      script = document.createElement("script");
-      script.id = scriptId;
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.onload = initializeGsi;
-      document.body.appendChild(script);
-    } else {
-      initializeGsi();
-    }
-  }, [role]);
-
-  // Fallback direct OAuth popup / redirect handler
-  const handleFallbackClick = () => {
-    if (loading) return;
-
-    // If GSI prompt can be opened
-    if (window.google?.accounts?.id) {
-      window.google.accounts.id.prompt();
-      return;
-    }
-
-    // Direct OAuth redirect
-    window.location.href = `/api/auth/google${role === "attendant" ? "?role=attendant" : ""}`;
-  };
+  const oauthUrl = `/api/auth/google${role === "attendant" ? "?role=attendant" : ""}`;
 
   return (
     <div className={`w-full ${className}`}>
-      {/* Official Google Identity Services Render Container */}
-      <div
-        ref={buttonContainerRef}
-        className={`w-full flex justify-center ${gsiLoaded ? "block" : "hidden"}`}
-      />
-
-      {/* Styled Luxury Fallback Button (visible while GSI loads or if blocked) */}
-      {!gsiLoaded && (
-        <button
-          type="button"
-          onClick={handleFallbackClick}
-          disabled={loading}
-          className="w-full py-3.5 px-4 bg-white hover:bg-[#FAF7F2] text-[#1C1815] font-black text-xs sm:text-sm tracking-wide rounded-xl border-2 border-[#D8CFC2] hover:border-[#176B5B] transition-all shadow-xs hover:shadow-sm flex items-center justify-center space-x-3 cursor-pointer disabled:opacity-60"
-        >
-          <GoogleSvgIcon className="w-5 h-5 flex-shrink-0" />
-          <span>{loading ? "Signing in with Google..." : text}</span>
-        </button>
-      )}
+      <a
+        href={oauthUrl}
+        className="w-full py-3 sm:py-3.5 px-4 bg-white hover:bg-[#FAF7F2] active:bg-[#F3EDE2] text-[#1C1815] font-black text-xs sm:text-sm tracking-wide rounded-xl border-2 border-[#D8CFC2] hover:border-[#176B5B] transition-all shadow-xs hover:shadow-sm flex items-center justify-center space-x-3 cursor-pointer select-none no-underline group block text-center"
+      >
+        <GoogleSvgIcon className="w-5 h-5 flex-shrink-0 group-hover:scale-105 transition-transform inline-block" />
+        <span className="font-sans font-bold">{text}</span>
+      </a>
     </div>
   );
 }

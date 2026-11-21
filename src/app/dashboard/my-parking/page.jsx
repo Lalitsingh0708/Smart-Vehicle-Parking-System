@@ -188,14 +188,14 @@ export default function MyParkingPage() {
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#667085]">Base Tariff Rate:</span>
-              <span className="font-medium text-[#18212F]">
-                ₹{summary.hourlyRate} / hour
+              <span className="text-[#667085]">Campus Tariff:</span>
+              <span className="font-medium text-[#176B5B]">
+                Free (Students &amp; Staff)
               </span>
             </div>
             <div className="flex justify-between pt-3 border-t border-[#E4E7EC] text-base font-black text-[#18212F]">
-              <span>Settled Parking Fee:</span>
-              <span className="text-[#176B5B] font-mono text-lg">₹{summary.totalFee}</span>
+              <span>Parking Fee:</span>
+              <span className="text-[#176B5B] font-mono text-lg">₹0.00 (Free)</span>
             </div>
           </div>
 

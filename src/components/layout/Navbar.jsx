@@ -19,9 +19,9 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-export default function Navbar() {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [activeSession, setActiveSession] = useState(null);
+export default function Navbar({ initialUser = null, initialSession = null }) {
+  const [currentUser, setCurrentUser] = useState(initialUser);
+  const [activeSession, setActiveSession] = useState(initialSession);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -32,19 +32,24 @@ export default function Navbar() {
 
   const fetchAuthUser = () => {
     fetch("/api/auth/me", { cache: "no-store" })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok && res.status !== 401 && res.status !== 403) {
+          return null; // Don't wipe session on transient 500/timeout
+        }
+        return res.json();
+      })
       .then((data) => {
+        if (!data) return;
         if (data.authenticated && data.user) {
           setCurrentUser(data.user);
           setActiveSession(data.activeSession || null);
-        } else {
+        } else if (data.authenticated === false) {
           setCurrentUser(null);
           setActiveSession(null);
         }
       })
-      .catch(() => {
-        setCurrentUser(null);
-        setActiveSession(null);
+      .catch((err) => {
+        console.warn("Background auth check transient error, preserving session:", err);
       });
   };
 

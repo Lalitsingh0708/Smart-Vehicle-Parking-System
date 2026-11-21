@@ -15,6 +15,9 @@ import {
   Mail,
   Phone,
   ShieldAlert,
+  MapPin,
+  Send,
+  Calendar,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -27,6 +30,8 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
   const [selectedLotMap, setSelectedLotMap] = useState({});
+  const [dutyNotesMap, setDutyNotesMap] = useState({});
+  const [rosterAssignMap, setRosterAssignMap] = useState({});
 
   const loadData = () => {
     setLoading(true);
@@ -44,7 +49,7 @@ export default function AdminUsersPage() {
           // Populate default selected lots
           const map = {};
           attendantsRes.attendants.forEach((a) => {
-            const lotId = a.assignedLotId?._id || a.assignedLotId || (attendantsRes.lots?.[0]?._id);
+            const lotId = a.assignedLotId?._id || a.assignedLotId || attendantsRes.lots?.[0]?._id;
             if (lotId) map[a._id] = lotId.toString();
           });
           setSelectedLotMap(map);
@@ -61,10 +66,12 @@ export default function AdminUsersPage() {
     loadData();
   }, []);
 
-  const handleAttendantAction = async (attendantId, action) => {
+  const handleAttendantAction = async (attendantId, action, targetLotId = null) => {
     setProcessingId(attendantId);
     try {
-      const assignedLotId = selectedLotMap[attendantId];
+      const assignedLotId = targetLotId || selectedLotMap[attendantId];
+      const notes = dutyNotesMap[attendantId] || "Please report on duty on time and oversee vehicle operations.";
+
       const res = await fetch("/api/admin/attendants/approve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -72,19 +79,20 @@ export default function AdminUsersPage() {
           attendantId,
           action,
           assignedLotId,
+          notes,
         }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Action failed");
 
-      toast.success(data.message || "Attendant status updated successfully");
+      toast.success(data.message || "Duty updated and notification email sent successfully!");
 
-      // Update local attendant status
+      // Update local attendant status & assigned lot
       setAttendants((prev) =>
         prev.map((att) => {
           if (att._id === attendantId) {
-            const isApproved = action === "approve";
+            const isApproved = action === "approve" || action === "reassign";
             const updatedLot = lots.find((l) => l._id.toString() === assignedLotId);
             return {
               ...att,
@@ -97,6 +105,17 @@ export default function AdminUsersPage() {
         })
       );
 
+      // Keep selectedLotMap in sync
+      if (assignedLotId) {
+        setSelectedLotMap((prev) => ({
+          ...prev,
+          [attendantId]: assignedLotId.toString(),
+        }));
+      }
+
+      // Clear duty note for this attendant
+      setDutyNotesMap((prev) => ({ ...prev, [attendantId]: "" }));
+
       // Recalculate pending
       setPendingCount((prev) => (action === "approve" ? Math.max(0, prev - 1) : prev));
     } catch (err) {
@@ -106,19 +125,26 @@ export default function AdminUsersPage() {
     }
   };
 
+  // Helper: Find which attendant is assigned to a specific lot
+  const getAttendantForLot = (lotId) => {
+    return attendants.find((a) => {
+      const aLotId = a.assignedLotId?._id?.toString() || a.assignedLotId?.toString();
+      return aLotId === lotId.toString() && a.isApprovedByAdmin && a.attendantApprovalStatus === "approved";
+    });
+  };
+
   const ridersList = users.filter((u) => u.role === "user");
 
   return (
     <div className="space-y-6">
-      
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-[#1C1815] tracking-tight">
-            User Accounts &amp; Staff Verification
+            User Accounts &amp; Staff Duty Roster
           </h1>
           <p className="text-xs text-[#706254] mt-0.5">
-            Manage rider accounts and review booth attendant onboarding requests.
+            Monitor which attendant is deployed at each parking facility, assign shifts, and send instant duty notification emails.
           </p>
         </div>
 
@@ -145,7 +171,7 @@ export default function AdminUsersPage() {
           }`}
         >
           <ShieldCheck className="w-4 h-4 stroke-[2.2]" />
-          <span>Booth Attendants &amp; Verification</span>
+          <span>Parking Booth Attendants ({attendants.length})</span>
           {pendingCount > 0 && (
             <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-amber-950 ml-1">
               {pendingCount} Pending
@@ -169,15 +195,14 @@ export default function AdminUsersPage() {
 
       {loading ? (
         <div className="bg-white p-12 rounded-2xl border border-[#E2D9CC] text-center text-xs text-[#706254]">
-          Loading account records...
+          Loading account records and facility duty assignments...
         </div>
       ) : activeTab === "attendants" ? (
         /* ================= ATTENDANTS MANAGEMENT TAB ================= */
-        <div className="space-y-4">
-          
+        <div className="space-y-6">
           {/* Pending Banner Alert if any */}
           {pendingCount > 0 && (
-            <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl flex items-start space-x-3">
+            <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl flex items-start space-x-3 shadow-xs">
               <ShieldAlert className="w-5 h-5 text-amber-700 stroke-[2.5] flex-shrink-0 mt-0.5" />
               <div className="space-y-0.5">
                 <h3 className="text-xs font-black uppercase tracking-wider text-amber-900">
@@ -190,127 +215,321 @@ export default function AdminUsersPage() {
             </div>
           )}
 
-          {attendants.length === 0 ? (
-            <div className="bg-white p-8 rounded-2xl border border-[#E2D9CC] text-center text-xs text-[#706254]">
-              No attendant accounts registered yet.
+          {/* FACILITY-WISE DUTY ROSTER MATRIX */}
+          <div className="bg-white rounded-2xl border-2 border-[#E2D9CC] p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EFE9DF] pb-3">
+              <div>
+                <h2 className="text-base font-black text-[#1C1815] flex items-center space-x-2">
+                  <Building className="w-4 h-4 text-[#176B5B]" />
+                  <span>Campus Parking Facility Duty Roster</span>
+                </h2>
+                <p className="text-xs text-[#706254] mt-0.5">
+                  Real-time facility mapping: check which attendant is assigned to which parking lot. Reassign duty to immediately dispatch an official duty notification email.
+                </p>
+              </div>
+              <span className="text-[11px] font-bold text-[#176B5B] bg-[#EAF3EE] px-3 py-1 rounded-xl border border-[#C5DDD2] shrink-0 self-start sm:self-auto">
+                {lots.length} Monitored Facilities
+              </span>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {attendants.map((att) => {
-                const isApproved =
-                  att.isApprovedByAdmin === true && att.attendantApprovalStatus === "approved";
-                const isPending =
-                  !att.isApprovedByAdmin || att.attendantApprovalStatus === "pending";
-                const isBusy = processingId === att._id;
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {lots.map((lot) => {
+                const assignedAttendant = getAttendantForLot(lot._id);
+                const isVacant = !assignedAttendant;
+                const isBusy = processingId === lot._id;
 
                 return (
                   <div
-                    key={att._id}
-                    className={`bg-white rounded-2xl border-2 p-5 transition-all shadow-xs space-y-4 ${
-                      isPending ? "border-amber-300 bg-amber-50/20" : "border-[#E2D9CC]"
+                    key={lot._id}
+                    className={`rounded-2xl border-2 p-4.5 space-y-3.5 transition-all flex flex-col justify-between ${
+                      isVacant
+                        ? "bg-[#FFFBEB] border-amber-300"
+                        : "bg-[#FAF7F2] border-[#E2D9CC] hover:border-[#176B5B]"
                     }`}
                   >
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                      {/* Attendant Info */}
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-2.5">
-                          <h3 className="font-black text-[#1C1815] text-base">
-                            {att.name}
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h3 className="font-black text-sm text-[#1C1815]">
+                            {lot.name}
                           </h3>
-                          {isApproved ? (
-                            <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-black bg-[#EAF3EE] text-[#176B5B] border border-[#BCE0D2]">
-                              <CheckCircle2 className="w-3 h-3 stroke-[2.5]" />
-                              <span>Approved &amp; Onboarded</span>
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-black bg-amber-100 text-amber-900 border border-amber-300">
-                              <Clock className="w-3 h-3 stroke-[2.5]" />
-                              <span>Under Admin Review</span>
-                            </span>
-                          )}
+                          <p className="text-[11px] text-[#706254] flex items-center space-x-1 mt-0.5">
+                            <MapPin className="w-3 h-3 text-[#176B5B] shrink-0" />
+                            <span className="line-clamp-1">{lot.address}</span>
+                          </p>
                         </div>
-
-                        <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-[#706254]">
-                          <span className="flex items-center space-x-1 font-semibold">
-                            <Mail className="w-3.5 h-3.5 text-[#8C7E72]" />
-                            <span>{att.email}</span>
-                          </span>
-                          <span className="flex items-center space-x-1 font-semibold">
-                            <Phone className="w-3.5 h-3.5 text-[#8C7E72]" />
-                            <span>{att.phoneNumber || "No phone"}</span>
-                          </span>
-                          <span className="text-[11px] text-[#A09383]">
-                            Requested: {new Date(att.createdAt).toLocaleDateString("en-IN")}
-                          </span>
-                        </div>
+                        <span className="text-[10.5px] font-bold text-[#176B5B] bg-[#EAF3EE] px-2 py-0.5 rounded border border-[#C5DDD2] shrink-0">
+                          Free Campus Parking
+                        </span>
                       </div>
 
-                      {/* Facility Assignment Selector */}
-                      <div className="flex items-center space-x-2 self-start md:self-auto">
-                        <div className="space-y-1">
-                          <label className="block text-[10px] font-black uppercase tracking-wider text-[#8C7E72]">
-                            Assigned Parking Facility
-                          </label>
-                          <select
-                            value={selectedLotMap[att._id] || ""}
-                            onChange={(e) =>
-                              setSelectedLotMap((prev) => ({
-                                ...prev,
-                                [att._id]: e.target.value,
-                              }))
+                      {/* Assigned Staff Box */}
+                      <div className="pt-2 border-t border-[#E5DACB]">
+                        <span className="block text-[10px] font-black uppercase tracking-wider text-[#8C7E72] mb-1">
+                          Current Assigned Attendant:
+                        </span>
+
+                        {assignedAttendant ? (
+                          <div className="bg-white p-2.5 rounded-xl border border-[#D8CCBD] space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="font-black text-xs text-[#1C1815]">
+                                {assignedAttendant.name}
+                              </span>
+                              <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[9.5px] font-black uppercase tracking-wider bg-[#EAF3EE] text-[#176B5B] border border-[#C5DDD2]">
+                                <CheckCircle2 className="w-2.5 h-2.5 stroke-[2.5]" />
+                                <span>On Duty</span>
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-[#706254] flex items-center space-x-1">
+                              <Mail className="w-3 h-3 text-[#8C7E72]" />
+                              <span className="truncate">{assignedAttendant.email}</span>
+                            </div>
+                            {assignedAttendant.phoneNumber && (
+                              <div className="text-[11px] text-[#706254] flex items-center space-x-1">
+                                <Phone className="w-3 h-3 text-[#8C7E72]" />
+                                <span>{assignedAttendant.phoneNumber}</span>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="bg-amber-100/60 p-2.5 rounded-xl border border-amber-300 text-center">
+                            <span className="text-xs font-black text-amber-900 block">
+                              Vacant Booth
+                            </span>
+                            <span className="text-[10.5px] text-amber-800 font-medium block">
+                              No attendant deployed for this facility.
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Quick Shift Assignment Control for this lot */}
+                    <div className="pt-2 border-t border-[#E5DACB] space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-[#8C7E72]">
+                        Deploy / Switch Attendant:
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <select
+                          value={rosterAssignMap[lot._id] || (assignedAttendant ? assignedAttendant._id : "")}
+                          onChange={(e) =>
+                            setRosterAssignMap((prev) => ({
+                              ...prev,
+                              [lot._id]: e.target.value,
+                            }))
+                          }
+                          className="flex-1 bg-white border border-[#D8CCBD] text-xs font-bold text-[#1C1815] px-2.5 py-1.5 rounded-xl focus:outline-none focus:border-[#176B5B]"
+                        >
+                          <option value="">Select Staff...</option>
+                          {attendants.map((a) => (
+                            <option key={a._id} value={a._id}>
+                              {a.name} ({a.email})
+                            </option>
+                          ))}
+                        </select>
+
+                        <button
+                          type="button"
+                          disabled={
+                            isBusy ||
+                            !rosterAssignMap[lot._id] ||
+                            (assignedAttendant && rosterAssignMap[lot._id] === assignedAttendant._id)
+                          }
+                          onClick={() => {
+                            const targetAttendantId = rosterAssignMap[lot._id];
+                            if (targetAttendantId) {
+                              handleAttendantAction(targetAttendantId, "reassign", lot._id);
                             }
-                            className="bg-[#FAF7F2] border border-[#D8CCBD] text-xs font-bold text-[#1C1815] px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#176B5B]"
-                          >
-                            {lots.map((l) => (
-                              <option key={l._id} value={l._id}>
-                                {l.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="pt-4 flex items-center space-x-2">
-                          {isPending ? (
-                            <>
-                              <button
-                                type="button"
-                                disabled={isBusy}
-                                onClick={() => handleAttendantAction(att._id, "approve")}
-                                className="py-2 px-3.5 bg-[#176B5B] hover:bg-[#125448] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
-                              >
-                                <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
-                                <span>{isBusy ? "Saving..." : "Approve & Onboard"}</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                disabled={isBusy}
-                                onClick={() => handleAttendantAction(att._id, "reject")}
-                                className="py-2 px-3 bg-[#FAF7F2] hover:bg-red-50 text-[#706254] hover:text-red-700 border border-[#D8CCBD] hover:border-red-300 font-black text-xs uppercase tracking-wider rounded-xl transition-colors cursor-pointer disabled:opacity-50"
-                              >
-                                <span>Reject</span>
-                              </button>
-                            </>
-                          ) : (
-                            <button
-                              type="button"
-                              disabled={isBusy}
-                              onClick={() => handleAttendantAction(att._id, "revoke")}
-                              className="py-2 px-3 bg-[#FAF7F2] hover:bg-amber-50 text-[#706254] hover:text-amber-800 border border-[#D8CCBD] hover:border-amber-300 font-black text-xs uppercase tracking-wider rounded-xl transition-colors cursor-pointer disabled:opacity-50 flex items-center space-x-1.5"
-                            >
-                              <Ban className="w-3.5 h-3.5 stroke-[2.2]" />
-                              <span>{isBusy ? "Saving..." : "Suspend Access"}</span>
-                            </button>
-                          )}
-                        </div>
+                          }}
+                          className="px-3 py-1.5 bg-[#176B5B] hover:bg-[#125448] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center space-x-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                          title="Assigns attendant to this facility and dispatches instant duty email notification"
+                        >
+                          <Send className="w-3 h-3" />
+                          <span>Deploy</span>
+                        </button>
                       </div>
                     </div>
                   </div>
                 );
               })}
             </div>
-          )}
+          </div>
+
+          {/* ATTENDANT PROFILES & DIRECT DUTY MANAGEMENT */}
+          <div className="space-y-3">
+            <h2 className="text-sm font-black text-[#1C1815] uppercase tracking-wider">
+              All Registered Booth Attendants ({attendants.length})
+            </h2>
+
+            {attendants.length === 0 ? (
+              <div className="bg-white p-8 rounded-2xl border border-[#E2D9CC] text-center text-xs text-[#706254]">
+                No attendant accounts registered yet.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4">
+                {attendants.map((att) => {
+                  const isApproved =
+                    att.isApprovedByAdmin === true && att.attendantApprovalStatus === "approved";
+                  const isPending = !att.isApprovedByAdmin || att.attendantApprovalStatus === "pending";
+                  const isBusy = processingId === att._id;
+                  const currentAssignedLotId = att.assignedLotId?._id?.toString() || att.assignedLotId?.toString();
+                  const selectedLotId = selectedLotMap[att._id] || currentAssignedLotId;
+                  const isLotChanged = selectedLotId && selectedLotId !== currentAssignedLotId;
+
+                  return (
+                    <div
+                      key={att._id}
+                      className={`bg-white rounded-2xl border-2 p-5 transition-all shadow-xs space-y-4 ${
+                        isPending ? "border-amber-300 bg-amber-50/20" : "border-[#E2D9CC]"
+                      }`}
+                    >
+                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        {/* Attendant Info */}
+                        <div className="space-y-1.5 flex-1 min-w-0">
+                          <div className="flex items-center space-x-2.5 flex-wrap">
+                            <h3 className="font-black text-[#1C1815] text-base">
+                              {att.name}
+                            </h3>
+                            {isApproved ? (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-black bg-[#EAF3EE] text-[#176B5B] border border-[#BCE0D2]">
+                                <CheckCircle2 className="w-3 h-3 stroke-[2.5]" />
+                                <span>Verified &amp; Active</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-black bg-amber-100 text-amber-900 border border-amber-300">
+                                <Clock className="w-3 h-3 stroke-[2.5]" />
+                                <span>Under Admin Review</span>
+                              </span>
+                            )}
+
+                            {att.assignedLotId && (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-md text-[10.5px] font-bold bg-[#FAF6EE] text-[#706254] border border-[#DFD1BD]">
+                                <Building className="w-3 h-3 text-[#176B5B]" />
+                                <span>Assigned to: <strong>{att.assignedLotId.name || "Facility"}</strong></span>
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-[#706254]">
+                            <span className="flex items-center space-x-1 font-semibold">
+                              <Mail className="w-3.5 h-3.5 text-[#8C7E72]" />
+                              <span>{att.email}</span>
+                            </span>
+                            <span className="flex items-center space-x-1 font-semibold">
+                              <Phone className="w-3.5 h-3.5 text-[#8C7E72]" />
+                              <span>{att.phoneNumber || "No phone provided"}</span>
+                            </span>
+                            <span className="text-[11px] text-[#A09383]">
+                              Joined: {new Date(att.createdAt).toLocaleDateString("en-IN")}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Facility Assignment Selector & Duty Actions */}
+                        <div className="flex flex-col sm:flex-row sm:items-end gap-3 shrink-0">
+                          <div className="space-y-1">
+                            <label className="block text-[10px] font-black uppercase tracking-wider text-[#8C7E72]">
+                              Assign Parking Facility Station:
+                            </label>
+                            <select
+                              value={selectedLotMap[att._id] || ""}
+                              onChange={(e) =>
+                                setSelectedLotMap((prev) => ({
+                                  ...prev,
+                                  [att._id]: e.target.value,
+                                }))
+                              }
+                              className="bg-[#FAF7F2] border border-[#D8CCBD] text-xs font-bold text-[#1C1815] px-3 py-2 rounded-xl focus:outline-none focus:border-[#176B5B] w-full sm:w-56"
+                            >
+                              {lots.map((l) => (
+                                <option key={l._id} value={l._id}>
+                                  {l.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center space-x-2">
+                            {isPending ? (
+                              <>
+                                <button
+                                  type="button"
+                                  disabled={isBusy}
+                                  onClick={() => handleAttendantAction(att._id, "approve")}
+                                  className="py-2 px-3.5 bg-[#176B5B] hover:bg-[#125448] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer disabled:opacity-50 whitespace-nowrap"
+                                  title="Approves attendant and dispatches duty email"
+                                >
+                                  <Send className="w-3.5 h-3.5" />
+                                  <span>{isBusy ? "Deploying..." : "Approve & Deploy"}</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  disabled={isBusy}
+                                  onClick={() => handleAttendantAction(att._id, "reject")}
+                                  className="py-2 px-3 bg-[#FAF7F2] hover:bg-red-50 text-[#706254] hover:text-red-700 border border-[#D8CCBD] hover:border-red-300 font-black text-xs uppercase tracking-wider rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                                >
+                                  <span>Reject</span>
+                                </button>
+                              </>
+                            ) : (
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  type="button"
+                                  disabled={isBusy}
+                                  onClick={() => handleAttendantAction(att._id, "reassign")}
+                                  className={`py-2 px-3 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer disabled:opacity-50 whitespace-nowrap ${
+                                    isLotChanged
+                                      ? "bg-[#176B5B] hover:bg-[#125448]"
+                                      : "bg-[#2A5248] hover:bg-[#176B5B]"
+                                  }`}
+                                  title="Reassigns duty and sends official shift email to the attendant"
+                                >
+                                  <Send className="w-3.5 h-3.5" />
+                                  <span>{isBusy ? "Updating..." : isLotChanged ? "Save & Send Email" : "Notify Duty via Email"}</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  disabled={isBusy}
+                                  onClick={() => handleAttendantAction(att._id, "revoke")}
+                                  className="py-2 px-3 bg-[#FAF7F2] hover:bg-amber-50 text-[#706254] hover:text-amber-800 border border-[#D8CCBD] hover:border-amber-300 font-black text-xs uppercase tracking-wider rounded-xl transition-colors cursor-pointer disabled:opacity-50 flex items-center space-x-1.5"
+                                  title="Suspends terminal booth access"
+                                >
+                                  <Ban className="w-3.5 h-3.5 stroke-[2.2]" />
+                                  <span>{isBusy ? "..." : "Suspend"}</span>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Optional Duty / Shift Instructions Input */}
+                      <div className="pt-2 border-t border-[#EFE9DF] flex flex-col sm:flex-row sm:items-center gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-[#8C7E72] shrink-0">
+                          Shift Instructions (Optional):
+                        </span>
+                        <input
+                          type="text"
+                          value={dutyNotesMap[att._id] || ""}
+                          onChange={(e) =>
+                            setDutyNotesMap((prev) => ({
+                              ...prev,
+                              [att._id]: e.target.value,
+                            }))
+                          }
+                          placeholder="e.g. Morning Shift: 07:00 AM - 03:00 PM. Please report on time for student rush."
+                          className="flex-1 bg-[#FAF7F2] border border-[#D8CCBD] text-xs text-[#1C1815] px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#176B5B]"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         /* ================= REGISTERED RIDERS TAB ================= */
@@ -320,51 +539,39 @@ export default function AdminUsersPage() {
               <thead className="bg-[#FAF7F2] border-b border-[#E2D9CC] text-[#706254] uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="p-3.5 font-bold">Rider Name</th>
-                  <th className="p-3.5 font-bold">Email</th>
+                  <th className="p-3.5 font-bold">Email Address</th>
                   <th className="p-3.5 font-bold">Phone</th>
-                  <th className="p-3.5 font-bold">Vehicles</th>
-                  <th className="p-3.5 font-bold">Active Sessions</th>
-                  <th className="p-3.5 font-bold">Completed Sessions</th>
-                  <th className="p-3.5 font-bold">Verification</th>
-                  <th className="p-3.5 font-bold">Joined Date</th>
+                  <th className="p-3.5 font-bold">Verification Status</th>
+                  <th className="p-3.5 font-bold">Account Created</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EFE9DF]">
-                {ridersList.map((u) => (
-                  <tr key={u._id} className="hover:bg-[#FAF6EE]/50 transition-colors">
+                {ridersList.map((rider) => (
+                  <tr key={rider._id} className="hover:bg-[#FAF6EE]/50 transition-colors">
                     <td className="p-3.5 font-black text-[#1C1815]">
-                      {u.name}
+                      {rider.name}
                     </td>
-                    <td className="p-3.5 text-[#706254]">
-                      {u.email}
+                    <td className="p-3.5 text-[#706254] font-medium">
+                      {rider.email}
                     </td>
-                    <td className="p-3.5 text-[#706254]">
-                      {u.phoneNumber || "N/A"}
-                    </td>
-                    <td className="p-3.5 font-bold text-[#1C1815]">
-                      {u.vehicleCount || 0}
+                    <td className="p-3.5 text-[#706254] font-mono">
+                      {rider.phoneNumber || "N/A"}
                     </td>
                     <td className="p-3.5">
-                      <span className={`font-black ${u.sessions?.active > 0 ? "text-[#176B5B]" : "text-[#706254]"}`}>
-                        {u.sessions?.active || 0}
-                      </span>
-                    </td>
-                    <td className="p-3.5 font-bold text-[#1C1815]">
-                      {u.sessions?.completed || 0}
-                    </td>
-                    <td className="p-3.5">
-                      {u.isVerified ? (
-                        <span className="font-bold text-[10px] px-2 py-0.5 rounded bg-[#EAF3EE] text-[#176B5B] border border-[#BCE0D2]">
-                          OTP Verified
+                      {rider.isVerified ? (
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-black bg-[#EAF3EE] text-[#176B5B] border border-[#BCE0D2]">
+                          <CheckCircle2 className="w-3 h-3 stroke-[2.5]" />
+                          <span>OTP Verified</span>
                         </span>
                       ) : (
-                        <span className="font-bold text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
-                          Pending OTP
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-black bg-amber-100 text-amber-900 border border-amber-300">
+                          <Clock className="w-3 h-3 stroke-[2.5]" />
+                          <span>Pending OTP</span>
                         </span>
                       )}
                     </td>
-                    <td className="p-3.5 text-[#706254] text-[11px]">
-                      {new Date(u.createdAt).toLocaleDateString("en-IN")}
+                    <td className="p-3.5 text-[#706254]">
+                      {new Date(rider.createdAt).toLocaleDateString("en-IN")}
                     </td>
                   </tr>
                 ))}

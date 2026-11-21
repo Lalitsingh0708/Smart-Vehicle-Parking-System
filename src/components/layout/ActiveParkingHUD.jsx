@@ -85,8 +85,8 @@ export default function ActiveParkingHUD() {
   const seconds = elapsedSeconds % 60;
 
   const billedHours = Math.max(1, Math.ceil(elapsedSeconds / 3600));
-  const hourlyRate = lot.hourlyRate || 20;
-  const currentAccruedFee = hourlyRate * billedHours;
+  const hourlyRate = 0;
+  const currentAccruedFee = 0;
 
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lot.coordinates?.latitude || 28.6315},${lot.coordinates?.longitude || 77.2167}`;
 
@@ -191,13 +191,13 @@ export default function ActiveParkingHUD() {
                 </div>
               </div>
 
-              {/* Accrued tariff */}
+              {/* Campus Access */}
               <div className="text-right sm:text-left">
                 <span className="text-[9px] font-mono tracking-wider uppercase text-[#CCD5DC]/60 block">
-                  ACCRUED
+                  CAMPUS TARIFF
                 </span>
-                <div className="font-mono text-sm sm:text-base font-black text-[#5EE819]">
-                  ₹{currentAccruedFee}.00
+                <div className="font-mono text-xs sm:text-sm font-black text-[#5EE819]">
+                  FREE
                 </div>
               </div>
             </div>

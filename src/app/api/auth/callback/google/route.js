@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
-import { setSessionCookie, hashPassword } from "@/lib/auth";
+import { setSessionCookie, hashPassword, createSessionToken } from "@/lib/auth";
 import { PLATFORM_ADMIN_EMAIL } from "@/lib/email";
 import crypto from "crypto";
 
@@ -135,6 +135,7 @@ export async function GET(request) {
         user.attendantApprovalStatus || (user.role === "attendant" ? "pending" : "none"),
     };
 
+    const token = await createSessionToken(sessionPayload);
     await setSessionCookie(sessionPayload);
 
     // 5. Determine redirection
@@ -145,7 +146,16 @@ export async function GET(request) {
       destination = "/attendant";
     }
 
-    return NextResponse.redirect(`${appUrl}${destination}`);
+    const redirectResponse = NextResponse.redirect(`${appUrl}${destination}`);
+    redirectResponse.cookies.set("wdip_session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return redirectResponse;
   } catch (err) {
     console.error("Google OAuth callback exception:", err);
     return NextResponse.redirect(

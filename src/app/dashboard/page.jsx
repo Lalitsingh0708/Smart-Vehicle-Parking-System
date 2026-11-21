@@ -110,9 +110,9 @@ export default function DashboardOverviewPage() {
 
   const activeDurationHours = Math.floor(elapsedMinutes / 60);
   const activeDurationMins = elapsedMinutes % 60;
-  const activeHourlyRate = activeSession?.parkingLotId?.hourlyRate ?? 20;
+  const activeHourlyRate = 0;
   const activeBilledHours = Math.max(1, Math.ceil(elapsedMinutes / 60));
-  const estimatedAccruedFee = activeBilledHours * activeHourlyRate;
+  const estimatedAccruedFee = 0;
 
   // Quick Services & Navigation Cards
   const riderServices = [
@@ -330,7 +330,7 @@ export default function DashboardOverviewPage() {
                 {completedSessions.length}
               </span>
               <span className="text-xs font-semibold text-brand-600">
-                ₹{totalSpent} paid
+                Free Campus Access
               </span>
             </div>
           </div>
@@ -370,10 +370,10 @@ export default function DashboardOverviewPage() {
               </span>
               <span className="text-ink-secondary">•</span>
               <span className="font-bold text-brand-600">
-                Accrued: ₹{estimatedAccruedFee}
+                Campus Tariff: Free
               </span>
               <span className="text-[11px] text-ink-muted">
-                (₹{activeHourlyRate}/hr)
+                (Staff &amp; Students)
               </span>
             </div>
           </div>
@@ -584,7 +584,7 @@ export default function DashboardOverviewPage() {
                       })}
                     </td>
                     <td className="p-3.5 font-bold text-ink-primary">
-                      ₹{session.fee || 0}
+                      <span className="text-xs text-[#176B5B] bg-[#EAF3EE] px-2 py-0.5 rounded border border-[#C5DDD2]">Free</span>
                     </td>
                     <td className="p-3.5">
                       <Badge status={session.status} />

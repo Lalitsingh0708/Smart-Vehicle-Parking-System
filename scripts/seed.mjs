@@ -151,7 +151,7 @@ async function seed() {
         description:
           "Primary entrance parking facility for students and visitors near Main Gate 1 and Uni-Mall.",
         openingHours: "06:00 - 23:00",
-        hourlyRate: 10,
+        hourlyRate: 0,
         totalCapacity: 20,
         allowCheckIn: true,
         active: true,
@@ -164,7 +164,7 @@ async function seed() {
         description:
           "Dedicated two-wheeler bay for students and faculty of Engineering and Computer Applications blocks.",
         openingHours: "07:00 - 22:30",
-        hourlyRate: 10,
+        hourlyRate: 0,
         totalCapacity: 20,
         allowCheckIn: true,
         active: true,
@@ -177,7 +177,7 @@ async function seed() {
         description:
           "Resident parking facility adjacent to residential hostel complexes with 24/7 security booth access.",
         openingHours: "24 Hours (Round the Clock)",
-        hourlyRate: 10,
+        hourlyRate: 0,
         totalCapacity: 20,
         allowCheckIn: true,
         active: true,

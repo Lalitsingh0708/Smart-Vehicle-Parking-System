@@ -65,7 +65,7 @@ export default function Footer() {
               </li>
               <li>
                 <span className="text-ink-muted">
-                  Pricing rules in Indian Rupees (₹)
+                  100% Free Campus Parking for Students &amp; Staff
                 </span>
               </li>
             </ul>

@@ -48,8 +48,8 @@ export default function TicketCard({ session, onOpenMap }) {
   const seconds = elapsedSeconds % 60;
 
   const billedHours = Math.max(1, Math.ceil(elapsedSeconds / 3600));
-  const hourlyRate = lot.hourlyRate || 20;
-  const accruedFee = session.status === "completed" ? (session.fee || hourlyRate) : hourlyRate * billedHours;
+  const hourlyRate = 0;
+  const accruedFee = 0;
 
   const ticketId = session.ticketId || "WDIP-PENDING";
 
@@ -296,13 +296,13 @@ export default function TicketCard({ session, onOpenMap }) {
 
             <div className="text-right">
               <span className="text-[10px] font-mono tracking-[0.16em] uppercase text-[#7A6C5F] block font-bold">
-                Accrued Tariff
+                Campus Tariff
               </span>
-              <div className="text-2xl sm:text-3xl font-black text-[#B08528] font-mono mt-0.5">
-                ₹{accruedFee}
+              <div className="text-xl sm:text-2xl font-black text-[#176B5B] font-mono mt-0.5">
+                FREE
               </div>
               <span className="text-[10px] text-[#706254] block font-semibold">
-                ₹{hourlyRate}/hr billing rate
+                Staff &amp; Students
               </span>
             </div>
           </div>

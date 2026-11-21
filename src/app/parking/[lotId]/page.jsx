@@ -142,8 +142,12 @@ export default function ParkingLotDetailPage() {
         throw new Error(data.error || "Failed to allocate slot");
       }
 
-      toast.success("Slot allocated! Boarding ticket pass generated.");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("auth-changed"));
+      }
+      toast.success("Slot booked successfully! Digital check-in QR code sent to your email.");
       router.push("/dashboard/my-parking");
+      router.refresh();
     } catch (err) {
       toast.error(err.message || "Failed to complete allocation");
       loadLot(); // Refresh to catch updated occupancy
@@ -236,14 +240,13 @@ export default function ParkingLotDetailPage() {
 
             {/* Rate & Directions */}
             <div className="flex flex-col sm:flex-row md:flex-col items-start md:items-end justify-between gap-3 shrink-0">
-              <div className="text-left md:text-right bg-[#FAF6EE] p-3 rounded-xl border border-[#E5DACB]">
+              <div className="text-left md:text-right bg-[#EAF3EE] p-3 rounded-xl border border-[#C5DDD2]">
                 <div className="flex items-baseline space-x-1">
-                  <span className="text-3xl font-black text-[#B08528] tracking-tight">
-                    ₹{lotData.hourlyRate}
+                  <span className="text-xl sm:text-2xl font-black text-[#176B5B] tracking-tight">
+                    Free Parking
                   </span>
-                  <span className="text-xs font-bold text-[#7A6C5F]">/ hour</span>
                 </div>
-                <span className="text-[11px] font-semibold text-[#916E28] block">Standard Campus Tariff</span>
+                <span className="text-[11px] font-bold text-[#176B5B] block">For All Students &amp; Staff</span>
               </div>
 
               <a
@@ -481,19 +484,19 @@ export default function ParkingLotDetailPage() {
                 </div>
               )}
 
-              {/* Pricing breakdown (Golden & Forest Green Accents) */}
+              {/* Campus Access Information */}
               <div className="space-y-2 text-xs font-semibold text-[#66584B] pt-2 border-t-2 border-[#EFE9DF]">
                 <div className="flex justify-between">
-                  <span>Standard Hourly Rate:</span>
-                  <span className="font-black text-[#1C1815]">₹{lotData.hourlyRate} / hr</span>
+                  <span>Campus Tariff:</span>
+                  <span className="font-black text-[#176B5B]">Free (Students &amp; Staff)</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Minimum Billing:</span>
-                  <span className="font-black text-[#1C1815]">1 hour</span>
+                  <span>Authorized Access:</span>
+                  <span className="font-black text-[#1C1815]">University Two-Wheelers</span>
                 </div>
-                <div className="flex justify-between text-[#1C1815] font-black pt-1.5 border-t border-[#EFE9DF] text-sm">
-                  <span>Pay Upon Exit:</span>
-                  <span className="text-[#B08528] font-black">Calculated on checkout</span>
+                <div className="flex justify-between text-[#176B5B] font-black pt-1.5 border-t border-[#EFE9DF] text-sm">
+                  <span>Total Parking Fee:</span>
+                  <span className="text-[#176B5B] font-black">₹0.00 (Complimentary)</span>
                 </div>
               </div>
 
