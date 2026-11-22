@@ -12,7 +12,7 @@ export default function ParkingMap({
   onSelectLot,
   userLocation = null,
   zoom = 16,
-  height = "480px",
+  height = "clamp(320px, 45vh, 480px)",
   onRouteCalculated,
 }) {
   const mapContainerRef = useRef(null);

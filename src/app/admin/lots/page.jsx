@@ -87,58 +87,71 @@ export default function AdminLotsPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-[#E2D9CC] shadow-xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-[#E2D9CC] shadow-xs overflow-hidden w-full">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[760px]">
               <thead className="bg-[#FAF7F2] border-b border-[#E2D9CC] text-[#706254] uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th className="p-3.5 font-bold">Lot Name</th>
-                  <th className="p-3.5 font-bold">City &amp; Address</th>
-                  <th className="p-3.5 font-bold">Capacity</th>
-                  <th className="p-3.5 font-bold">Available</th>
-                  <th className="p-3.5 font-bold">Occupied</th>
-                  <th className="p-3.5 font-bold">Rate</th>
-                  <th className="p-3.5 font-bold">Status</th>
-                  <th className="p-3.5 font-bold text-right">Actions</th>
+                  <th className="py-3.5 px-4 font-bold">Facility &amp; Location</th>
+                  <th className="py-3.5 px-3 font-bold text-center">Bays Capacity</th>
+                  <th className="py-3.5 px-3 font-bold text-center">Live Availability</th>
+                  <th className="py-3.5 px-3 font-bold text-center">Pricing</th>
+                  <th className="py-3.5 px-3 font-bold text-center">Status</th>
+                  <th className="py-3.5 px-4 font-bold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EFE9DF]">
                 {lots.map((lot) => (
                   <tr key={lot.id || lot._id} className="hover:bg-[#FAF6EE]/50 transition-colors">
-                    <td className="p-3.5 font-black text-[#1C1815]">
-                      {lot.name}
+                    <td className="py-3.5 px-4">
+                      <div className="font-bold text-[#1C1815] text-sm">
+                        {lot.name}
+                      </div>
+                      <div className="text-[11px] text-[#706254] flex items-center gap-1 mt-0.5 truncate max-w-sm">
+                        <MapPin className="w-3 h-3 text-[#176B5B] shrink-0" />
+                        <span>{lot.city} · {lot.address}</span>
+                      </div>
                     </td>
-                    <td className="p-3.5 text-[#706254]">
-                      <div className="font-bold text-[#1C1815]">{lot.city}</div>
-                      <div className="text-[11px] text-[#706254] truncate max-w-xs">{lot.address}</div>
+                    <td className="py-3.5 px-3 text-center">
+                      <span className="font-bold text-[#1C1815] block">
+                        {lot.totalCapacity} bays
+                      </span>
+                      <span className="text-[10px] text-[#706254]">Total capacity</span>
                     </td>
-                    <td className="p-3.5 font-bold text-[#1C1815]">
-                      {lot.totalCapacity} slots
+                    <td className="py-3.5 px-3 text-center">
+                      <div className="inline-flex items-center gap-1.5 justify-center">
+                        <span className="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-xs">
+                          {lot.availableCount} Free
+                        </span>
+                        {lot.occupiedCount > 0 ? (
+                          <span className="font-bold text-rose-800 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 text-xs">
+                            {lot.occupiedCount} Occupied
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-[#706254] bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
+                            0 Occupied
+                          </span>
+                        )}
+                      </div>
                     </td>
-                    <td className="p-3.5 font-black text-[#176B5B]">
-                      {lot.availableCount}
-                    </td>
-                    <td className="p-3.5 font-black text-[#C53030]">
-                      {lot.occupiedCount}
-                    </td>
-                    <td className="p-3.5">
-                      <span className="font-bold text-[#176B5B] text-xs bg-[#EAF3EE] px-2 py-0.5 rounded border border-[#C5DDD2]">
-                        Free Campus Parking
+                    <td className="py-3.5 px-3 text-center">
+                      <span className="font-bold text-[#176B5B] text-xs bg-[#EAF3EE] px-2.5 py-1 rounded-lg border border-[#C5DDD2] whitespace-nowrap">
+                        {lot.hourlyRate ? `₹${lot.hourlyRate}/hr` : "Free Parking"}
                       </span>
                     </td>
-                    <td className="p-3.5">
+                    <td className="py-3.5 px-3 text-center">
                       <button
                         onClick={() => handleToggleActive(lot.id || lot._id, lot.active)}
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider cursor-pointer border ${
+                        className={`inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider cursor-pointer border transition-colors ${
                           lot.active
-                            ? "bg-[#EAF3EE] text-[#176B5B] border-[#C5DDD2]"
-                            : "bg-[#FAF6EE] text-[#706254] border-[#DFD1BD]"
+                            ? "bg-[#EAF3EE] text-[#176B5B] border-[#C5DDD2] hover:bg-[#d5ece1]"
+                            : "bg-[#FAF6EE] text-[#706254] border-[#DFD1BD] hover:bg-[#f0e7d5]"
                         }`}
                       >
                         {lot.active ? "Active" : "Inactive"}
                       </button>
                     </td>
-                    <td className="p-3.5 text-right">
+                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <Link
                         href={`/admin/lots/${lot.id || lot._id}`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF7F2] hover:bg-[#176B5B] text-[#1C1815] hover:text-white border border-[#DFD1BD] rounded-xl text-xs font-bold transition-all shadow-xs group"

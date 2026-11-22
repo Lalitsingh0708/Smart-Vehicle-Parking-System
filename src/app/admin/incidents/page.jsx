@@ -193,16 +193,30 @@ export default function AdminIncidentsPage() {
               </div>
 
               {inc.evidenceUrl && (
-                <div className="text-xs flex items-center space-x-1.5">
-                  <span className="text-[#706254] font-medium">Evidence Reference:</span>
+                <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#E2D9CC] flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={inc.evidenceUrl}
+                      alt="Incident photographic evidence thumbnail"
+                      className="w-12 h-12 object-cover rounded-lg border border-[#E2D9CC] bg-black/5 shrink-0"
+                    />
+                    <div>
+                      <span className="font-bold text-[#1C1815] block">
+                        Attached Photographic Evidence
+                      </span>
+                      <span className="text-[11px] text-[#706254] block">
+                        Uploaded by rider during report filing
+                      </span>
+                    </div>
+                  </div>
                   <a
                     href={inc.evidenceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#176B5B] hover:underline font-bold flex items-center"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-[#E2D9CC] text-xs font-bold text-[#176B5B] hover:bg-[#FAF7F2] transition-colors shrink-0"
                   >
-                    <span>{inc.evidenceUrl}</span>
-                    <ExternalLink className="w-3 h-3 ml-1" />
+                    <span>Inspect Full Photo</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
               )}

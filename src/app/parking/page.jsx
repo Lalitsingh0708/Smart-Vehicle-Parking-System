@@ -218,7 +218,7 @@ export default function ParkingFinderPage() {
                   selectedLotId={selectedLotId}
                   onSelectLot={(lot) => setSelectedLotId(lot.id || lot._id)}
                   userLocation={userLocation}
-                  height="490px"
+                  height="clamp(320px, 45vh, 490px)"
                 />
               </div>
             </div>

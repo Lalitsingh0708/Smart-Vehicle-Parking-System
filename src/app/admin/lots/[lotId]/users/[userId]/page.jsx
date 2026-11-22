@@ -431,17 +431,39 @@ export default function AdminLotUserDetailPage() {
                   {inc.description}
                 </p>
 
+                {/* Facility context tag if available */}
+                {inc.parkingLotId && (
+                  <div className="flex items-center gap-1.5 text-[11px] text-[#706254]">
+                    <MapPin className="w-3 h-3 text-[#176B5B]" />
+                    <span>Facility: <strong className="text-[#1C1815]">{inc.parkingLotId.name}</strong></span>
+                  </div>
+                )}
+
                 {/* Evidence preview if uploaded */}
                 {inc.evidenceUrl && (
-                  <div className="flex items-center gap-2 pt-1">
+                  <div className="p-3 bg-white rounded-lg border border-[#EBE3D7] flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={inc.evidenceUrl}
+                        alt="Incident photographic evidence thumbnail"
+                        className="w-12 h-12 object-cover rounded-lg border border-[#E2D9CC] bg-black/5 shrink-0"
+                      />
+                      <div>
+                        <span className="text-xs font-bold text-[#1C1815] block">
+                          Attached Photographic Evidence
+                        </span>
+                        <span className="text-[11px] text-[#706254] block">
+                          Uploaded by rider during report submission
+                        </span>
+                      </div>
+                    </div>
                     <a
                       href={inc.evidenceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs text-[#176B5B] hover:underline font-bold"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FAF7F2] hover:bg-[#EFE7D8] text-[#176B5B] text-xs font-bold border border-[#E2D9CC] transition-colors shrink-0"
                     >
-                      <ImageIcon className="w-3.5 h-3.5" />
-                      <span>View Uploaded Incident Evidence Photo</span>
+                      <span>Inspect Full Photo</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
@@ -558,7 +580,7 @@ export default function AdminLotUserDetailPage() {
                             hour: "2-digit",
                             minute: "2-digit",
                           })
-                        : "—"}
+                        : "N/A"}
                     </td>
                     <td className="p-3">
                       <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${

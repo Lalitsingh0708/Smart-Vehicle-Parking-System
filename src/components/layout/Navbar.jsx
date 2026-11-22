@@ -638,11 +638,11 @@ export default function Navbar({ initialUser = null, initialSession = null }) {
                   <div className="w-7 h-7 rounded-lg bg-[#176B5B] text-white flex items-center justify-center font-black text-xs border border-[#D4AF37] shadow-xs group-hover:scale-105 transition-transform shrink-0">
                     {currentUser.name?.[0]?.toUpperCase() || "U"}
                   </div>
-                  <div className="flex flex-col text-left leading-none">
-                    <span className="font-black text-xs sm:text-[13px] text-[#1C1815] max-w-[130px] sm:max-w-[170px] truncate">
+                  <div className="flex flex-col text-left leading-none max-w-[75px] sm:max-w-[170px]">
+                    <span className="font-black text-xs sm:text-[13px] text-[#1C1815] truncate">
                       {currentUser.name}
                     </span>
-                    <span className="text-[10px] font-extrabold text-[#176B5B] uppercase tracking-wider mt-0.5">
+                    <span className="text-[9.5px] sm:text-[10px] font-extrabold text-[#176B5B] uppercase tracking-wider mt-0.5 truncate">
                       {currentUser.role === "admin"
                         ? "Admin"
                         : currentUser.role === "attendant"
@@ -949,48 +949,65 @@ export default function Navbar({ initialUser = null, initialSession = null }) {
               <Link
                 href="/dashboard/my-parking"
                 onClick={() => setMobileMenuOpen(false)}
-                style={{
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: "13px",
-                  fontWeight: 800,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.14em",
-                  color: isMyParking ? "#176B5B" : "#1C1815",
-                  textDecoration: "none",
-                }}
+                className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1815] hover:text-[#176B5B] py-1"
               >
-                My Parking {activeSession && "●"}
+                <span>My Active Parking</span>
+                {activeSession && (
+                  <span className="w-2 h-2 rounded-full bg-[#176B5B] animate-pulse" />
+                )}
               </Link>
               <Link
                 href="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                style={{
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: "13px",
-                  fontWeight: 800,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.14em",
-                  color: "#1C1815",
-                  textDecoration: "none",
-                }}
+                className="text-xs font-bold uppercase tracking-wider text-[#1C1815] hover:text-[#176B5B] py-1"
               >
-                Dashboard
+                Dashboard Overview
               </Link>
+              <Link
+                href="/dashboard/vehicle"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-xs font-bold uppercase tracking-wider text-[#1C1815] hover:text-[#176B5B] py-1"
+              >
+                My Vehicles
+              </Link>
+              <Link
+                href="/dashboard/history"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-xs font-bold uppercase tracking-wider text-[#1C1815] hover:text-[#176B5B] py-1"
+              >
+                Parking History
+              </Link>
+              <Link
+                href="/dashboard/incidents"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-xs font-bold uppercase tracking-wider text-[#1C1815] hover:text-[#176B5B] py-1"
+              >
+                Security &amp; Complaints
+              </Link>
+              <Link
+                href="/dashboard/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-xs font-bold uppercase tracking-wider text-[#1C1815] hover:text-[#176B5B] py-1"
+              >
+                Profile &amp; Settings
+              </Link>
+
               {(currentUser.role === "attendant" || currentUser.role === "admin") && (
                 <Link
                   href="/attendant"
                   onClick={() => setMobileMenuOpen(false)}
-                  style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: "13px",
-                    fontWeight: 800,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.14em",
-                    color: "#176B5B",
-                    textDecoration: "none",
-                  }}
+                  className="text-xs font-black uppercase tracking-wider text-[#176B5B] bg-[#EAF3EE] px-3 py-1.5 rounded-lg border border-[#C5DDD2] mt-1"
                 >
                   Attendant Booth
+                </Link>
+              )}
+              {currentUser.role === "admin" && (
+                <Link
+                  href="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-xs font-black uppercase tracking-wider text-[#854D0E] bg-[#FEF3C7] px-3 py-1.5 rounded-lg border border-[#D97706]/40 mt-1"
+                >
+                  Admin Command Center
                 </Link>
               )}
               <button
@@ -999,19 +1016,7 @@ export default function Navbar({ initialUser = null, initialSession = null }) {
                   setMobileMenuOpen(false);
                   handleLogout();
                 }}
-                style={{
-                  textAlign: "left",
-                  background: "none",
-                  border: "none",
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: "13px",
-                  fontWeight: 800,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.14em",
-                  color: "#BA2D2D",
-                  cursor: "pointer",
-                  padding: 0,
-                }}
+                className="text-left text-xs font-bold uppercase tracking-wider text-[#BA2D2D] hover:bg-red-50 p-1.5 rounded-lg transition-colors cursor-pointer mt-1"
               >
                 Log Out
               </button>

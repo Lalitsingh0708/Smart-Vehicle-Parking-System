@@ -186,6 +186,40 @@ export default function HomePage() {
           box-shadow: 0 0 20px rgba(94, 232, 25, 0.75) !important;
           transform: translateY(-1px) scale(1.02);
         }
+
+        /* Responsive Mobile Breakpoints */
+        @media (max-width: 900px) {
+          .hero-right-sidebar {
+            display: none !important;
+          }
+          .hero-vector-tag {
+            display: none !important;
+          }
+        }
+        @media (max-width: 768px) {
+          .hero-find-btn {
+            min-width: 160px !important;
+            height: 38px !important;
+            padding: 0 14px !important;
+            font-size: 11px !important;
+          }
+          .hero-desc-p {
+            font-size: 11px !important;
+            line-height: 1.35 !important;
+            width: 58% !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .hero-find-btn {
+            min-width: 135px !important;
+            height: 32px !important;
+            padding: 0 10px !important;
+            font-size: 9.5px !important;
+          }
+          .hero-desc-p {
+            display: none !important;
+          }
+        }
       `}</style>
 
       {/* ═════════════════════════════════════════════════════════════════
@@ -876,6 +910,7 @@ export default function HomePage() {
 
           {/* 1. Vector Description Paragraph (Zero Compression Blur, Native Font Crispness) */}
           <p
+            className="hero-desc-p"
             style={{
               position: "absolute",
               top: "62.93%",
@@ -936,6 +971,7 @@ export default function HomePage() {
 
           {/* 3. Vector Tag: PARK SAVE RETRIEVE (Crisp Architectural Detail) */}
           <div
+            className="hero-vector-tag"
             style={{
               position: "absolute",
               top: "86.92%",
@@ -971,6 +1007,7 @@ export default function HomePage() {
 
           {/* E. DEDICATED CRISP RIGHT SIDEBAR (100% Vector HTML) */}
           <div
+            className="hero-right-sidebar"
             style={{
               position: "absolute",
               top: "64px",
@@ -1162,7 +1199,7 @@ export default function HomePage() {
       <section
         id="how-it-works"
         style={{
-          padding: "96px 36px",
+          padding: "clamp(48px, 6vw, 96px) clamp(16px, 3.5vw, 36px)",
           maxWidth: "1320px",
           margin: "0 auto",
         }}
@@ -1231,8 +1268,8 @@ export default function HomePage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "28px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+            gap: "24px",
           }}
         >
           {/* Card 1: Rider (Luxury White & Gold Card) */}
@@ -1826,8 +1863,8 @@ export default function HomePage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-              gap: "24px",
+              gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))",
+              gap: "20px",
             }}
           >
             {loadingLots ? (

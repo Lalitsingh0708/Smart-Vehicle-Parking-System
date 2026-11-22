@@ -11,6 +11,32 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(COOKIE_NAME)?.value;
 
+  const isAuthPage = pathname === "/login" || pathname === "/register";
+
+  // If already authenticated and visiting /login or /register, redirect to their role dashboard
+  if (isAuthPage) {
+    if (token) {
+      try {
+        const { payload } = await jwtVerify(token, secretKey);
+        if (payload.userId && payload.email) {
+          let redirectUrl = "/dashboard";
+          if (payload.role === "admin") {
+            redirectUrl = "/admin";
+          } else if (payload.role === "attendant") {
+            redirectUrl = "/attendant";
+          }
+          return NextResponse.redirect(new URL(redirectUrl, request.url));
+        }
+      } catch {
+        // Token invalid, expired, or tampered with: clear it and allow /login
+        const response = NextResponse.next();
+        response.cookies.delete(COOKIE_NAME);
+        return response;
+      }
+    }
+    return NextResponse.next();
+  }
+
   // Protected paths
   const isProtectedPath =
     pathname.startsWith("/dashboard") ||
@@ -56,5 +82,7 @@ export const config = {
     "/dashboard/:path*",
     "/admin/:path*",
     "/attendant/:path*",
+    "/login",
+    "/register",
   ],
 };

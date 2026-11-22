@@ -57,6 +57,39 @@ function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // If already authenticated and user visits or backs into /login, redirect immediately to their dashboard
+  useEffect(() => {
+    let isMounted = true;
+    const checkAuthStatus = async () => {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        const data = await res.json();
+        if (isMounted && data.authenticated && data.user) {
+          const role = data.user.role;
+          const target = role === "admin" ? "/admin" : role === "attendant" ? "/attendant" : "/dashboard";
+          router.replace(target);
+        }
+      } catch {
+        // Not authenticated or network error
+      }
+    };
+
+    checkAuthStatus();
+
+    const handlePageShow = (event) => {
+      // Handles browser Back/Forward cache (bfcache) restore
+      if (event.persisted) {
+        checkAuthStatus();
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      isMounted = false;
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, [router]);
+
   // Check for error in query params
   useEffect(() => {
     const errorParam = searchParams.get("error");
@@ -122,11 +155,11 @@ function LoginFormContent() {
       toast.success(`Welcome back, ${userName}!`);
 
       if (userRole === "admin") {
-        router.push("/admin");
+        router.replace("/admin");
       } else if (userRole === "attendant") {
-        router.push("/attendant");
+        router.replace("/attendant");
       } else {
-        router.push("/dashboard");
+        router.replace("/dashboard");
       }
       router.refresh();
     } catch (err) {

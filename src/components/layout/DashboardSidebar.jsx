@@ -16,6 +16,7 @@ import {
   Layers,
   Grid,
   Users,
+  UserCheck,
   FileText,
   LogOut,
   ChevronRight,
@@ -40,6 +41,7 @@ export default function DashboardSidebar({ isAdmin = false, user }) {
     { name: "Analytics Overview", href: "/admin", icon: LayoutDashboard },
     { name: "Parking Lots", href: "/admin/lots", icon: Layers },
     { name: "Parking Slots", href: "/admin/slots", icon: Grid },
+    { name: "Manage Attendants", href: "/admin/attendants", icon: UserCheck },
     { name: "Parking Sessions", href: "/admin/sessions", icon: Clock },
     { name: "Registered Users", href: "/admin/users", icon: Users },
     { name: "Review Complaints", href: "/admin/incidents", icon: AlertTriangle },
@@ -60,82 +62,120 @@ export default function DashboardSidebar({ isAdmin = false, user }) {
   };
 
   return (
-    <aside className="hidden md:flex w-64 bg-white border-r border-[#E2D9CC] flex-col sticky top-[68px] h-[calc(100vh-68px)] shrink-0 z-30 self-start shadow-xs">
-      {/* Sidebar header info */}
-      <div className="p-4 border-b border-[#EFE9DF] bg-[#FAF6EE]">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-[#176B5B] text-white border border-[#D4AF37] flex items-center justify-center font-black text-sm shadow-xs">
-            {user?.name ? user.name[0].toUpperCase() : "U"}
-          </div>
-          <div className="overflow-hidden">
-            <h3 className="text-sm font-black text-[#1C1815] truncate">
-              {user?.name || "Rider Account"}
-            </h3>
-            <span className="inline-flex items-center text-[10.5px] font-bold text-[#B08528] uppercase tracking-wider">
-              {isAdmin ? "System Administrator" : "Two-Wheeler Rider"}
-            </span>
+    <>
+      {/* ─── DESKTOP SIDEBAR (Pinned on the left for >= md screens) ─── */}
+      <aside className="hidden md:flex w-64 bg-white border-r border-[#E2D9CC] flex-col sticky top-[68px] h-[calc(100vh-68px)] shrink-0 z-30 self-start shadow-xs">
+        {/* Sidebar header info */}
+        <div className="p-4 border-b border-[#EFE9DF] bg-[#FAF6EE]">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-[#176B5B] text-white border border-[#D4AF37] flex items-center justify-center font-black text-sm shadow-xs">
+              {user?.name ? user.name[0].toUpperCase() : "U"}
+            </div>
+            <div className="overflow-hidden">
+              <h3 className="text-sm font-black text-[#1C1815] truncate">
+                {user?.name || "Rider Account"}
+              </h3>
+              <span className="inline-flex items-center text-[10.5px] font-bold text-[#B08528] uppercase tracking-wider">
+                {isAdmin ? "System Administrator" : "Two-Wheeler Rider"}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Navigation items */}
-      <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href;
-          return (
+        {/* Navigation items */}
+        <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center justify-between px-3 py-2 text-xs uppercase tracking-wider font-bold rounded-xl transition-all ${
+                  isActive
+                    ? "bg-[#EAF3EE] text-[#176B5B] border-l-3 border-[#176B5B] shadow-xs"
+                    : "text-[#706254] hover:text-[#176B5B] hover:bg-[#FAF6EE]"
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Icon className={`w-4 h-4 ${isActive ? "text-[#176B5B]" : "text-[#706254]"}`} />
+                  <span className={isActive ? "font-black" : "font-bold"}>{item.name}</span>
+                </div>
+                {isActive && <ChevronRight className="w-3.5 h-3.5 text-[#176B5B]" />}
+              </Link>
+            );
+          })}
+
+          {/* Quick link between user and admin dashboards if role is admin */}
+          {user?.role === "admin" && (
+            <div className="pt-3 mt-3 border-t border-[#EFE9DF]">
+              {isAdmin ? (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center space-x-2 px-3 py-2 text-xs font-bold text-[#706254] hover:text-[#176B5B] rounded-xl bg-[#FAF6EE] hover:bg-[#EAF3EE] border border-[#DFD1BD] transition-all"
+                >
+                  <Bike className="w-3.5 h-3.5 text-[#176B5B]" />
+                  <span>Switch to Rider View</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/admin"
+                  className="flex items-center space-x-2 px-3 py-2 text-xs font-bold text-[#854D0E] rounded-xl bg-[#FAF6EE] hover:bg-[#FEF3C7] border border-[#DFD1BD] transition-all"
+                >
+                  <Shield className="w-3.5 h-3.5 text-[#D97706]" />
+                  <span>Switch to Admin Panel</span>
+                </Link>
+              )}
+            </div>
+          )}
+        </nav>
+
+        {/* Footer logout */}
+        <div className="p-3 border-t border-[#EFE9DF]">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-bold uppercase tracking-wider text-[#BA2D2D] hover:bg-[#FFF5F5] rounded-xl transition-colors cursor-pointer"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* ─── MOBILE RESPONSIVE SUB-NAV BAR (Horizontal swipeable tabs for mobile screens) ─── */}
+      <div className="md:hidden w-full bg-[#FAF7F2] border-b border-[#E2D9CC] sticky top-[68px] z-30 shadow-xs">
+        <div className="flex items-center gap-1.5 px-3 py-2 overflow-x-auto scrollbar-none">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all ${
+                  isActive
+                    ? "bg-[#176B5B] text-white shadow-xs border border-[#176B5B]"
+                    : "bg-white text-[#706254] border border-[#DFD1BD] hover:text-[#176B5B] hover:bg-[#FAF6EE]"
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-[#D4AF37]" : "text-[#706254]"}`} />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+
+          {user?.role === "admin" && (
             <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center justify-between px-3 py-2 text-xs uppercase tracking-wider font-bold rounded-xl transition-all ${
-                isActive
-                  ? "bg-[#EAF3EE] text-[#176B5B] border-l-3 border-[#176B5B] shadow-xs"
-                  : "text-[#706254] hover:text-[#176B5B] hover:bg-[#FAF6EE]"
-              }`}
+              href={isAdmin ? "/dashboard" : "/admin"}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 bg-[#FEF3C7] text-[#854D0E] border border-[#D97706]/40"
             >
-              <div className="flex items-center space-x-3">
-                <Icon className={`w-4 h-4 ${isActive ? "text-[#176B5B]" : "text-[#706254]"}`} />
-                <span className={isActive ? "font-black" : "font-bold"}>{item.name}</span>
-              </div>
-              {isActive && <ChevronRight className="w-3.5 h-3.5 text-[#176B5B]" />}
+              {isAdmin ? <Bike className="w-3.5 h-3.5" /> : <Shield className="w-3.5 h-3.5" />}
+              <span>{isAdmin ? "Rider View" : "Admin Panel"}</span>
             </Link>
-          );
-        })}
-
-        {/* Quick link between user and admin dashboards if role is admin */}
-        {user?.role === "admin" && (
-          <div className="pt-3 mt-3 border-t border-[#EFE9DF]">
-            {isAdmin ? (
-              <Link
-                href="/dashboard"
-                className="flex items-center space-x-2 px-3 py-2 text-xs font-bold text-[#706254] hover:text-[#176B5B] rounded-xl bg-[#FAF6EE] hover:bg-[#EAF3EE] border border-[#DFD1BD] transition-all"
-              >
-                <Bike className="w-3.5 h-3.5 text-[#176B5B]" />
-                <span>Switch to Rider View</span>
-              </Link>
-            ) : (
-              <Link
-                href="/admin"
-                className="flex items-center space-x-2 px-3 py-2 text-xs font-bold text-[#854D0E] rounded-xl bg-[#FAF6EE] hover:bg-[#FEF3C7] border border-[#DFD1BD] transition-all"
-              >
-                <Shield className="w-3.5 h-3.5 text-[#D97706]" />
-                <span>Switch to Admin Panel</span>
-              </Link>
-            )}
-          </div>
-        )}
-      </nav>
-
-      {/* Footer logout */}
-      <div className="p-3 border-t border-[#EFE9DF]">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-bold uppercase tracking-wider text-[#BA2D2D] hover:bg-[#FFF5F5] rounded-xl transition-colors cursor-pointer"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Sign Out</span>
-        </button>
+          )}
+        </div>
       </div>
-    </aside>
+    </>
   );
 }

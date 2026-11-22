@@ -229,7 +229,7 @@ export default function AdminAnalyticsClient({ initialData }) {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => refreshAnalytics(true)}
@@ -431,7 +431,7 @@ export default function AdminAnalyticsClient({ initialData }) {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-2">
             {/* View Mode Toggle */}
             <div className="bg-[#FAF7F2] p-1 border border-[#DFD1BD] rounded-xl flex items-center gap-1 shadow-xs">
               <button

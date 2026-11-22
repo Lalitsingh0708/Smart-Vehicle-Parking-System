@@ -38,6 +38,38 @@ export default function RegisterPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
 
+  // If already authenticated and user visits or backs into /register, redirect immediately
+  useEffect(() => {
+    let isMounted = true;
+    const checkAuthStatus = async () => {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        const data = await res.json();
+        if (isMounted && data.authenticated && data.user) {
+          const role = data.user.role;
+          const target = role === "admin" ? "/admin" : role === "attendant" ? "/attendant" : "/dashboard";
+          router.replace(target);
+        }
+      } catch {
+        // Not authenticated
+      }
+    };
+
+    checkAuthStatus();
+
+    const handlePageShow = (event) => {
+      if (event.persisted) {
+        checkAuthStatus();
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      isMounted = false;
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, [router]);
+
   // Cooldown countdown effect
   useEffect(() => {
     if (resendCooldown <= 0) return;

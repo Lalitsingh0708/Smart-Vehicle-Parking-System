@@ -2,7 +2,7 @@ import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 
-const AUTH_SECRET = process.env.AUTH_SECRET || "where-did-i-park-development-secret-key-32-chars-min";
+const AUTH_SECRET = process.env.AUTH_SECRET || "where_did_i_park_production_grade_secret_key_32_characters_minimum";
 const secretKey = new TextEncoder().encode(AUTH_SECRET);
 const COOKIE_NAME = "wdip_session";
 

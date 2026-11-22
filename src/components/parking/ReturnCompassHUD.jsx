@@ -242,7 +242,7 @@ export default function ReturnCompassHUD({
         clearInterval(simIntervalRef.current);
         setIsSimulatingWalk(false);
         playKeyFobChirp();
-        toast.success("🎉 You have arrived at your two-wheeler bay!", { duration: 5000 });
+        toast.success("You have arrived at your two-wheeler bay!", { duration: 5000 });
         if (typeof navigator !== "undefined" && navigator.vibrate) {
           navigator.vibrate([150, 100, 200]);
         }
@@ -266,8 +266,7 @@ export default function ReturnCompassHUD({
     playKeyFobChirp();
 
     toast.success(
-      `Bay ${slot.slotNumber || "A-01"} LED Beacon activated with double-chirp!`,
-      { icon: "🔊" }
+      `Bay ${slot.slotNumber || "A-01"} LED Beacon activated with double-chirp!`
     );
 
     // Haptic vibration on supported devices
@@ -477,7 +476,7 @@ export default function ReturnCompassHUD({
                   : "bg-white text-[#176B5B] border-[#176B5B]/40 hover:bg-[#FAF7F2]"
               }`}
             >
-              {isLiveGpsActive ? "● GPS Connected" : "📡 Connect Device GPS"}
+              {isLiveGpsActive ? "● GPS Connected" : "Connect Device GPS"}
             </button>
 
             <button
@@ -490,7 +489,7 @@ export default function ReturnCompassHUD({
               }`}
             >
               <Footprints className="w-3.5 h-3.5 text-[#176B5B]" />
-              <span>{isSimulatingWalk ? "Pause Walk Simulation" : "🚶 Test Walking Approach (Viva Demo)"}</span>
+              <span>{isSimulatingWalk ? "Pause Walk Simulation" : "Test Walking Approach (Demo)"}</span>
             </button>
           </div>
         </div>
@@ -580,7 +579,7 @@ export default function ReturnCompassHUD({
           </div>
         )}
 
-        {/* 📸 Visual Landmark & Note Anchor Card */}
+        {/* Visual Landmark & Note Anchor Card */}
         <div className="p-4 bg-[#FAF7F2] rounded-xl border border-[#E2D9CC] space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -776,7 +775,7 @@ export default function ReturnCompassHUD({
             }`}
           >
             <Volume2 className={`w-4 h-4 ${beaconActive ? "animate-bounce text-[#0A2603]" : "text-[#176B5B]"}`} />
-            <span>{beaconActive ? "🔊 BEACON CHIRPING..." : "🔊 CHIRP HORN & FLASH LIGHTS"}</span>
+            <span>{beaconActive ? "BEACON CHIRPING..." : "CHIRP HORN & FLASH LIGHTS"}</span>
           </button>
 
           {/* Direct Walking Directions Link */}

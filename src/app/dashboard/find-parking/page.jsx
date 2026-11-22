@@ -214,7 +214,7 @@ export default function DashboardFindParkingPage() {
             onSelectLot={(lot) => setSelectedLotId(lot.id || lot._id)}
             userLocation={userLocation}
             zoom={15}
-            height="500px"
+            height="clamp(320px, 45vh, 500px)"
             onRouteCalculated={(info) => setRouteInfo(info)}
           />
         </div>

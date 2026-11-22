@@ -62,11 +62,11 @@ export async function GET(request, context) {
         status: s.status,
       }));
 
-    // 3. Fetch all complaints/security incidents reported by this user in this lot
+    // 3. Fetch all complaints/security incidents reported by this user (facility-specific or global)
     const incidents = await SecurityIncident.find({
-      parkingLotId: lotId,
       reportedBy: userId,
     })
+      .populate("parkingLotId", "name address city")
       .populate("vehicleId", "registrationNumber make model")
       .populate("parkingSessionId", "ticketId")
       .sort({ createdAt: -1 })
