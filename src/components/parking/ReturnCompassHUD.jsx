@@ -630,11 +630,6 @@ export default function ReturnCompassHUD({
                   <span className="text-[10px] font-mono tracking-wider uppercase text-[#176B5B] bg-[#EAF5F2] px-2 py-0.5 rounded font-bold">
                     SAVED LANDMARK CUE
                   </span>
-                  {session.landmarkPhotoUrl && (
-                    <span className="text-[10px] font-mono text-[#7A6C5F]">
-                      &bull; Cloudinary Stored
-                    </span>
-                  )}
                 </div>
                 <p className="text-xs font-bold text-[#1C1815] leading-relaxed">
                   {session.landmarkNote ? `"${session.landmarkNote}"` : "Visual landmark photo attached."}

@@ -227,8 +227,8 @@ export default function AdminLotUserDetailPage() {
           <span className="text-2xl font-black text-[#176B5B] block font-mono">
             {stats.totalPhotos}
           </span>
-          <span className="text-[11px] text-[#916E28] block mt-0.5 font-bold">
-            Cloudinary Stored
+          <span className="text-[11px] text-[#706254] block mt-0.5">
+            Verified Visual Cues
           </span>
         </div>
 
@@ -246,7 +246,7 @@ export default function AdminLotUserDetailPage() {
       </div>
 
       {/* ═════════════════════════════════════════════════════════
-          1. UPLOADED LANDMARK PHOTOS GALLERY (Cloudinary Stored)
+          1. UPLOADED LANDMARK PHOTOS GALLERY
       ═════════════════════════════════════════════════════════ */}
       <div className="bg-white rounded-2xl border border-[#E2D9CC] shadow-xs p-5 sm:p-6 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#EBE3D7]">
@@ -263,9 +263,6 @@ export default function AdminLotUserDetailPage() {
               </p>
             </div>
           </div>
-          <span className="text-[10px] font-mono tracking-wider uppercase px-2.5 py-1 rounded bg-[#FAF6EE] text-[#916E28] border border-[#DFD1BD] font-bold self-start sm:self-auto">
-            Cloudinary Storage: Enabled
-          </span>
         </div>
 
         {landmarkPhotos.length === 0 ? (
@@ -624,7 +621,7 @@ export default function AdminLotUserDetailPage() {
                 rel="noopener noreferrer"
                 className="text-[#D4AF37] hover:underline flex items-center gap-1 font-bold shrink-0 ml-4"
               >
-                <span>Original Cloudinary Image</span>
+                <span>View Full Size Image</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>

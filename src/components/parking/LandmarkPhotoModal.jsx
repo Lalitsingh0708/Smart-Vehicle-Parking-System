@@ -152,7 +152,7 @@ export default function LandmarkPhotoModal({
           {/* Photo Upload & Preview Box */}
           <div>
             <label className="block text-xs font-bold text-[#1C1815] mb-1.5">
-              Vehicle Landmark Photo (Stored on Cloudinary)
+              Vehicle Landmark Photo
             </label>
 
             {currentPhoto ? (
