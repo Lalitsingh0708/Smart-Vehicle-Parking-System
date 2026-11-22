@@ -15,7 +15,8 @@ export async function GET(request) {
   const state = searchParams.get("state");
 
   const origin = new URL(request.url).origin;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
+  // Always use the active domain origin where the user is browsing
+  const appUrl = origin || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   if (error || !code) {
     console.error("Google OAuth error or code missing:", error);
@@ -25,7 +26,7 @@ export async function GET(request) {
   try {
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${origin}/api/auth/callback/google`;
+    const redirectUri = `${origin}/api/auth/callback/google`;
 
     // 1. Exchange authorization code for access token
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
