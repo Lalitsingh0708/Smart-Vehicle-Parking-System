@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }) {
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2]">
       <Navbar initialUser={session} />
-      <div className="flex-1 flex max-w-7xl w-full mx-auto">
+      <div className="flex-1 flex max-w-7xl w-full mx-auto items-start">
         <DashboardSidebar user={session} isAdmin={true} />
         <main className="flex-1 p-6 md:p-8 overflow-y-auto">
           {children}

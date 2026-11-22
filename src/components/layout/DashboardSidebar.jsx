@@ -60,7 +60,7 @@ export default function DashboardSidebar({ isAdmin = false, user }) {
   };
 
   return (
-    <aside className="hidden md:flex w-64 bg-white border-r border-[#E2D9CC] flex-col min-h-[calc(100vh-4.25rem)] shrink-0">
+    <aside className="hidden md:flex w-64 bg-white border-r border-[#E2D9CC] flex-col sticky top-[68px] h-[calc(100vh-68px)] shrink-0 z-30 self-start shadow-xs">
       {/* Sidebar header info */}
       <div className="p-4 border-b border-[#EFE9DF] bg-[#FAF6EE]">
         <div className="flex items-center space-x-3">
