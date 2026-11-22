@@ -18,6 +18,8 @@ import {
   ShieldCheck,
   ChevronRight,
   RefreshCw,
+  Compass,
+  Camera,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
@@ -390,6 +392,17 @@ export default function DashboardOverviewPage() {
                     {activeSession.parkingLotId?.address}, {activeSession.parkingLotId?.city}
                   </span>
                 </p>
+
+                {/* Saved Landmark Visual Cue */}
+                {(activeSession.landmarkNote || activeSession.landmarkPhotoUrl) && (
+                  <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#FAF3E8] border border-[#D4AF37]/50 text-xs text-[#916E28]">
+                    <Camera className="w-3.5 h-3.5 text-[#176B5B]" />
+                    <span className="font-bold">Landmark Cue:</span>
+                    <span className="truncate max-w-xs font-medium text-[#1C1815]">
+                      {activeSession.landmarkNote ? `"${activeSession.landmarkNote}"` : "Photo saved"}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs pt-1">
@@ -428,15 +441,15 @@ export default function DashboardOverviewPage() {
 
             <div className="md:col-span-4 flex flex-col sm:flex-row md:flex-col gap-2.5 justify-center">
               <Link href="/dashboard/my-parking" className="w-full">
-                <Button size="md" className="w-full">
-                  <span>View Ticket &amp; Directions</span>
-                  <ArrowRight className="w-4 h-4 ml-1.5" />
+                <Button size="md" className="w-full bg-[#176B5B] hover:bg-[#125448] flex items-center justify-center gap-1.5">
+                  <Compass className="w-4 h-4 text-[#D4AF37]" />
+                  <span>Take Me to My Bike</span>
+                  <ArrowRight className="w-4 h-4 ml-0.5" />
                 </Button>
               </Link>
-              <Link href="/dashboard/incidents" className="w-full">
+              <Link href="/dashboard/my-parking" className="w-full">
                 <Button variant="secondary" size="md" className="w-full text-xs">
-                  <AlertTriangle className="w-3.5 h-3.5 mr-1.5 text-amber-600" />
-                  <span>Report Incident for Slot</span>
+                  <span>View Ticket &amp; QR Pass</span>
                 </Button>
               </Link>
             </div>

@@ -19,9 +19,14 @@ import {
   Play,
   Square,
   VolumeX,
+  Camera,
+  Image as ImageIcon,
+  Maximize2,
+  Upload,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
+import LandmarkPhotoModal from "@/components/parking/LandmarkPhotoModal";
 
 const ParkingMap = dynamic(() => import("@/components/parking/ParkingMap"), {
   ssr: false,
@@ -101,6 +106,8 @@ function playKeyFobChirp() {
 }
 
 export default function ReturnCompassHUD({
+  session = {},
+  onSessionUpdated,
   lot = {},
   slot = {},
   vehicle = {},
@@ -113,6 +120,9 @@ export default function ReturnCompassHUD({
   const [internalViewMode, setInternalViewMode] = useState("radar");
   const viewMode = controlledViewMode !== undefined ? controlledViewMode : internalViewMode;
   const setViewMode = onToggleView || setInternalViewMode;
+
+  const [isLandmarkModalOpen, setIsLandmarkModalOpen] = useState(false);
+  const [isEnlargedPhotoOpen, setIsEnlargedPhotoOpen] = useState(false);
 
   const lotsList = useMemo(() => (lot?._id ? [lot] : []), [lot?._id, lot?.name]);
 
@@ -540,6 +550,133 @@ export default function ReturnCompassHUD({
           3. TURN-BY-TURN STEP GUIDANCE & TELEMETRY
       ═════════════════════════════════════════════════════════ */}
       <div className="p-5 sm:p-6 bg-white space-y-4">
+        
+        {/* Proximity / Landmark Match Banner when within 15 meters */}
+        {distanceMeters <= 15 && (session?.landmarkPhotoUrl || session?.landmarkNote) && (
+          <div className="p-3.5 bg-[#FAF3E8] border-2 border-[#D4AF37] rounded-xl flex items-center justify-between gap-3 shadow-xs animate-in fade-in">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#D4AF37] text-[#12382F] flex items-center justify-center shrink-0 font-bold">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-[10px] font-mono uppercase text-[#916E28] font-black block">
+                  PROXIMITY ALERT &bull; WITHIN {distanceMeters}M
+                </span>
+                <span className="text-xs font-bold text-[#1C1815]">
+                  Look for your saved landmark: &ldquo;{session.landmarkNote || "Saved visual landmark"}&rdquo;
+                </span>
+              </div>
+            </div>
+            {session.landmarkPhotoUrl && (
+              <button
+                type="button"
+                onClick={() => setIsEnlargedPhotoOpen(true)}
+                className="px-2.5 py-1 bg-white hover:bg-[#FAF7F2] text-[#176B5B] border border-[#D4AF37] text-[11px] font-bold rounded-lg shadow-xs flex items-center gap-1 cursor-pointer shrink-0"
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>View Photo</span>
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* 📸 Visual Landmark & Note Anchor Card */}
+        <div className="p-4 bg-[#FAF7F2] rounded-xl border border-[#E2D9CC] space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Camera className="w-4 h-4 text-[#176B5B]" />
+              <span className="text-xs font-black text-[#1C1815] tracking-tight">
+                Parking Landmark &amp; Visual Anchor
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsLandmarkModalOpen(true)}
+              className="text-[11px] font-bold text-[#176B5B] hover:text-[#125448] flex items-center gap-1 cursor-pointer"
+            >
+              <span>{session?.landmarkPhotoUrl || session?.landmarkNote ? "Edit Landmark" : "+ Add Photo / Note"}</span>
+            </button>
+          </div>
+
+          {session?.landmarkPhotoUrl || session?.landmarkNote ? (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-white p-3 rounded-lg border border-[#EBE3D7]">
+              {session.landmarkPhotoUrl && (
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setIsEnlargedPhotoOpen(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setIsEnlargedPhotoOpen(true);
+                    }
+                  }}
+                  className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden shrink-0 border border-[#E2D9CC] cursor-pointer group shadow-xs"
+                  title="Click to view full photo"
+                >
+                  <img
+                    src={session.landmarkPhotoUrl}
+                    alt="Parked vehicle landmark"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  />
+                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                    <Maximize2 className="w-4 h-4" />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex-1 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono tracking-wider uppercase text-[#176B5B] bg-[#EAF5F2] px-2 py-0.5 rounded font-bold">
+                    SAVED LANDMARK CUE
+                  </span>
+                  {session.landmarkPhotoUrl && (
+                    <span className="text-[10px] font-mono text-[#7A6C5F]">
+                      &bull; Cloudinary Stored
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs font-bold text-[#1C1815] leading-relaxed">
+                  {session.landmarkNote ? `"${session.landmarkNote}"` : "Visual landmark photo attached."}
+                </p>
+                <p className="text-[11px] text-[#7A6C5F]">
+                  Use this visual reference to identify your two-wheeler amongst other vehicles.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => setIsLandmarkModalOpen(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setIsLandmarkModalOpen(true);
+                }
+              }}
+              className="p-3 bg-white rounded-lg border border-dashed border-[#D4AF37]/70 hover:border-[#176B5B] transition-colors cursor-pointer flex items-center justify-between gap-3 text-left group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#FAF6EE] border border-[#DFD1BD] flex items-center justify-center text-[#176B5B] group-hover:scale-105 transition-transform shrink-0">
+                  <Camera className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-[#1C1815] block group-hover:text-[#176B5B] transition-colors">
+                    Add a quick landmark note or photo
+                  </span>
+                  <span className="text-[11px] text-[#7A6C5F] block">
+                    e.g. &ldquo;Pillar 4 ke paas, tree ke neeche&rdquo; to easily spot your bike.
+                  </span>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-[#176B5B] shrink-0 bg-[#EAF5F2] px-2.5 py-1 rounded-lg border border-[#176B5B]/20">
+                + Add
+              </span>
+            </div>
+          )}
+        </div>
+
         {/* Step-by-Step Walking Guidance Card */}
         <div className="p-3.5 bg-[#FAF7F2] rounded-xl border border-[#E2D9CC] space-y-2">
           <div className="flex items-center justify-between">
@@ -551,13 +688,13 @@ export default function ReturnCompassHUD({
               Step 1 of 3
             </span>
           </div>
-          <div className="space-y-1 text-xs">
+          <div className="space-y-1.5 text-xs">
             <div className="flex items-start gap-2">
               <span className="w-4 h-4 rounded-full bg-[#176B5B] text-white text-[9px] font-black flex items-center justify-center shrink-0 mt-0.5">
                 1
               </span>
               <span className="font-semibold text-[#1C1815]">
-                Walk towards <strong>Academic Zone Radial Gate 4</strong>
+                Walk towards <strong>Academic Zone Radial Gate 4</strong> ({lot.name || "Campus Facility"})
               </span>
             </div>
             <div className="flex items-start gap-2">
@@ -565,7 +702,7 @@ export default function ReturnCompassHUD({
                 2
               </span>
               <span className="font-medium text-[#706254]">
-                Enter Zone {slot.zone || "A"} at <strong>Pillar P-04</strong>
+                Enter Zone {slot.zone || "A"}&mdash;reference anchor: <strong>{session?.landmarkNote ? `"${session.landmarkNote}"` : "Pillar P-04"}</strong>
               </span>
             </div>
             <div className="flex items-start gap-2">
@@ -573,7 +710,7 @@ export default function ReturnCompassHUD({
                 3
               </span>
               <span className="font-medium text-[#706254]">
-                Vehicle {vehicle.registrationNumber || "PB08AB1234"} is at <strong>Bay {slot.slotNumber || "A-01"}</strong>
+                Vehicle {vehicle.registrationNumber || "PB08AB1234"} is parked at <strong>Bay {slot.slotNumber || "A-01"}</strong>
               </span>
             </div>
           </div>
@@ -660,6 +797,59 @@ export default function ReturnCompassHUD({
           </a>
         </div>
       </div>
+
+      {/* Modal: Landmark Photo & Note Editor */}
+      <LandmarkPhotoModal
+        isOpen={isLandmarkModalOpen}
+        onClose={() => setIsLandmarkModalOpen(false)}
+        session={session}
+        onUpdated={(updatedSession) => {
+          if (onSessionUpdated) onSessionUpdated(updatedSession);
+        }}
+      />
+
+      {/* Lightbox: Full Resolution Landmark Photo Preview */}
+      {isEnlargedPhotoOpen && session?.landmarkPhotoUrl && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm"
+          onClick={() => setIsEnlargedPhotoOpen(false)}
+        >
+          <div
+            className="relative max-w-2xl w-full bg-[#121212] rounded-2xl overflow-hidden border border-white/20 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-3.5 bg-black/50 text-white border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Camera className="w-4 h-4 text-[#D4AF37]" />
+                <span className="text-xs font-bold">
+                  {session.landmarkNote ? `Landmark: ${session.landmarkNote}` : "Parked Vehicle Photo"}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEnlargedPhotoOpen(false)}
+                className="px-2.5 py-1 text-xs text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg cursor-pointer"
+              >
+                Close (ESC)
+              </button>
+            </div>
+            <div className="p-2 flex items-center justify-center bg-black">
+              <img
+                src={session.landmarkPhotoUrl}
+                alt="Enlarged landmark photo"
+                className="max-h-[75vh] w-auto object-contain rounded-lg"
+              />
+            </div>
+            {session.landmarkNote && (
+              <div className="p-3 bg-black/70 text-white text-xs border-t border-white/10 text-center font-medium">
+                &ldquo;{session.landmarkNote}&rdquo;
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

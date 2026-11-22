@@ -55,7 +55,7 @@ export async function GET() {
             userId: session.userId,
             status: "active",
           })
-            .populate("parkingLotId", "name address city hourlyRate")
+            .populate("parkingLotId", "name address city hourlyRate coordinates")
             .populate("parkingSlotId", "zone slotNumber")
             .populate("vehicleId", "registrationNumber make model")
             .lean()

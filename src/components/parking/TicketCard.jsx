@@ -15,6 +15,7 @@ import {
   ArrowRight,
   ExternalLink,
   Navigation,
+  Camera,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -278,6 +279,32 @@ export default function TicketCard({ session, onOpenMap }) {
               </span>
             </div>
           </div>
+
+          {/* Saved Landmark Visual Cue */}
+          {(session.landmarkNote || session.landmarkPhotoUrl) && (
+            <div className="p-3 bg-[#FAF3E8] border border-[#D4AF37]/50 rounded-xl flex items-center justify-between gap-3 text-xs shadow-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-white border border-[#DFD1BD] flex items-center justify-center text-[#176B5B] shrink-0">
+                  <Camera className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono uppercase text-[#916E28] font-bold block">
+                    LANDMARK CUE
+                  </span>
+                  <span className="font-bold text-[#1C1815]">
+                    {session.landmarkNote ? `"${session.landmarkNote}"` : "Photo attached"}
+                  </span>
+                </div>
+              </div>
+              {session.landmarkPhotoUrl && (
+                <img
+                  src={session.landmarkPhotoUrl}
+                  alt="Landmark thumbnail"
+                  className="w-10 h-10 rounded-lg object-cover border border-[#DFD1BD] shrink-0 shadow-xs"
+                />
+              )}
+            </div>
+          )}
 
           {/* Soft Sage & Gold Live Duration & Accrued Tariff Card */}
           <div className="p-4 rounded-xl bg-[#F0F7F4] border-2 border-[#A7D7C7] text-[#1C1815] flex items-center justify-between shadow-xs">

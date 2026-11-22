@@ -55,6 +55,21 @@ const ParkingSessionSchema = new mongoose.Schema(
       enum: ["pending", "paid", "waived", "free"],
       default: "free",
     },
+    landmarkNote: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    landmarkPhotoUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    landmarkPhotoPublicId: {
+      type: String,
+      trim: true,
+      default: "",
+    },
   },
   {
     timestamps: true,

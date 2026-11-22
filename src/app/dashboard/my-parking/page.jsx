@@ -320,6 +320,8 @@ export default function MyParkingPage() {
         {/* Left Column (7 Cols): The "Return to My Bike" Soft Orientation & Map */}
         <div id="vehicle-hud-container" className="lg:col-span-7 space-y-4">
           <ReturnCompassHUD
+            session={activeSession}
+            onSessionUpdated={setActiveSession}
             lot={lot}
             slot={slot}
             vehicle={vehicle}
