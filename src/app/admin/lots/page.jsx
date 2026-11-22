@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Layers, Plus, MapPin, Edit, ToggleLeft, ToggleRight } from "lucide-react";
+import { Layers, Plus, MapPin, Edit, ToggleLeft, ToggleRight, Users, ChevronRight } from "lucide-react";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 
@@ -138,12 +138,14 @@ export default function AdminLotsPage() {
                         {lot.active ? "Active" : "Inactive"}
                       </button>
                     </td>
-                    <td className="p-3.5 text-right space-x-2">
+                    <td className="p-3.5 text-right">
                       <Link
                         href={`/admin/lots/${lot.id || lot._id}`}
-                        className="text-[#176B5B] hover:text-[#125448] font-bold"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF7F2] hover:bg-[#176B5B] text-[#1C1815] hover:text-white border border-[#DFD1BD] rounded-xl text-xs font-bold transition-all shadow-xs group"
                       >
-                        Edit
+                        <Users className="w-3.5 h-3.5 text-[#176B5B] group-hover:text-white" />
+                        <span>Users &amp; Details</span>
+                        <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                     </td>
                   </tr>

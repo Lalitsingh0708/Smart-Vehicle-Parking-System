@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
-import { AlertTriangle, CheckCircle, Clock, ShieldCheck, ExternalLink } from "lucide-react";
+import { AlertTriangle, CheckCircle, Clock, ShieldCheck, ExternalLink, User, MapPin, ChevronRight, Camera } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function AdminIncidentsPage() {
@@ -81,10 +82,10 @@ export default function AdminIncidentsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-[#1C1815] tracking-tight">
-            Security &amp; Parking Violations Queue
+            Review Complaints &amp; Inquiries
           </h1>
           <p className="text-xs text-[#706254] mt-0.5">
-            Review reported rider incidents, inspect evidence, and record resolution notes.
+            Review rider complaints, inspect user parking records &amp; uploaded landmark photos, and record resolution notes.
           </p>
         </div>
       </div>
@@ -96,7 +97,7 @@ export default function AdminIncidentsPage() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="px-3 py-2 text-xs border border-[#DFD1BD] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#176B5B] text-[#1C1815] bg-[#FAF7F2]"
         >
-          <option value="">All Incident Statuses</option>
+          <option value="">All Complaint Statuses</option>
           <option value="open">Open (Awaiting Review)</option>
           <option value="under_review">Under Review</option>
           <option value="resolved">Resolved</option>
@@ -106,46 +107,86 @@ export default function AdminIncidentsPage() {
 
       {loading ? (
         <div className="p-12 text-center text-xs text-[#706254]">
-          Loading incident reports...
+          Loading complaint reports...
         </div>
       ) : incidents.length === 0 ? (
         <div className="bg-white p-8 rounded-2xl border border-[#E2D9CC] text-center text-xs text-[#706254]">
-          No security incidents recorded.
+          No complaints or security incidents recorded.
         </div>
       ) : (
         <div className="space-y-4">
-          {incidents.map((inc) => (
-            <div
-              key={inc._id}
-              className="bg-white p-5 rounded-2xl border border-[#E2D9CC] shadow-xs space-y-3"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EFE9DF] pb-3">
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-black text-[#1C1815] text-sm">
-                      {categoryNames[inc.category] || inc.category}
-                    </span>
-                    <Badge status={inc.status} />
-                  </div>
-                  <span className="text-xs text-[#706254]">
-                    Reported by {inc.reportedBy?.name || "Rider"} ({inc.reportedBy?.email})
-                    {inc.reportedBy?.phoneNumber ? ` • Ph: ${inc.reportedBy.phoneNumber}` : ""}
-                  </span>
-                </div>
+          {incidents.map((inc) => {
+            const hasLotAndUser = Boolean(inc.parkingLotId?._id && inc.reportedBy?._id);
+            const userInLotUrl = hasLotAndUser
+              ? `/admin/lots/${inc.parkingLotId._id}/users/${inc.reportedBy._id}`
+              : `/admin/users`;
 
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-[#706254]">
-                    {new Date(inc.createdAt).toLocaleString("en-IN")}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleOpenReview(inc)}
-                    className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-[#176B5B] hover:text-white bg-[#EAF3EE] hover:bg-[#176B5B] border border-[#B08528] rounded-xl transition-all shadow-xs cursor-pointer"
-                  >
-                    Review / Resolve
-                  </button>
+            return (
+              <div
+                key={inc._id}
+                className="bg-white p-5 rounded-2xl border border-[#E2D9CC] shadow-xs space-y-3"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EFE9DF] pb-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-black text-[#1C1815] text-sm">
+                        {categoryNames[inc.category] || inc.category}
+                      </span>
+                      <Badge status={inc.status} />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-[#706254]">
+                      <span className="font-semibold text-[#1C1815]">Reported by:</span>
+                      <Link
+                        href={userInLotUrl}
+                        className="font-black text-[#176B5B] hover:underline inline-flex items-center gap-1"
+                        title="Click to view user profile, parking session, and landmark photos"
+                      >
+                        <User className="w-3.5 h-3.5" />
+                        <span>{inc.reportedBy?.name || "Rider"}</span>
+                      </Link>
+                      <span>({inc.reportedBy?.email})</span>
+                      {inc.parkingLotId?.name && (
+                        <span className="inline-flex items-center gap-1 text-[11px] bg-[#FAF7F2] px-2 py-0.5 rounded border border-[#DFD1BD] font-bold text-[#1C1815]">
+                          <MapPin className="w-3 h-3 text-[#176B5B]" />
+                          <span>{inc.parkingLotId.name}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                    <span className="text-[11px] font-mono text-[#706254]">
+                      {new Date(inc.createdAt).toLocaleString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                    
+                    {hasLotAndUser && (
+                      <Link href={userInLotUrl}>
+                        <button
+                          type="button"
+                          className="px-3 py-1.5 text-xs font-bold text-[#176B5B] hover:text-white bg-[#EAF5F2] hover:bg-[#176B5B] border border-[#176B5B]/30 rounded-xl transition-all shadow-xs inline-flex items-center gap-1 cursor-pointer"
+                        >
+                          <Camera className="w-3.5 h-3.5" />
+                          <span>Inspect User &amp; Photos</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </Link>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => handleOpenReview(inc)}
+                      className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-[#1C1815] hover:text-[#176B5B] bg-[#FAF7F2] hover:bg-[#EFE7D8] border border-[#DFD1BD] rounded-xl transition-all shadow-xs cursor-pointer"
+                    >
+                      Resolve Status
+                    </button>
+                  </div>
                 </div>
-              </div>
 
               <div className="text-xs text-[#1C1815] whitespace-pre-wrap leading-relaxed">
                 {inc.description}
@@ -175,8 +216,9 @@ export default function AdminIncidentsPage() {
                 </div>
               )}
             </div>
-          ))}
-        </div>
+          );
+        })}
+      </div>
       )}
 
       {/* Review Dialog */}

@@ -42,7 +42,7 @@ export default function DashboardSidebar({ isAdmin = false, user }) {
     { name: "Parking Slots", href: "/admin/slots", icon: Grid },
     { name: "Parking Sessions", href: "/admin/sessions", icon: Clock },
     { name: "Registered Users", href: "/admin/users", icon: Users },
-    { name: "Security Incidents", href: "/admin/incidents", icon: AlertTriangle },
+    { name: "Review Complaints", href: "/admin/incidents", icon: AlertTriangle },
     { name: "Reports & Export", href: "/admin/reports", icon: FileText },
   ];
 
