@@ -5,13 +5,17 @@ import { setSessionCookie, hashPassword, createSessionToken } from "@/lib/auth";
 import { PLATFORM_ADMIN_EMAIL } from "@/lib/email";
 import crypto from "crypto";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
   const state = searchParams.get("state");
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const origin = new URL(request.url).origin;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
 
   if (error || !code) {
     console.error("Google OAuth error or code missing:", error);
@@ -21,7 +25,7 @@ export async function GET(request) {
   try {
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${appUrl}/api/auth/callback/google`;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${origin}/api/auth/callback/google`;
 
     // 1. Exchange authorization code for access token
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
